@@ -27,11 +27,11 @@ export default function GeoGateBanner({
       <button
         type="button"
         onClick={onNotify}
-        className="mt-3 flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium"
-        style={{ background: "var(--accent)", color: "#141210" }}
+        className="mt-3 flex items-center gap-1.5 rounded-full border-2 border-black px-3 py-1.5 text-xs font-medium text-white"
+        style={{ background: "var(--pantone-orange)" }}
       >
         <IconBell size={14} />
-        Notify me when it's live
+        Notify me when it&apos;s live
       </button>
     </div>
   );

@@ -4,14 +4,43 @@
     "category": "trek",
     "lat": 19.6169,
     "lng": 73.7135,
+    "region": "Bari village, Bhandardara",
     "description": "Maharashtra's highest peak at 1,646m, near Bhandardara. A steady climb through five iron ladders with sweeping Sahyadri views from the summit temple.",
     "difficulty": "moderate",
+    "altitude_m": 1646,
+    "duration_label": "4-5 hr one way",
     "best_season": "Oct-Feb",
+    "highlights": [
+      "Five iron-ladder sections leading up to the summit",
+      "360° Sahyadri views from Maharashtra's highest point",
+      "Sunrise treks are popular — starts pre-dawn from Bari"
+    ],
     "distance_from_mumbai_km": 172,
     "distance_from_pune_km": 166,
     "time_by_car_minutes": 230,
     "time_by_bike_minutes": 270,
     "how_to_reach": "Drive to Bari village via Igatpuri or Bhandardara road; trailhead starts from Bari.",
+    "nearest_station": "Kasara Railway Station — 40 km; taxis run on to Bari village.",
+    "things_to_carry": ["Trekking shoes", "Headlamp", "2L water", "Light snacks"],
+    "safety_note": "The iron ladders near the top get crowded and slippery in monsoon — climb one at a time and hold the rails.",
+    "faqs": [
+      {
+        "question": "Is Kalsubai suitable for beginners?",
+        "answer": "Yes, with a fitness base — it's rated moderate and the ladders are the only technical part."
+      },
+      {
+        "question": "How long does the climb take?",
+        "answer": "4-5 hours up from Bari village, and roughly the same coming down."
+      },
+      {
+        "question": "Is it crowded?",
+        "answer": "Very, especially on weekends and around sunrise — it's Maharashtra's most-climbed peak."
+      },
+      {
+        "question": "Best time to go?",
+        "answer": "October to February for clear skies; monsoon adds risk on the ladder sections."
+      }
+    ],
     "photos": []
   },
   {
@@ -34,14 +63,47 @@
     "category": "trek",
     "lat": 19.3833,
     "lng": 73.7667,
+    "region": "Base village Khireshwar, Ahmednagar",
     "description": "A demanding climb to an ancient hill fort, famous for the Konkan Kada cliff and the Kedareshwar cave temple.",
     "difficulty": "hard",
+    "altitude_m": 1424,
+    "duration_label": "7-8 hr one way",
     "best_season": "Oct-Feb",
+    "highlights": [
+      "Konkan Kada — a massive concave cliff, rare \"sun's halo\" cloud effect at sunrise",
+      "Kedareshwar cave — giant Shivling ringed by knee-deep water",
+      "Popular overnight-camping summit under a wide-open night sky"
+    ],
     "distance_from_mumbai_km": 165,
     "distance_from_pune_km": 145,
     "time_by_car_minutes": 220,
     "time_by_bike_minutes": 260,
     "how_to_reach": "Base villages Khireshwar or Pachnai, reached via Kalyan-Ahmednagar road.",
+    "nearest_station": "Igatpuri Railway Station — 38 km; taxis run on to Khireshwar base village.",
+    "things_to_carry": ["Trekking shoes", "Headlamp", "2L water", "Warm layer"],
+    "safety_note": "Konkan Kada's edge has no railing and gets foggy — stay well back, especially at dawn. The Pachnai route has a risky rock-patch in the rains.",
+    "faqs": [
+      {
+        "question": "Is Harishchandragad safe for beginners?",
+        "answer": "No — it's rated hard. The Konkan Kada cliff and the long approach make it unsuitable for first-time trekkers."
+      },
+      {
+        "question": "How long does the trek take?",
+        "answer": "7-8 hours one way from Khireshwar or Pachnai; most groups make it an overnight trek."
+      },
+      {
+        "question": "Is water available on the trail?",
+        "answer": "Yes, near Kedareshwar cave and at the top — but carry your own for the climb up."
+      },
+      {
+        "question": "Can I drive close to the base?",
+        "answer": "Yes — both Khireshwar and Pachnai villages are motorable; the trek starts from there."
+      },
+      {
+        "question": "Best time to visit?",
+        "answer": "October to February for clear views. Avoid monsoon — the rock sections get slippery."
+      }
+    ],
     "photos": []
   },
   {

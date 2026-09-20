@@ -83,8 +83,7 @@ export default async function SpotPage({
   const spot = findSpotBySlug(spots, slug);
   if (!spot || spot.category !== category) notFound();
 
-  const meta = categoryMeta(spot.category);
-  const Icon = meta.icon;
+  const Icon = categoryMeta(spot.category).icon;
   const canonicalUrl = `${SITE_URL}/${spot.category}/${slug}`;
 
   const placeJsonLd = {
@@ -115,7 +114,7 @@ export default async function SpotPage({
   };
 
   return (
-    <div className="min-h-full px-5 pb-16 pt-[calc(env(safe-area-inset-top)+16px)]" style={{ background: "rgb(28 26 23)", color: "var(--ink)" }}>
+    <div className="min-h-full bg-white px-5 pb-16 pt-[calc(env(safe-area-inset-top)+16px)] text-[var(--ink)]">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(placeJsonLd) }}
@@ -127,24 +126,18 @@ export default async function SpotPage({
 
       <Link
         href="/"
-        className="font-headline mb-6 inline-flex items-center gap-1.5 text-[13px] uppercase"
-        style={{ color: "var(--ink-muted)" }}
+        className="font-headline mb-6 inline-flex items-center gap-1.5 text-[13px] uppercase text-[var(--ink-muted)]"
       >
         <IconArrowLeft size={15} stroke={2} />
-        antimondayclub
+        Anti Monday Club
       </Link>
 
       <div className="mx-auto max-w-xl">
         <div className="flex items-center gap-2.5">
-          <span
-            className="flex h-10 w-10 items-center justify-center rounded-full"
-            style={{ background: meta.color }}
-          >
-            <Icon size={20} stroke={2} color="#141210" />
+          <span className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-black bg-white">
+            <Icon size={20} stroke={2} color="#000000" />
           </span>
-          <p className="text-xs capitalize" style={{ color: "var(--ink-muted)" }}>
-            {spot.category}
-          </p>
+          <p className="text-xs capitalize text-[var(--ink-muted)]">{spot.category}</p>
         </div>
 
         <h1 className="font-headline mt-3 text-[28px] leading-tight">{spot.name}</h1>
@@ -153,7 +146,7 @@ export default async function SpotPage({
           <p className="mt-4 text-[15px] leading-relaxed">{spot.description}</p>
         )}
 
-        <div className="mt-5 grid grid-cols-2 gap-2.5 text-sm" style={{ color: "var(--ink-muted)" }}>
+        <div className="mt-5 grid grid-cols-2 gap-2.5 text-sm text-[var(--ink-muted)]">
           {spot.difficulty && (
             <div className="flex items-center gap-1.5">
               <IconRoute size={16} />
@@ -201,11 +194,8 @@ export default async function SpotPage({
         )}
 
         {spot.how_to_reach && (
-          <div className="mt-6 border-t pt-4" style={{ borderColor: "rgba(245,240,230,0.12)" }}>
-            <p
-              className="font-headline text-[11px] uppercase tracking-wide"
-              style={{ color: "var(--ink-muted)" }}
-            >
+          <div className="mt-6 border-t-2 border-black pt-4">
+            <p className="font-headline text-[11px] uppercase tracking-wide text-[var(--ink-muted)]">
               How to reach
             </p>
             <p className="mt-1 text-[14px] leading-relaxed">{spot.how_to_reach}</p>
@@ -214,8 +204,8 @@ export default async function SpotPage({
 
         <Link
           href={`/?spot=${slug}`}
-          className="font-headline mt-8 inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-[13px]"
-          style={{ background: "var(--accent)", color: "#141210" }}
+          className="font-headline mt-8 inline-flex items-center gap-2 rounded-full border-2 border-black px-4 py-2.5 text-[13px] text-white"
+          style={{ background: "var(--pantone-orange)" }}
         >
           <IconMap2 size={16} stroke={2} />
           Open in interactive map

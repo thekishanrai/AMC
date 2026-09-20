@@ -4,13 +4,12 @@ import type { Category } from "@/types";
 export const CATEGORIES: {
   key: Category | "all";
   label: string;
-  color: string;
   icon: typeof IconMountain;
 }[] = [
-  { key: "all", label: "All", color: "var(--accent)", icon: IconMap2 },
-  { key: "trek", label: "Treks", color: "var(--trek)", icon: IconMountain },
-  { key: "waterfall", label: "Waterfalls", color: "var(--waterfall)", icon: IconDroplet },
-  { key: "camping", label: "Camping", color: "var(--camping)", icon: IconTent },
+  { key: "all", label: "All", icon: IconMap2 },
+  { key: "trek", label: "Treks", icon: IconMountain },
+  { key: "waterfall", label: "Waterfalls", icon: IconDroplet },
+  { key: "camping", label: "Camping", icon: IconTent },
 ];
 
 export function categoryMeta(category: Category) {

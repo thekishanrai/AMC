@@ -6,9 +6,9 @@ const PATHS: Record<Category, string> = {
   camping: "M12 4 3 19h18L12 4Z M12 4 6 19 M12 4l6 15",
 };
 
-export function markerSvg(category: Category, color: string) {
+export function markerSvg(category: Category) {
   return `
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#141210" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <path d="${PATHS[category]}" />
     </svg>
   `;
