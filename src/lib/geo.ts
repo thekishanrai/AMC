@@ -53,15 +53,15 @@ export function getGpsLocation(): Promise<LocationResult | null> {
 
 export async function getIpLocation(): Promise<LocationResult | null> {
   try {
-    const res = await fetch("https://ipapi.co/json/", { cache: "no-store" });
+    const res = await fetch("/api/geo", { cache: "no-store" });
     if (!res.ok) return null;
     const data = await res.json();
-    if (typeof data.latitude !== "number" || typeof data.longitude !== "number") {
+    if (typeof data.lat !== "number" || typeof data.lng !== "number") {
       return null;
     }
     return {
-      lat: data.latitude,
-      lng: data.longitude,
+      lat: data.lat,
+      lng: data.lng,
       city: data.city ?? null,
       source: "ip",
     };
