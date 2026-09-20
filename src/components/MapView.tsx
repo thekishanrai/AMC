@@ -151,13 +151,20 @@ export default function MapView() {
     map.flyTo({ center: [loc.lng, loc.lat], zoom: 11 });
 
     if (userMarkerRef.current) userMarkerRef.current.remove();
-    const dot = document.createElement("div");
-    dot.style.cssText = `
-      width: 16px; height: 16px; border-radius: 999px;
-      background: #3d7ab5; border: 3px solid white;
-      box-shadow: 0 0 0 4px rgba(61,122,181,0.25);
+    const pin = document.createElement("div");
+    pin.style.cssText = `display: flex; flex-direction: column; align-items: center;`;
+    pin.innerHTML = `
+      <div class="glass-solid" style="position:relative;border-radius:14px;padding:6px 10px;margin-bottom:7px;box-shadow:0 6px 16px rgba(0,0,0,0.3);">
+        <span style="font-family:var(--font-pixel),monospace;font-size:9px;line-height:1.4;color:#f5f1ea;white-space:nowrap;letter-spacing:0.02em;">I NEED WEEKEND</span>
+        <div style="position:absolute;left:50%;bottom:-6px;transform:translateX(-50%);width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-top:6px solid rgba(28,26,23,0.92);"></div>
+      </div>
+      <svg width="52" height="64" viewBox="0 0 52 64">
+        <defs><clipPath id="userPinPhoto"><circle cx="26" cy="24" r="17"/></clipPath></defs>
+        <path d="M26 2C13.8 2 4 11.8 4 24c0 17 22 38 22 38s22-21 22-38C48 11.8 38.2 2 26 2Z" fill="#ff5722" stroke="#fff" stroke-width="2.5"/>
+        <image href="/user-location.jpg" x="9" y="7" width="34" height="34" clip-path="url(#userPinPhoto)" preserveAspectRatio="xMidYMid slice"/>
+      </svg>
     `;
-    userMarkerRef.current = new mapboxgl.Marker({ element: dot })
+    userMarkerRef.current = new mapboxgl.Marker({ element: pin, anchor: "bottom" })
       .setLngLat([loc.lng, loc.lat])
       .addTo(map);
 
