@@ -9,6 +9,8 @@
     "best_season": "Oct-Feb",
     "distance_from_mumbai_km": 172,
     "distance_from_pune_km": 166,
+    "time_by_car_minutes": 230,
+    "time_by_bike_minutes": 270,
     "how_to_reach": "Drive to Bari village via Igatpuri or Bhandardara road; trailhead starts from Bari.",
     "photos": []
   },
@@ -22,6 +24,8 @@
     "best_season": "Jun-Feb",
     "distance_from_mumbai_km": 90,
     "distance_from_pune_km": 60,
+    "time_by_car_minutes": 120,
+    "time_by_bike_minutes": 140,
     "how_to_reach": "From Lonavala, drive/hike to Udhewadi base village via Tungarli or Kondhane route.",
     "photos": []
   },
@@ -35,6 +39,8 @@
     "best_season": "Oct-Feb",
     "distance_from_mumbai_km": 165,
     "distance_from_pune_km": 145,
+    "time_by_car_minutes": 220,
+    "time_by_bike_minutes": 260,
     "how_to_reach": "Base villages Khireshwar or Pachnai, reached via Kalyan-Ahmednagar road.",
     "photos": []
   },
@@ -48,6 +54,8 @@
     "best_season": "Year-round",
     "distance_from_mumbai_km": 180,
     "distance_from_pune_km": 30,
+    "time_by_car_minutes": 240,
+    "time_by_bike_minutes": 285,
     "how_to_reach": "Drive from Pune via Khadakwasla to the base, then a short climb or road to the top.",
     "photos": []
   },
@@ -61,6 +69,8 @@
     "best_season": "Jun-Feb",
     "distance_from_mumbai_km": 95,
     "distance_from_pune_km": 65,
+    "time_by_car_minutes": 125,
+    "time_by_bike_minutes": 150,
     "how_to_reach": "From Malavli station or Lonavala, drive to Lohagadwadi base village.",
     "photos": []
   },
@@ -74,6 +84,8 @@
     "best_season": "Jul-Sep",
     "distance_from_mumbai_km": 170,
     "distance_from_pune_km": 55,
+    "time_by_car_minutes": 225,
+    "time_by_bike_minutes": 270,
     "how_to_reach": "Drive to Bhor via NH4, then follow local roads toward the falls.",
     "photos": []
   },
@@ -87,6 +99,8 @@
     "best_season": "Jul-Sep",
     "distance_from_mumbai_km": 140,
     "distance_from_pune_km": 55,
+    "time_by_car_minutes": 185,
+    "time_by_bike_minutes": 220,
     "how_to_reach": "Drive from Pune via Mulshi towards Tamhini Ghat road.",
     "photos": []
   },
@@ -100,6 +114,8 @@
     "best_season": "Jul-Sep",
     "distance_from_mumbai_km": 120,
     "distance_from_pune_km": 90,
+    "time_by_car_minutes": 160,
+    "time_by_bike_minutes": 190,
     "how_to_reach": "Drive to Bhira village, then trek roughly 5km along the stream to the falls.",
     "photos": []
   },
@@ -113,6 +129,8 @@
     "best_season": "Jul-Sep",
     "distance_from_mumbai_km": 180,
     "distance_from_pune_km": 170,
+    "time_by_car_minutes": 240,
+    "time_by_bike_minutes": 285,
     "how_to_reach": "On the main Bhandardara road, a short walk from the parking area.",
     "photos": []
   },
@@ -126,6 +144,8 @@
     "best_season": "Oct-Feb",
     "distance_from_mumbai_km": 100,
     "distance_from_pune_km": 40,
+    "time_by_car_minutes": 135,
+    "time_by_bike_minutes": 160,
     "how_to_reach": "Drive via Lonavala or Kamshet to the Pawna Dam backwater campsites.",
     "photos": []
   },
@@ -139,6 +159,8 @@
     "best_season": "Oct-Feb",
     "distance_from_mumbai_km": 165,
     "distance_from_pune_km": 160,
+    "time_by_car_minutes": 220,
+    "time_by_bike_minutes": 260,
     "how_to_reach": "Drive via Igatpuri or Sangamner to Bhandardara village and the lakeside camps.",
     "photos": []
   },
@@ -152,6 +174,8 @@
     "best_season": "Oct-Feb",
     "distance_from_mumbai_km": 100,
     "distance_from_pune_km": 45,
+    "time_by_car_minutes": 135,
+    "time_by_bike_minutes": 160,
     "how_to_reach": "Drive to Kamshet on the old Mumbai-Pune highway, campsites are a short climb off the road.",
     "photos": []
   },
@@ -165,6 +189,8 @@
     "best_season": "Jun-Feb",
     "distance_from_mumbai_km": 90,
     "distance_from_pune_km": 60,
+    "time_by_car_minutes": 120,
+    "time_by_bike_minutes": 140,
     "how_to_reach": "Drive/hike from Lonavala to Udhewadi village, campsites are run by local homestays.",
     "photos": []
   }
