@@ -21,8 +21,14 @@ const pressStart2P = Press_Start_2P({
 });
 
 export const metadata: Metadata = {
-  title: "antimondayclub",
-  description: "Offbeat treks, waterfalls and camping spots around Mumbai and Pune.",
+  title: "Anti Monday Club | Official Enemies of Boring Weekends",
+  description:
+    "We can't cancel Mondays. We can make the weekend before it unforgettable. Discover offbeat places for your next weekend trip.",
+  openGraph: {
+    title: "Anti Monday Club | Official Enemies of Boring Weekends",
+    description:
+      "We can't cancel Mondays. We can make the weekend before it unforgettable. Discover offbeat places for your next weekend trip.",
+  },
 };
 
 export const viewport: Viewport = {
