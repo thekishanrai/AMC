@@ -17,6 +17,9 @@ import GeoGateBanner from "./GeoGateBanner";
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN!;
 
 const CENTER: [number, number] = [73.55, 18.75];
+// Below this zoom, pins collapse to name-only (no stats row) so a full
+// region of spots stays browsable instead of turning into a wall of pills.
+const DETAIL_ZOOM_THRESHOLD = 10.5;
 
 function escapeHtml(value: string) {
   return value
@@ -40,6 +43,18 @@ export default function MapView() {
   const [locating, setLocating] = useState(false);
   const [gate, setGate] = useState<{ city: string | null } | null>(null);
   const [gateDismissed, setGateDismissed] = useState(false);
+
+  function updatePinDetailVisibility() {
+    const map = mapRef.current;
+    if (!map) return;
+    const detailed = map.getZoom() >= DETAIL_ZOOM_THRESHOLD;
+    markersRef.current.forEach((m) => {
+      const el = m.getElement();
+      const detail = el.querySelector<HTMLElement>(".pin-detail");
+      if (detail) detail.style.display = detailed ? "flex" : "none";
+      el.style.padding = detailed ? "5px 12px" : "6px 10px";
+    });
+  }
 
   // silent IP-based lookup on load (no permission prompt): opens the map on
   // the user's approximate city instead of the fixed Mumbai-Pune midpoint,
@@ -75,6 +90,7 @@ export default function MapView() {
       attributionControl: false,
     });
     map.on("load", () => setMapReady(true));
+    map.on("zoom", updatePinDetailVisibility);
     mapRef.current = map;
 
     const resizeObserver = new ResizeObserver(() => map.resize());
@@ -122,12 +138,13 @@ export default function MapView() {
         stats.push(`<span style="display:flex;align-items:center;gap:3px;">${statIconSvg("bike")}${formatDuration(spot.time_by_bike_minutes)}</span>`);
       }
 
+      const detailed = map.getZoom() >= DETAIL_ZOOM_THRESHOLD;
       const el = document.createElement("button");
       el.type = "button";
       el.className = "glass-solid";
       el.style.cssText = `
         display: flex; flex-direction: column;
-        padding: 5px 12px; border-radius: 16px;
+        padding: ${detailed ? "5px 12px" : "6px 10px"}; border-radius: 16px;
         cursor: pointer; text-align: left;
       `;
       el.innerHTML = `
@@ -139,8 +156,10 @@ export default function MapView() {
         </span>
         ${
           stats.length > 0
-            ? `<span style="height:1px;background:rgba(245,240,230,0.16);margin:3px 6px 3px 28px;"></span>
-               <span style="display:flex;align-items:center;gap:9px;font-size:12px;line-height:1;color:var(--ink-muted);padding-left:28px;white-space:nowrap;">${stats.join("")}</span>`
+            ? `<span class="pin-detail" style="display:${detailed ? "flex" : "none"};flex-direction:column;">
+                 <span style="height:1px;background:rgba(245,240,230,0.16);margin:3px 6px 3px 28px;"></span>
+                 <span style="display:flex;align-items:center;gap:9px;font-size:12px;line-height:1;color:var(--ink-muted);padding-left:28px;white-space:nowrap;">${stats.join("")}</span>
+               </span>`
             : ""
         }
       `;
