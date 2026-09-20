@@ -23,7 +23,7 @@ export function statIconSvg(kind: "pin" | "car" | "bike") {
         : '<circle cx="5" cy="17" r="3"/><circle cx="19" cy="17" r="3"/><path d="M5 17h6l3-6h4"/><path d="M11 11h3l2 3"/><path d="M9 17l2-6"/>';
 
   return `
-    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       ${path}
     </svg>
   `;
