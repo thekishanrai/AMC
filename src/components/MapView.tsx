@@ -6,10 +6,10 @@ import { supabase } from "@/lib/supabase";
 import { categoryMeta } from "@/lib/categories";
 import { markerSvg, statIconSvg } from "@/lib/markerIcon";
 import { formatDuration } from "@/lib/format";
-import { getGpsLocation, getIpLocation, isInMaharashtra } from "@/lib/geo";
+import { getGpsLocation, getIpLocation, haversineKm, isInMaharashtra } from "@/lib/geo";
 import type { Category, Spot } from "@/types";
 import TopBar from "./TopBar";
-import CategoryChips, { MAX_DISTANCE_KM } from "./CategoryChips";
+import CategoryChips, { DEFAULT_DISTANCE_KM } from "./CategoryChips";
 import NearMeButton from "./NearMeButton";
 import SpotSheet from "./SpotSheet";
 import GeoGateBanner from "./GeoGateBanner";
@@ -39,7 +39,7 @@ export default function MapView() {
   const [initialView, setInitialView] = useState<{ center: [number, number]; zoom: number } | null>(null);
   const [spots, setSpots] = useState<Spot[]>([]);
   const [activeCategory, setActiveCategory] = useState<Category | "all">("all");
-  const [maxDistanceKm, setMaxDistanceKm] = useState(MAX_DISTANCE_KM);
+  const [maxDistanceKm, setMaxDistanceKm] = useState(DEFAULT_DISTANCE_KM);
   const [selectedSpot, setSelectedSpot] = useState<Spot | null>(null);
   const [locating, setLocating] = useState(false);
   const [gate, setGate] = useState<{ city: string | null } | null>(null);
@@ -118,18 +118,15 @@ export default function MapView() {
   // render markers
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || !mapReady) return;
+    if (!map || !mapReady || !initialView) return;
 
     markersRef.current.forEach((m) => m.remove());
     markersRef.current = [];
 
+    const [userLng, userLat] = initialView.center;
     const filtered = spots.filter((s) => {
       if (activeCategory !== "all" && s.category !== activeCategory) return false;
-      const distanceKm = Math.min(
-        s.distance_from_mumbai_km ?? Infinity,
-        s.distance_from_pune_km ?? Infinity
-      );
-      return distanceKm <= maxDistanceKm;
+      return haversineKm(userLat, userLng, s.lat, s.lng) <= maxDistanceKm;
     });
 
     filtered.forEach((spot) => {
@@ -181,7 +178,7 @@ export default function MapView() {
         .addTo(map);
       markersRef.current.push(marker);
     });
-  }, [spots, activeCategory, maxDistanceKm, mapReady]);
+  }, [spots, activeCategory, maxDistanceKm, mapReady, initialView]);
 
   async function handleNearMe() {
     setLocating(true);

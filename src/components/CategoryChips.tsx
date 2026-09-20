@@ -4,7 +4,8 @@ import { CATEGORIES } from "@/lib/categories";
 import type { Category } from "@/types";
 
 export const MIN_DISTANCE_KM = 20;
-export const MAX_DISTANCE_KM = 350;
+export const MAX_DISTANCE_KM = 500;
+export const DEFAULT_DISTANCE_KM = 250;
 const DISTANCE_STEP_KM = 10;
 
 export default function CategoryChips({
