@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import mapboxgl from "mapbox-gl";
 import { supabase } from "@/lib/supabase";
 import { categoryMeta } from "@/lib/categories";
 import { markerSvg, statIconSvg } from "@/lib/markerIcon";
 import { formatDuration } from "@/lib/format";
 import { getGpsLocation, getIpLocation, haversineKm, isInMaharashtra } from "@/lib/geo";
+import { buildSlugMap } from "@/lib/slug";
 import type { Category, Spot } from "@/types";
 import TopBar from "./TopBar";
 import CategoryChips, { DEFAULT_DISTANCE_KM } from "./CategoryChips";
@@ -44,6 +45,13 @@ export default function MapView() {
   const [locating, setLocating] = useState(false);
   const [gate, setGate] = useState<{ city: string | null } | null>(null);
   const [gateDismissed, setGateDismissed] = useState(false);
+
+  const slugById = useMemo(() => buildSlugMap(spots), [spots]);
+
+  function closeSheet() {
+    setSelectedSpot(null);
+    window.history.pushState(null, "", "/");
+  }
 
   function updatePinDetailVisibility() {
     const map = mapRef.current;
@@ -115,6 +123,22 @@ export default function MapView() {
       });
   }, []);
 
+  // open a spot's sheet if the URL was loaded with ?spot=<slug> (e.g. a
+  // shared link, or navigating in from a spot's own /[category]/[slug] page)
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !mapReady || spots.length === 0) return;
+
+    const slug = new URLSearchParams(window.location.search).get("spot");
+    if (!slug) return;
+
+    const spot = spots.find((s) => slugById.get(s.id) === slug);
+    if (!spot) return;
+
+    setSelectedSpot(spot);
+    map.flyTo({ center: [spot.lng, spot.lat], zoom: 13, padding: { bottom: 280, top: 0, left: 0, right: 0 } });
+  }, [spots, mapReady, slugById]);
+
   // render markers
   useEffect(() => {
     const map = mapRef.current;
@@ -171,6 +195,8 @@ export default function MapView() {
         e.stopPropagation();
         setSelectedSpot(spot);
         map.flyTo({ center: [spot.lng, spot.lat], zoom: 13, padding: { bottom: 280, top: 0, left: 0, right: 0 } });
+        const slug = slugById.get(spot.id);
+        if (slug) window.history.pushState(null, "", `/${spot.category}/${slug}`);
       });
 
       const marker = new mapboxgl.Marker({ element: el, anchor: "bottom" })
@@ -178,7 +204,7 @@ export default function MapView() {
         .addTo(map);
       markersRef.current.push(marker);
     });
-  }, [spots, activeCategory, maxDistanceKm, mapReady, initialView]);
+  }, [spots, activeCategory, maxDistanceKm, mapReady, initialView, slugById]);
 
   async function handleNearMe() {
     setLocating(true);
@@ -248,9 +274,7 @@ export default function MapView() {
         />
       </div>
 
-      {selectedSpot && (
-        <SpotSheet spot={selectedSpot} onClose={() => setSelectedSpot(null)} />
-      )}
+      {selectedSpot && <SpotSheet spot={selectedSpot} onClose={closeSheet} />}
     </div>
   );
 }

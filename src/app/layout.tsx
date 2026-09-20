@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Bitcount_Grid_Single, Share_Tech, Press_Start_2P } from "next/font/google";
 import "./globals.css";
+import { SITE_URL } from "@/lib/site";
 
 const bitcountGridSingle = Bitcount_Grid_Single({
   variable: "--font-headline",
@@ -21,6 +22,7 @@ const pressStart2P = Press_Start_2P({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: "Anti Monday Club | Official Enemies of Boring Weekends",
   description:
     "We can't cancel Mondays. We can make the weekend before it unforgettable. Discover offbeat places for your next weekend trip.",
