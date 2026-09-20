@@ -112,20 +112,20 @@ export default function MapView() {
       el.className = "glass-solid";
       el.style.cssText = `
         display: flex; flex-direction: column;
-        padding: 6px 14px; border-radius: 18px;
+        padding: 5px 12px; border-radius: 16px;
         cursor: pointer; text-align: left;
       `;
       el.innerHTML = `
-        <span style="display:flex;align-items:center;gap:7px;white-space:nowrap;">
-          <span style="display:flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:999px;background:${meta.color};flex-shrink:0;">
+        <span style="display:flex;align-items:center;gap:6px;line-height:1;white-space:nowrap;">
+          <span style="display:flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:999px;background:${meta.color};flex-shrink:0;">
             ${markerSvg(spot.category, meta.color)}
           </span>
-          <span style="font-family:var(--font-headline),monospace;font-size:18px;font-weight:600;">${escapeHtml(spot.name)}</span>
+          <span style="font-family:var(--font-headline),monospace;font-size:17px;font-weight:600;line-height:1;">${escapeHtml(spot.name)}</span>
         </span>
         ${
           stats.length > 0
-            ? `<span style="height:1px;background:rgba(245,240,230,0.16);margin:3px 8px 3px 31px;"></span>
-               <span style="display:flex;align-items:center;gap:10px;font-size:12px;color:var(--ink-muted);padding-left:31px;white-space:nowrap;">${stats.join("")}</span>`
+            ? `<span style="height:1px;background:rgba(245,240,230,0.16);margin:3px 6px 3px 28px;"></span>
+               <span style="display:flex;align-items:center;gap:9px;font-size:12px;line-height:1;color:var(--ink-muted);padding-left:28px;white-space:nowrap;">${stats.join("")}</span>`
             : ""
         }
       `;
