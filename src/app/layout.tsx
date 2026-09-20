@@ -1,15 +1,17 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono, Press_Start_2P } from "next/font/google";
+import { Bitcount_Grid_Single, Share_Tech, Press_Start_2P } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const bitcountGridSingle = Bitcount_Grid_Single({
+  variable: "--font-headline",
   subsets: ["latin"],
+  weight: "variable",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const shareTech = Share_Tech({
+  variable: "--font-body",
   subsets: ["latin"],
+  weight: "400",
 });
 
 const pressStart2P = Press_Start_2P({
@@ -35,7 +37,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${pressStart2P.variable} h-full antialiased`}
+      className={`${bitcountGridSingle.variable} ${shareTech.variable} ${pressStart2P.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col overflow-hidden">{children}</body>
     </html>

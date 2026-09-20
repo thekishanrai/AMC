@@ -35,7 +35,7 @@ export default function SpotSheet({
             <Icon size={18} stroke={2} color="#141210" />
           </span>
           <div>
-            <h2 className="text-[17px] font-semibold leading-tight">{spot.name}</h2>
+            <h2 className="font-headline text-[19px] leading-tight">{spot.name}</h2>
             <p className="text-xs capitalize text-[var(--ink-muted)]">{spot.category}</p>
           </div>
         </div>
