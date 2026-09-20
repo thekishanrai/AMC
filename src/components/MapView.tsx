@@ -33,6 +33,7 @@ export default function MapView() {
   const userMarkerRef = useRef<mapboxgl.Marker | null>(null);
 
   const [mapReady, setMapReady] = useState(false);
+  const [initialView, setInitialView] = useState<{ center: [number, number]; zoom: number } | null>(null);
   const [spots, setSpots] = useState<Spot[]>([]);
   const [activeCategory, setActiveCategory] = useState<Category | "all">("all");
   const [selectedSpot, setSelectedSpot] = useState<Spot | null>(null);
@@ -40,14 +41,37 @@ export default function MapView() {
   const [gate, setGate] = useState<{ city: string | null } | null>(null);
   const [gateDismissed, setGateDismissed] = useState(false);
 
-  // init map once
+  // silent IP-based lookup on load (no permission prompt): opens the map on
+  // the user's approximate city instead of the fixed Mumbai-Pune midpoint,
+  // and doubles as the geo-gate check. Falls back to the default view if it
+  // doesn't resolve quickly.
   useEffect(() => {
-    if (!containerRef.current || mapRef.current) return;
+    let cancelled = false;
+    const timeout = new Promise<null>((resolve) => setTimeout(() => resolve(null), 1500));
+
+    Promise.race([getIpLocation(), timeout]).then((loc) => {
+      if (cancelled) return;
+      if (loc) {
+        setInitialView({ center: [loc.lng, loc.lat], zoom: 11 });
+        if (!isInMaharashtra(loc.lat, loc.lng)) setGate({ city: loc.city });
+      } else {
+        setInitialView({ center: CENTER, zoom: 8 });
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // init map once we know where to open it
+  useEffect(() => {
+    if (!containerRef.current || mapRef.current || !initialView) return;
     const map = new mapboxgl.Map({
       container: containerRef.current,
       style: "mapbox://styles/mapbox/outdoors-v12",
-      center: CENTER,
-      zoom: 8,
+      center: initialView.center,
+      zoom: initialView.zoom,
       attributionControl: false,
     });
     map.on("load", () => setMapReady(true));
@@ -61,7 +85,7 @@ export default function MapView() {
       map.remove();
       mapRef.current = null;
     };
-  }, []);
+  }, [initialView]);
 
   // fetch spots once
   useEffect(() => {
@@ -72,15 +96,6 @@ export default function MapView() {
       .then(({ data, error }) => {
         if (!error && data) setSpots(data as Spot[]);
       });
-  }, []);
-
-  // silent IP-based geo-gate check on load, no permission prompt
-  useEffect(() => {
-    getIpLocation().then((loc) => {
-      if (loc && !isInMaharashtra(loc.lat, loc.lng)) {
-        setGate({ city: loc.city });
-      }
-    });
   }, []);
 
   // render markers
@@ -181,6 +196,14 @@ export default function MapView() {
         ref={containerRef}
         style={{ position: "absolute", inset: 0, height: "100%", width: "100%" }}
       />
+
+      {!mapReady && (
+        <div
+          className="absolute inset-0 z-40"
+          style={{ background: "rgb(28 26 23)" }}
+          aria-hidden
+        />
+      )}
 
       <TopBar />
 
