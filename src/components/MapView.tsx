@@ -4,7 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import mapboxgl from "mapbox-gl";
 import { supabase } from "@/lib/supabase";
 import { categoryMeta } from "@/lib/categories";
-import { markerSvg } from "@/lib/markerIcon";
+import { markerSvg, statIconSvg } from "@/lib/markerIcon";
+import { formatDuration } from "@/lib/format";
 import { getGpsLocation, getIpLocation, isInMaharashtra } from "@/lib/geo";
 import type { Category, Spot } from "@/types";
 import TopBar from "./TopBar";
@@ -16,6 +17,14 @@ import GeoGateBanner from "./GeoGateBanner";
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN!;
 
 const CENTER: [number, number] = [73.55, 18.75];
+
+function escapeHtml(value: string) {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
 
 export default function MapView() {
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -87,20 +96,37 @@ export default function MapView() {
 
     filtered.forEach((spot) => {
       const meta = categoryMeta(spot.category);
+      const stats: string[] = [];
+      if (spot.distance_from_mumbai_km != null) {
+        stats.push(`<span style="display:flex;align-items:center;gap:3px;">${statIconSvg("pin")}${spot.distance_from_mumbai_km} km</span>`);
+      }
+      if (spot.time_by_car_minutes != null) {
+        stats.push(`<span style="display:flex;align-items:center;gap:3px;">${statIconSvg("car")}${formatDuration(spot.time_by_car_minutes)}</span>`);
+      }
+      if (spot.time_by_bike_minutes != null) {
+        stats.push(`<span style="display:flex;align-items:center;gap:3px;">${statIconSvg("bike")}${formatDuration(spot.time_by_bike_minutes)}</span>`);
+      }
+
       const el = document.createElement("button");
       el.type = "button";
       el.className = "glass-solid";
       el.style.cssText = `
-        display: flex; align-items: center; gap: 6px;
-        padding: 6px 10px 6px 6px; border-radius: 999px;
-        font-size: 12px; font-weight: 600; white-space: nowrap;
-        cursor: pointer;
+        display: flex; flex-direction: column; gap: 5px;
+        padding: 8px 12px; border-radius: 18px;
+        cursor: pointer; text-align: left;
       `;
       el.innerHTML = `
-        <span style="display:flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:999px;background:${meta.color};flex-shrink:0;">
-          ${markerSvg(spot.category, meta.color)}
+        <span style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;white-space:nowrap;">
+          <span style="display:flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:999px;background:${meta.color};flex-shrink:0;">
+            ${markerSvg(spot.category, meta.color)}
+          </span>
+          <span>${escapeHtml(spot.name)}</span>
         </span>
-        <span>${spot.name}</span>
+        ${
+          stats.length > 0
+            ? `<span style="display:flex;align-items:center;gap:9px;font-size:10px;color:var(--ink-muted);padding-left:28px;white-space:nowrap;">${stats.join("")}</span>`
+            : ""
+        }
       `;
       el.addEventListener("click", (e) => {
         e.stopPropagation();
