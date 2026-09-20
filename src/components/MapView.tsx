@@ -9,7 +9,7 @@ import { formatDuration } from "@/lib/format";
 import { getGpsLocation, getIpLocation, isInMaharashtra } from "@/lib/geo";
 import type { Category, Spot } from "@/types";
 import TopBar from "./TopBar";
-import CategoryChips from "./CategoryChips";
+import CategoryChips, { MAX_DISTANCE_KM } from "./CategoryChips";
 import NearMeButton from "./NearMeButton";
 import SpotSheet from "./SpotSheet";
 import GeoGateBanner from "./GeoGateBanner";
@@ -39,6 +39,7 @@ export default function MapView() {
   const [initialView, setInitialView] = useState<{ center: [number, number]; zoom: number } | null>(null);
   const [spots, setSpots] = useState<Spot[]>([]);
   const [activeCategory, setActiveCategory] = useState<Category | "all">("all");
+  const [maxDistanceKm, setMaxDistanceKm] = useState(MAX_DISTANCE_KM);
   const [selectedSpot, setSelectedSpot] = useState<Spot | null>(null);
   const [locating, setLocating] = useState(false);
   const [gate, setGate] = useState<{ city: string | null } | null>(null);
@@ -122,8 +123,14 @@ export default function MapView() {
     markersRef.current.forEach((m) => m.remove());
     markersRef.current = [];
 
-    const filtered =
-      activeCategory === "all" ? spots : spots.filter((s) => s.category === activeCategory);
+    const filtered = spots.filter((s) => {
+      if (activeCategory !== "all" && s.category !== activeCategory) return false;
+      const distanceKm = Math.min(
+        s.distance_from_mumbai_km ?? Infinity,
+        s.distance_from_pune_km ?? Infinity
+      );
+      return distanceKm <= maxDistanceKm;
+    });
 
     filtered.forEach((spot) => {
       const meta = categoryMeta(spot.category);
@@ -174,7 +181,7 @@ export default function MapView() {
         .addTo(map);
       markersRef.current.push(marker);
     });
-  }, [spots, activeCategory, mapReady]);
+  }, [spots, activeCategory, maxDistanceKm, mapReady]);
 
   async function handleNearMe() {
     setLocating(true);
@@ -236,7 +243,12 @@ export default function MapView() {
 
       <div className="absolute inset-x-0 bottom-0 z-20 flex flex-col items-center gap-3 px-4 pb-[calc(env(safe-area-inset-bottom)+16px)]">
         <NearMeButton onClick={handleNearMe} loading={locating} />
-        <CategoryChips active={activeCategory} onChange={setActiveCategory} />
+        <CategoryChips
+          active={activeCategory}
+          onChange={setActiveCategory}
+          maxDistanceKm={maxDistanceKm}
+          onDistanceChange={setMaxDistanceKm}
+        />
       </div>
 
       {selectedSpot && (
