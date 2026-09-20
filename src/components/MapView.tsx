@@ -116,11 +116,11 @@ export default function MapView() {
         cursor: pointer; text-align: left;
       `;
       el.innerHTML = `
-        <span style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;white-space:nowrap;">
+        <span style="display:flex;align-items:center;gap:6px;white-space:nowrap;">
           <span style="display:flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:999px;background:${meta.color};flex-shrink:0;">
             ${markerSvg(spot.category, meta.color)}
           </span>
-          <span>${escapeHtml(spot.name)}</span>
+          <span style="font-family:var(--font-headline),monospace;font-size:15px;">${escapeHtml(spot.name)}</span>
         </span>
         ${
           stats.length > 0
