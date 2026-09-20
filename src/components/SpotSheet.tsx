@@ -75,25 +75,25 @@ export default function SpotSheet({
         spot.time_by_bike_minutes != null) && (
         <div className="mt-2.5 flex flex-wrap gap-2">
           {spot.distance_from_mumbai_km != null && (
-            <span className="flex items-center gap-1.5 rounded-full border border-white/[0.14] bg-white/[0.06] px-3 py-1.5 text-xs text-[var(--ink)]">
+            <span className="flex items-center gap-1.5 glass-chip rounded-full px-3 py-1.5 text-xs">
               <IconMapPin size={15} className="text-[var(--ink-muted)]" />
               {spot.distance_from_mumbai_km} km · Mumbai
             </span>
           )}
           {spot.time_by_car_minutes != null && (
-            <span className="flex items-center gap-1.5 rounded-full border border-white/[0.14] bg-white/[0.06] px-3 py-1.5 text-xs text-[var(--ink)]">
+            <span className="flex items-center gap-1.5 glass-chip rounded-full px-3 py-1.5 text-xs">
               <IconCar size={15} className="text-[var(--ink-muted)]" />
               {formatDuration(spot.time_by_car_minutes)}
             </span>
           )}
           {spot.time_by_bike_minutes != null && (
-            <span className="flex items-center gap-1.5 rounded-full border border-white/[0.14] bg-white/[0.06] px-3 py-1.5 text-xs text-[var(--ink)]">
+            <span className="flex items-center gap-1.5 glass-chip rounded-full px-3 py-1.5 text-xs">
               <IconMotorbike size={15} className="text-[var(--ink-muted)]" />
               {formatDuration(spot.time_by_bike_minutes)}
             </span>
           )}
           {spot.distance_from_pune_km != null && (
-            <span className="flex items-center gap-1.5 rounded-full border border-white/[0.14] bg-white/[0.06] px-3 py-1.5 text-xs text-[var(--ink)]">
+            <span className="flex items-center gap-1.5 glass-chip rounded-full px-3 py-1.5 text-xs">
               <IconMapPin size={15} className="text-[var(--ink-muted)]" />
               {spot.distance_from_pune_km} km · Pune
             </span>
