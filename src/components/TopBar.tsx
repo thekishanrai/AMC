@@ -1,4 +1,4 @@
-import { IconBell } from "@tabler/icons-react";
+import { IconUserCircle } from "@tabler/icons-react";
 
 export default function TopBar() {
   return (
@@ -6,18 +6,13 @@ export default function TopBar() {
       <div className="glass font-headline rounded-full px-4 py-2 text-[17px] tracking-tight">
         antimondayclub
       </div>
-      <div className="flex items-center gap-2">
-        <div className="glass rounded-full px-3 py-2 text-xs font-medium text-[var(--ink-muted)]">
-          Mumbai · Pune
-        </div>
-        <button
-          type="button"
-          aria-label="Notifications"
-          className="glass flex h-9 w-9 items-center justify-center rounded-full"
-        >
-          <IconBell size={17} stroke={1.75} />
-        </button>
-      </div>
+      <button
+        type="button"
+        aria-label="Account"
+        className="glass flex h-9 w-9 items-center justify-center rounded-full"
+      >
+        <IconUserCircle size={19} stroke={1.75} />
+      </button>
     </div>
   );
 }
