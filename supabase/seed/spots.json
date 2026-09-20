@@ -990,5 +990,178 @@
     "time_by_bike_minutes": 205,
     "how_to_reach": null,
     "photos": []
+  },
+  {
+    "name": "Kalavantin Durg",
+    "category": "trek",
+    "lat": 18.98284,
+    "lng": 73.219892,
+    "region": "Thakurwadi village, Panvel taluka",
+    "description": "A dramatic rock pinnacle beside Prabalgad fort, reached via ancient rock-cut steps carved into a near-vertical cliff face — one of the most photographed and most dangerous treks in the Sahyadris.",
+    "difficulty": "hard",
+    "altitude_m": 662,
+    "duration_label": "3-4 hr one way from Thakurwadi",
+    "best_season": "Oct-Feb",
+    "highlights": [
+      "The final rock-cut staircase — steep, narrow steps carved into the cliff with no railing",
+      "360° views over Prabalgad, Matheran and the Konkan plains from the pinnacle top",
+      "One of the most photographed treks near Mumbai, especially at sunrise"
+    ],
+    "distance_from_mumbai_km": 57,
+    "distance_from_pune_km": 103,
+    "time_by_car_minutes": 78,
+    "time_by_bike_minutes": 90,
+    "how_to_reach": "Drive or train to Panvel, then bus or taxi to Thakurwadi village (~15 km); the climb to Prabalgad and Kalavantin starts from there.",
+    "nearest_station": "Panvel Railway Station — 15 km; buses run to Thakurwadi village.",
+    "things_to_carry": ["Trekking shoes with grip", "Gloves for the rock-cut steps", "2L water", "A head for heights"],
+    "safety_note": "The final rock-cut staircase is narrow, steep and unprotected on one side — fatal falls have been reported here. Avoid in monsoon or wet conditions, and don't attempt it if you're uncomfortable with exposure.",
+    "faqs": [
+      {
+        "question": "Is Kalavantin Durg dangerous?",
+        "answer": "Yes — the final rock-cut staircase has caused fatal falls in the past. It's unprotected, steep, and not suitable for beginners or anyone uncomfortable with heights."
+      },
+      {
+        "question": "How long does the trek take?",
+        "answer": "About 3-4 hours one way from Thakurwadi village, including the steep final climb."
+      },
+      {
+        "question": "Best time to visit?",
+        "answer": "October to February for dry, stable rock. Avoid monsoon — the steps get slippery and windy."
+      },
+      {
+        "question": "Can beginners attempt this trek?",
+        "answer": "Not recommended. The approach to Prabalgad is moderate, but the Kalavantin pinnacle climb itself is technical and risky for inexperienced trekkers."
+      }
+    ],
+    "photos": []
+  },
+  {
+    "name": "Karnala Bird Sanctuary",
+    "category": "trek",
+    "lat": 18.90861,
+    "lng": 73.1025,
+    "region": "Karnala, near Panvel",
+    "description": "A bird sanctuary on the old Mumbai-Goa highway with an easy fort-top trek inside it — a good beginner trek and a well-known birdwatching spot in one visit.",
+    "difficulty": "easy",
+    "altitude_m": 457,
+    "duration_label": "1.5-2 hr one way (2.5-3 km)",
+    "best_season": "Oct-Feb",
+    "highlights": [
+      "Karnala Fort's pinnacle, a short easy climb inside the sanctuary",
+      "Over 150 resident and migratory bird species, best seen Nov-Feb",
+      "A good half-day trek for beginners and families"
+    ],
+    "distance_from_mumbai_km": 65,
+    "distance_from_pune_km": 100,
+    "time_by_car_minutes": 85,
+    "time_by_bike_minutes": 95,
+    "how_to_reach": "On the old Mumbai-Goa highway (NH66) near Panvel; buses run from the Panvel ST depot every 30 minutes.",
+    "nearest_station": "Panvel Railway Station — 12 km; buses run every 30 min to Karnala.",
+    "things_to_carry": ["Trekking shoes", "2L water", "Binoculars for birdwatching"],
+    "faqs": [
+      {
+        "question": "Is this trek suitable for beginners?",
+        "answer": "Yes — it's rated easy and a common choice for first-time trekkers and families."
+      },
+      {
+        "question": "What's the entry fee?",
+        "answer": "₹30 per adult at the sanctuary entrance."
+      },
+      {
+        "question": "What are the visiting hours?",
+        "answer": "The entry checkpoint is open 7am-1pm; visitors should be back down by 4pm."
+      },
+      {
+        "question": "Is it good for birdwatching?",
+        "answer": "Yes, though sightings vary by season — November to February is best for migratory birds."
+      }
+    ],
+    "photos": []
+  },
+  {
+    "name": "Adai Waterfall",
+    "category": "waterfall",
+    "lat": 18.97,
+    "lng": 73.155,
+    "region": "Adai village, near Panvel",
+    "description": "A two-stage seasonal waterfall a short walk from Adai village, with a natural plunge pool at the base — a monsoon-only spot popular for a quick swim.",
+    "difficulty": "easy-moderate",
+    "duration_label": "15-20 min walk from Adai village",
+    "best_season": "Jun-Sep",
+    "highlights": [
+      "A two-stage fall with a natural pool at the base, good for a monsoon dip",
+      "Only a 15-minute walk from Adai village — one of the easiest waterfalls near Panvel",
+      "Lush green forest walk in monsoon"
+    ],
+    "distance_from_mumbai_km": 55,
+    "distance_from_pune_km": 100,
+    "time_by_car_minutes": 75,
+    "time_by_bike_minutes": 85,
+    "how_to_reach": "From Panvel, drive via the Kalamboli circle and the Adai road flyover to Adai village, or take an autorickshaw from Panvel or Khandeshwar station.",
+    "nearest_station": "Khandeshwar Railway Station — 5 km; Panvel Railway Station — 4 km.",
+    "things_to_carry": ["Extra clothes", "Non-slip footwear", "Drinking water"],
+    "safety_note": "This is a monsoon-only waterfall with a natural pool — rocks get slippery and flow can be strong after heavy rain, so check conditions before swimming.",
+    "faqs": [
+      {
+        "question": "When is the best time to visit?",
+        "answer": "June to September, during monsoon — it's a seasonal waterfall and mostly dry the rest of the year."
+      },
+      {
+        "question": "Is there an entry fee?",
+        "answer": "No, it's free to visit."
+      },
+      {
+        "question": "How far is the walk to the falls?",
+        "answer": "About 15 minutes from Adai village."
+      },
+      {
+        "question": "Can I swim there?",
+        "answer": "There's a natural plunge pool, but check the water flow first — it gets strong after heavy rain."
+      }
+    ],
+    "photos": []
+  },
+  {
+    "name": "Kharghar Hills",
+    "category": "trek",
+    "lat": 19.0361,
+    "lng": 73.0617,
+    "region": "Sector 35, Kharghar, Navi Mumbai",
+    "description": "A popular short hike right inside Navi Mumbai, with a summit that looks over the Kharghar valley, golf course and — on a clear evening — sunset over the Arabian Sea.",
+    "difficulty": "moderate",
+    "duration_label": "1.5-2 hr one way to the top",
+    "best_season": "Oct-Feb",
+    "highlights": [
+      "Sunrise to the east and sunset over the Arabian Sea from the same summit",
+      "One of the most accessible hill treks in Navi Mumbai — no long drive needed",
+      "Views of Kharghar dam, the golf course and the city skyline"
+    ],
+    "distance_from_mumbai_km": 32,
+    "distance_from_pune_km": 120,
+    "time_by_car_minutes": 50,
+    "time_by_bike_minutes": 55,
+    "how_to_reach": "Take the harbour line to Kharghar or CBD Belapur station, then an auto to Sector 35 or the Owe Dam entry point at the base of the hill.",
+    "nearest_station": "Kharghar Railway Station — 3 km; auto to Sector 35 or the Owe Dam entry point.",
+    "things_to_carry": ["Trekking shoes", "2L water", "Cap or sunscreen"],
+    "safety_note": "Local authorities advise trekking only between 7 AM and 3 PM — avoid being on the hill after dark.",
+    "faqs": [
+      {
+        "question": "How do I get to the trailhead?",
+        "answer": "Take a train to Kharghar or CBD Belapur station, then an auto to Sector 35 or the Owe Dam entry point."
+      },
+      {
+        "question": "Is there an entry fee?",
+        "answer": "No, it's free and open 24x7, though trekking after dark isn't advised."
+      },
+      {
+        "question": "How long is the trek?",
+        "answer": "About 1.5-2 hours one way to the summit."
+      },
+      {
+        "question": "Is it good for sunset?",
+        "answer": "Yes — the summit faces west toward the Arabian Sea, one of the better sunset spots in Navi Mumbai."
+      }
+    ],
+    "photos": []
   }
 ]
