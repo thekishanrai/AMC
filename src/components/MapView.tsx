@@ -149,7 +149,16 @@ export default function MapView() {
     const [userLng, userLat] = initialView.center;
     const filtered = spots.filter((s) => {
       if (activeCategory !== "all" && s.category !== activeCategory) return false;
-      return haversineKm(userLat, userLng, s.lat, s.lng) <= maxDistanceKm;
+      // Distance from the visitor's detected location personalizes results, but
+      // a bad/generic geolocation (VPN, unresolvable IP, edge fallback) must
+      // never hide every spot — falling back to the fixed Mumbai/Pune anchors
+      // guarantees the core Sahyadri set stays visible either way.
+      const distanceKm = Math.min(
+        haversineKm(userLat, userLng, s.lat, s.lng),
+        s.distance_from_mumbai_km ?? Infinity,
+        s.distance_from_pune_km ?? Infinity
+      );
+      return distanceKm <= maxDistanceKm;
     });
 
     filtered.forEach((spot) => {
