@@ -11,7 +11,6 @@ import { buildSlugMap } from "@/lib/slug";
 import type { Category, Spot } from "@/types";
 import TopBar from "./TopBar";
 import CategoryChips, { DEFAULT_DISTANCE_KM } from "./CategoryChips";
-import NearMeButton from "./NearMeButton";
 import LocationPicker from "./LocationPicker";
 import SpotSheet from "./SpotSheet";
 import GeoGateBanner from "./GeoGateBanner";
@@ -317,9 +316,6 @@ export default function MapView() {
       )}
 
       <div className="absolute inset-x-0 bottom-0 z-20 flex flex-col items-center">
-        <div className="mb-3">
-          <NearMeButton onClick={handleNearMe} loading={locating} />
-        </div>
         <CategoryChips
           active={activeCategory}
           onChange={setActiveCategory}
