@@ -6,11 +6,13 @@ import { supabase } from "@/lib/supabase";
 import { markerSvg, statIconSvg } from "@/lib/markerIcon";
 import { formatDuration } from "@/lib/format";
 import { getGpsLocation, getIpLocation, haversineKm, isInMaharashtra } from "@/lib/geo";
+import { loadSavedLocation, saveLocation, type QuickCity } from "@/lib/locationOverride";
 import { buildSlugMap } from "@/lib/slug";
 import type { Category, Spot } from "@/types";
 import TopBar from "./TopBar";
 import CategoryChips, { DEFAULT_DISTANCE_KM } from "./CategoryChips";
 import NearMeButton from "./NearMeButton";
+import LocationPicker from "./LocationPicker";
 import SpotSheet from "./SpotSheet";
 import GeoGateBanner from "./GeoGateBanner";
 
@@ -36,20 +38,71 @@ export default function MapView() {
   const userMarkerRef = useRef<mapboxgl.Marker | null>(null);
 
   const [mapReady, setMapReady] = useState(false);
-  const [initialView, setInitialView] = useState<{ center: [number, number]; zoom: number } | null>(null);
+  const [initialView, setInitialView] = useState<{ center: [number, number]; zoom: number } | null>(() => {
+    const saved = loadSavedLocation();
+    return saved ? { center: [saved.lng, saved.lat], zoom: 11 } : null;
+  });
   const [spots, setSpots] = useState<Spot[]>([]);
   const [activeCategory, setActiveCategory] = useState<Category | "all">("all");
   const [maxDistanceKm, setMaxDistanceKm] = useState(DEFAULT_DISTANCE_KM);
   const [selectedSpot, setSelectedSpot] = useState<Spot | null>(null);
   const [locating, setLocating] = useState(false);
-  const [gate, setGate] = useState<{ city: string | null } | null>(null);
+  const [gate, setGate] = useState<{ city: string | null } | null>(() => {
+    const saved = loadSavedLocation();
+    return saved && !isInMaharashtra(saved.lat, saved.lng) ? { city: saved.label } : null;
+  });
   const [gateDismissed, setGateDismissed] = useState(false);
+  const [locationLabel, setLocationLabel] = useState(() => loadSavedLocation()?.label ?? "Locating…");
 
   const slugById = useMemo(() => buildSlugMap(spots), [spots]);
 
   function closeSheet() {
     setSelectedSpot(null);
     window.history.pushState(null, "", "/");
+  }
+
+  function drawUserPin(lat: number, lng: number) {
+    const map = mapRef.current;
+    if (!map) return;
+    if (userMarkerRef.current) userMarkerRef.current.remove();
+    const pin = document.createElement("div");
+    pin.style.cssText = `display: flex; flex-direction: column; align-items: center;`;
+    pin.innerHTML = `
+      <div class="glass-solid" style="position:relative;border-radius:14px;padding:6px 10px;margin-bottom:7px;">
+        <span style="font-family:var(--font-pixel),monospace;font-size:9px;line-height:1.4;color:#111111;white-space:nowrap;letter-spacing:0.02em;">I NEED WEEKEND</span>
+        <div style="position:absolute;left:50%;bottom:-8px;transform:translateX(-50%);width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-top:8px solid #000000;"></div>
+      </div>
+      <svg width="52" height="64" viewBox="0 0 52 64">
+        <defs><clipPath id="userPinPhoto"><circle cx="26" cy="24" r="17"/></clipPath></defs>
+        <path d="M26 2C13.8 2 4 11.8 4 24c0 17 22 38 22 38s22-21 22-38C48 11.8 38.2 2 26 2Z" fill="#fe5000" stroke="#000" stroke-width="2.5"/>
+        <image href="/user-location.jpg" x="9" y="7" width="34" height="34" clip-path="url(#userPinPhoto)" preserveAspectRatio="xMidYMid slice"/>
+      </svg>
+    `;
+    userMarkerRef.current = new mapboxgl.Marker({ element: pin, anchor: "bottom" })
+      .setLngLat([lng, lat])
+      .addTo(map);
+  }
+
+  // Shared by every location source (IP guess, quick-pick, GPS): updates the
+  // camera, the filter reference point, and — for anything but a bare IP
+  // guess — persists the choice so IP geolocation is never consulted again.
+  function applyLocation(lat: number, lng: number, label: string, opts?: { persist?: boolean; pin?: boolean }) {
+    setInitialView({ center: [lng, lat], zoom: 11 });
+    setLocationLabel(label);
+    if (opts?.persist) saveLocation({ lat, lng, label });
+    if (!isInMaharashtra(lat, lng)) {
+      setGate({ city: label });
+      setGateDismissed(false);
+    } else {
+      setGate(null);
+    }
+    const map = mapRef.current;
+    if (map) map.flyTo({ center: [lng, lat], zoom: 11 });
+    if (opts?.pin) drawUserPin(lat, lng);
+  }
+
+  function handlePickCity(city: QuickCity) {
+    applyLocation(city.lat, city.lng, city.name, { persist: true });
   }
 
   function updatePinDetailVisibility() {
@@ -64,11 +117,12 @@ export default function MapView() {
     });
   }
 
-  // silent IP-based lookup on load (no permission prompt): opens the map on
-  // the user's approximate city instead of the fixed Mumbai-Pune midpoint,
-  // and doubles as the geo-gate check. Falls back to the default view if it
-  // doesn't resolve quickly.
+  // A previously confirmed location (quick-pick or GPS) always wins — read
+  // synchronously into initial state above, so IP geolocation only ever
+  // runs as the first-visit best guess, never re-consulted afterward.
   useEffect(() => {
+    if (loadSavedLocation()) return;
+
     let cancelled = false;
     const timeout = new Promise<null>((resolve) => setTimeout(() => resolve(null), 1500));
 
@@ -76,9 +130,11 @@ export default function MapView() {
       if (cancelled) return;
       if (loc) {
         setInitialView({ center: [loc.lng, loc.lat], zoom: 11 });
+        setLocationLabel(loc.city ?? "your area");
         if (!isInMaharashtra(loc.lat, loc.lng)) setGate({ city: loc.city });
       } else {
         setInitialView({ center: CENTER, zoom: 8 });
+        setLocationLabel("Mumbai-Pune");
       }
     });
 
@@ -215,35 +271,17 @@ export default function MapView() {
 
   async function handleNearMe() {
     setLocating(true);
-    const loc = (await getGpsLocation()) ?? (await getIpLocation());
+    const loc = await getGpsLocation();
+    const resolved = loc ?? (await getIpLocation());
     setLocating(false);
-    if (!loc || !mapRef.current) return;
+    if (!resolved) return;
 
-    const map = mapRef.current;
-    map.flyTo({ center: [loc.lng, loc.lat], zoom: 11 });
-
-    if (userMarkerRef.current) userMarkerRef.current.remove();
-    const pin = document.createElement("div");
-    pin.style.cssText = `display: flex; flex-direction: column; align-items: center;`;
-    pin.innerHTML = `
-      <div class="glass-solid" style="position:relative;border-radius:14px;padding:6px 10px;margin-bottom:7px;">
-        <span style="font-family:var(--font-pixel),monospace;font-size:9px;line-height:1.4;color:#111111;white-space:nowrap;letter-spacing:0.02em;">I NEED WEEKEND</span>
-        <div style="position:absolute;left:50%;bottom:-8px;transform:translateX(-50%);width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-top:8px solid #000000;"></div>
-      </div>
-      <svg width="52" height="64" viewBox="0 0 52 64">
-        <defs><clipPath id="userPinPhoto"><circle cx="26" cy="24" r="17"/></clipPath></defs>
-        <path d="M26 2C13.8 2 4 11.8 4 24c0 17 22 38 22 38s22-21 22-38C48 11.8 38.2 2 26 2Z" fill="#fe5000" stroke="#000" stroke-width="2.5"/>
-        <image href="/user-location.jpg" x="9" y="7" width="34" height="34" clip-path="url(#userPinPhoto)" preserveAspectRatio="xMidYMid slice"/>
-      </svg>
-    `;
-    userMarkerRef.current = new mapboxgl.Marker({ element: pin, anchor: "bottom" })
-      .setLngLat([loc.lng, loc.lat])
-      .addTo(map);
-
-    if (!isInMaharashtra(loc.lat, loc.lng)) {
-      setGate({ city: loc.city });
-      setGateDismissed(false);
-    }
+    // Only a real GPS fix is trustworthy enough to save as "this is where I
+    // am" — an IP fallback here is still just a guess, so it isn't persisted.
+    applyLocation(resolved.lat, resolved.lng, resolved.city ?? "Your location", {
+      persist: loc != null,
+      pin: true,
+    });
   }
 
   return (
@@ -262,6 +300,13 @@ export default function MapView() {
       )}
 
       <TopBar />
+
+      <LocationPicker
+        label={locationLabel}
+        onPick={handlePickCity}
+        onUseGps={handleNearMe}
+        locatingGps={locating}
+      />
 
       {gate && !gateDismissed && (
         <GeoGateBanner
