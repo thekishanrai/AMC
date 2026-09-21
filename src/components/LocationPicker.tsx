@@ -6,11 +6,13 @@ import { QUICK_CITIES, type QuickCity } from "@/lib/locationOverride";
 
 export default function LocationPicker({
   label,
+  confirmed,
   onPick,
   onUseGps,
   locatingGps,
 }: {
   label: string;
+  confirmed: boolean;
   onPick: (city: QuickCity) => void;
   onUseGps: () => void;
   locatingGps: boolean;
@@ -25,7 +27,7 @@ export default function LocationPicker({
         className="glass-solid flex items-center gap-2 rounded-full px-4 py-2.5 text-[13px] font-medium shadow-lg"
       >
         <IconMapPin size={16} stroke={2} />
-        Select your location
+        {confirmed ? label : "Select your location"}
       </button>
 
       {open && (

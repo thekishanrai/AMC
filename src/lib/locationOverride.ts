@@ -8,12 +8,16 @@ export interface SavedLocation {
 }
 
 const KEY = "amc_location_v1";
+const COOKIE_NAME = "amc_location";
 
-export function loadSavedLocation(): SavedLocation | null {
-  if (typeof window === "undefined") return null;
+function readCookie(name: string): string | null {
+  if (typeof document === "undefined") return null;
+  const match = document.cookie.match(new RegExp(`(?:^|; )${name}=([^;]*)`));
+  return match ? match[1] : null;
+}
+
+function parseSavedLocation(raw: string): SavedLocation | null {
   try {
-    const raw = window.localStorage.getItem(KEY);
-    if (!raw) return null;
     const parsed = JSON.parse(raw);
     if (typeof parsed.lat === "number" && typeof parsed.lng === "number") {
       return parsed as SavedLocation;
@@ -24,12 +28,51 @@ export function loadSavedLocation(): SavedLocation | null {
   }
 }
 
+export function loadSavedLocation(): SavedLocation | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.localStorage.getItem(KEY);
+    if (raw) {
+      const parsed = parseSavedLocation(raw);
+      if (parsed) return parsed;
+    }
+  } catch {
+    // ignore, fall through to cookie
+  }
+
+  // localStorage is empty or unavailable (e.g. Safari ITP evicted it after
+  // 7 days) — fall back to the server-set cookie, which isn't subject to
+  // that cap, and reseed localStorage from it so subsequent reads are fast.
+  const cookieRaw = readCookie(COOKIE_NAME);
+  if (cookieRaw) {
+    const parsed = parseSavedLocation(decodeURIComponent(cookieRaw));
+    if (parsed) {
+      try {
+        window.localStorage.setItem(KEY, JSON.stringify(parsed));
+      } catch {
+        // non-fatal
+      }
+      return parsed;
+    }
+  }
+
+  return null;
+}
+
 export function saveLocation(loc: SavedLocation) {
   try {
     window.localStorage.setItem(KEY, JSON.stringify(loc));
   } catch {
     // private browsing, storage full, etc. — non-fatal, just won't persist
   }
+
+  // Best-effort server cookie backstop, so the choice survives Safari's
+  // 7-day script-storage eviction. Not awaited — never blocks the UI.
+  fetch("/api/location", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(loc),
+  }).catch(() => {});
 }
 
 export interface QuickCity {

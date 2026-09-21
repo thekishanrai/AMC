@@ -52,6 +52,7 @@ export default function MapView() {
   });
   const [gateDismissed, setGateDismissed] = useState(false);
   const [locationLabel, setLocationLabel] = useState(() => loadSavedLocation()?.label ?? "Locating…");
+  const [locationConfirmed, setLocationConfirmed] = useState(() => loadSavedLocation() != null);
 
   const slugById = useMemo(() => buildSlugMap(spots), [spots]);
 
@@ -88,7 +89,10 @@ export default function MapView() {
   function applyLocation(lat: number, lng: number, label: string, opts?: { persist?: boolean; pin?: boolean }) {
     setInitialView({ center: [lng, lat], zoom: 11 });
     setLocationLabel(label);
-    if (opts?.persist) saveLocation({ lat, lng, label });
+    if (opts?.persist) {
+      saveLocation({ lat, lng, label });
+      setLocationConfirmed(true);
+    }
     if (!isInMaharashtra(lat, lng)) {
       setGate({ city: label });
       setGateDismissed(false);
@@ -312,6 +316,7 @@ export default function MapView() {
         <div className="mb-3">
           <LocationPicker
             label={locationLabel}
+            confirmed={locationConfirmed}
             onPick={handlePickCity}
             onUseGps={handleNearMe}
             locatingGps={locating}
