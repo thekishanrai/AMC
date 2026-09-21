@@ -300,13 +300,6 @@ export default function MapView() {
 
       <TopBar />
 
-      <LocationPicker
-        label={locationLabel}
-        onPick={handlePickCity}
-        onUseGps={handleNearMe}
-        locatingGps={locating}
-      />
-
       {gate && !gateDismissed && (
         <GeoGateBanner
           city={gate.city}
@@ -316,6 +309,14 @@ export default function MapView() {
       )}
 
       <div className="absolute inset-x-0 bottom-0 z-20 flex flex-col items-center">
+        <div className="mb-3">
+          <LocationPicker
+            label={locationLabel}
+            onPick={handlePickCity}
+            onUseGps={handleNearMe}
+            locatingGps={locating}
+          />
+        </div>
         <CategoryChips
           active={activeCategory}
           onChange={setActiveCategory}

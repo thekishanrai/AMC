@@ -12,7 +12,7 @@ export default function GeoGateBanner({
   onNotify: () => void;
 }) {
   return (
-    <div className="banner-enter glass-solid absolute inset-x-4 top-[calc(env(safe-area-inset-top)+114px)] z-30 rounded-2xl p-4 shadow-xl">
+    <div className="banner-enter glass-solid absolute inset-x-4 top-[calc(env(safe-area-inset-top)+68px)] z-30 rounded-2xl p-4 shadow-xl">
       <button
         type="button"
         onClick={onDismiss}

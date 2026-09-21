@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { IconMapPin, IconPencil, IconX, IconLocation } from "@tabler/icons-react";
+import { IconMapPin, IconX, IconLocation } from "@tabler/icons-react";
 import { QUICK_CITIES, type QuickCity } from "@/lib/locationOverride";
 
 export default function LocationPicker({
@@ -22,11 +22,10 @@ export default function LocationPicker({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="glass-solid absolute left-4 top-[calc(env(safe-area-inset-top)+68px)] z-20 flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium"
+        className="glass-solid flex items-center gap-2 rounded-full px-4 py-2.5 text-[13px] font-medium shadow-lg"
       >
-        <IconMapPin size={14} />
-        {label}
-        <IconPencil size={12} className="text-[var(--ink-muted)]" />
+        <IconMapPin size={16} stroke={2} />
+        Select your location
       </button>
 
       {open && (
@@ -37,7 +36,10 @@ export default function LocationPicker({
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between">
-              <h2 className="font-headline text-[18px]">Set your area</h2>
+              <div>
+                <h2 className="font-headline text-[18px]">Select your location</h2>
+                <p className="mt-0.5 text-xs text-[var(--ink-muted)]">Currently: {label}</p>
+              </div>
               <button
                 type="button"
                 onClick={() => setOpen(false)}
