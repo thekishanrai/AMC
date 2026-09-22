@@ -241,10 +241,7 @@ export default function SpotSheet({
         </div>
       </div>
 
-      <div
-        className="flex flex-shrink-0 gap-2.5 border-t-4 border-black px-5 pt-4 pb-[calc(env(safe-area-inset-bottom)+16px)]"
-        style={{ background: "var(--pantone-orange)" }}
-      >
+      <div className="flex flex-shrink-0 gap-2.5 border-t-2 border-black bg-white px-5 pt-3 pb-[calc(env(safe-area-inset-bottom)+12px)]">
         <a
           href={directionsUrl}
           target="_blank"
