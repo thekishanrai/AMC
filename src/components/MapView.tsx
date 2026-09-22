@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import type mapboxgl from "mapbox-gl";
 import { supabase } from "@/lib/supabase";
 import { getGpsLocation, getIpLocation, haversineKm, isInMaharashtra } from "@/lib/geo";
@@ -20,7 +21,8 @@ const CENTER: [number, number] = [73.55, 18.75];
 // region of spots stays browsable instead of turning into a wall of pills.
 const DETAIL_ZOOM_THRESHOLD = 10.5;
 
-export default function MapView() {
+export default function MapView({ initialSpot = null }: { initialSpot?: Spot | null }) {
+  const router = useRouter();
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const mapboxRef = useRef<typeof import("mapbox-gl")["default"] | null>(null);
@@ -29,21 +31,23 @@ export default function MapView() {
 
   const [mapReady, setMapReady] = useState(false);
   const [initialView, setInitialView] = useState<{ center: [number, number]; zoom: number } | null>(() => {
+    if (initialSpot) return { center: [initialSpot.lng, initialSpot.lat], zoom: 12 };
     const saved = loadSavedLocation();
     return saved ? { center: [saved.lng, saved.lat], zoom: 11 } : { center: CENTER, zoom: 8 };
   });
-  const [spots, setSpots] = useState<Spot[]>([]);
+  const [spots, setSpots] = useState<Spot[]>(() => initialSpot ? [initialSpot] : []);
   const [activeCategory, setActiveCategory] = useState<Category | "all">("all");
   const [maxDistanceKm, setMaxDistanceKm] = useState(DEFAULT_DISTANCE_KM);
-  const [selectedSpot, setSelectedSpot] = useState<Spot | null>(null);
+  const [selectedSpot, setSelectedSpot] = useState<Spot | null>(initialSpot);
   const [locating, setLocating] = useState(false);
   const [gate, setGate] = useState<{ city: string | null } | null>(() => {
+    if (initialSpot) return null;
     const saved = loadSavedLocation();
     return saved && !isInMaharashtra(saved.lat, saved.lng) ? { city: saved.label } : null;
   });
   const [gateDismissed, setGateDismissed] = useState(false);
-  const [locationLabel, setLocationLabel] = useState(() => loadSavedLocation()?.label ?? "Locating…");
-  const [locationConfirmed, setLocationConfirmed] = useState(() => loadSavedLocation() != null);
+  const [locationLabel, setLocationLabel] = useState(() => initialSpot?.region ?? loadSavedLocation()?.label ?? "Locating…");
+  const [locationConfirmed, setLocationConfirmed] = useState(() => initialSpot != null || loadSavedLocation() != null);
   const[section,setSection]=useState<AppSection>("explore"),[search,setSearch]=useState("");
   const[drawerState,setDrawerState]=useState<"min"|"half"|"full">("half");const drawerStartY=useRef<number|null>(null),drawerMoved=useRef(false);
   const[savedIds,setSavedIds]=useState<Set<string>>(()=>new Set(loadSavedSpotIds()));
@@ -52,7 +56,7 @@ export default function MapView() {
 
   function closeSheet() {
     setSelectedSpot(null);
-    window.history.pushState(null, "", "/");
+    router.push("/");
   }
 
   function drawUserPin(lat: number, lng: number) {
@@ -118,7 +122,7 @@ export default function MapView() {
   // synchronously into initial state above, so IP geolocation only ever
   // runs as the first-visit best guess, never re-consulted afterward.
   useEffect(() => {
-    if (loadSavedLocation()) return;
+    if (initialSpot || loadSavedLocation()) return;
 
     let cancelled = false;
     const timeout = new Promise<null>((resolve) => setTimeout(() => resolve(null), 1500));
@@ -138,7 +142,7 @@ export default function MapView() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [initialSpot]);
 
   // init map once we know where to open it
   useEffect(() => {

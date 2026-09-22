@@ -1,20 +1,9 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import {
-  IconArrowLeft,
-  IconRoute,
-  IconCalendar,
-  IconCar,
-  IconMotorbike,
-  IconMapPin,
-  IconMap2,
-} from "@tabler/icons-react";
 import type { Metadata } from "next";
 import { getPublishedSpots } from "@/lib/spots";
 import { buildSlugMap, findSpotBySlug } from "@/lib/slug";
-import { categoryMeta } from "@/lib/categories";
-import { formatDuration } from "@/lib/format";
 import { SITE_URL } from "@/lib/site";
+import MapView from "@/components/MapView";
 import type { Category, Spot } from "@/types";
 
 export const dynamicParams = false;
@@ -85,7 +74,6 @@ export default async function SpotPage({
   const spot = findSpotBySlug(spots, slug);
   if (!spot || spot.category !== category) notFound();
 
-  const Icon = categoryMeta(spot.category).icon;
   const canonicalUrl = `${SITE_URL}/${spot.category}/${slug}`;
 
   const placeJsonLd = {
@@ -116,7 +104,7 @@ export default async function SpotPage({
   };
 
   return (
-    <div className="min-h-full bg-white px-5 pb-16 pt-[calc(env(safe-area-inset-top)+16px)] text-[var(--ink)]">
+    <main className="h-dvh w-dvw">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(placeJsonLd) }}
@@ -125,94 +113,7 @@ export default async function SpotPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
-
-      <Link
-        href="/"
-        className="font-headline mb-6 inline-flex items-center gap-1.5 text-[13px] uppercase text-[var(--ink-muted)]"
-      >
-        <IconArrowLeft size={15} stroke={2} />
-        Anti Monday Club
-      </Link>
-
-      <div className="mx-auto max-w-xl">
-        <div className="flex items-center gap-2.5">
-          <span className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-black bg-white">
-            <Icon size={20} stroke={2} color="#000000" />
-          </span>
-          <p className="text-xs capitalize text-[var(--ink-muted)]">{spot.category}</p>
-        </div>
-
-        <h1 className="font-headline mt-3 text-[28px] leading-tight">{spot.name}</h1>
-
-        {spot.description && (
-          <p className="mt-4 text-[15px] leading-relaxed">{spot.description}</p>
-        )}
-
-        <div className="mt-5 grid grid-cols-2 gap-2.5 text-sm text-[var(--ink-muted)]">
-          {spot.difficulty && (
-            <div className="flex items-center gap-1.5">
-              <IconRoute size={16} />
-              <span className="capitalize">{spot.difficulty}</span>
-            </div>
-          )}
-          {spot.best_season && (
-            <div className="flex items-center gap-1.5">
-              <IconCalendar size={16} />
-              <span>{spot.best_season}</span>
-            </div>
-          )}
-        </div>
-
-        {(spot.distance_from_mumbai_km != null ||
-          spot.time_by_car_minutes != null ||
-          spot.time_by_bike_minutes != null ||
-          spot.distance_from_pune_km != null) && (
-          <div className="mt-3 flex flex-wrap gap-2">
-            {spot.distance_from_mumbai_km != null && (
-              <span className="glass-chip flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs">
-                <IconMapPin size={15} />
-                {spot.distance_from_mumbai_km} km · Mumbai
-              </span>
-            )}
-            {spot.time_by_car_minutes != null && (
-              <span className="glass-chip flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs">
-                <IconCar size={15} />
-                {formatDuration(spot.time_by_car_minutes)}
-              </span>
-            )}
-            {spot.time_by_bike_minutes != null && (
-              <span className="glass-chip flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs">
-                <IconMotorbike size={15} />
-                {formatDuration(spot.time_by_bike_minutes)}
-              </span>
-            )}
-            {spot.distance_from_pune_km != null && (
-              <span className="glass-chip flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs">
-                <IconMapPin size={15} />
-                {spot.distance_from_pune_km} km · Pune
-              </span>
-            )}
-          </div>
-        )}
-
-        {spot.how_to_reach && (
-          <div className="mt-6 border-t-2 border-black pt-4">
-            <p className="font-headline text-[11px] uppercase tracking-wide text-[var(--ink-muted)]">
-              How to reach
-            </p>
-            <p className="mt-1 text-[14px] leading-relaxed">{spot.how_to_reach}</p>
-          </div>
-        )}
-
-        <Link
-          href={`/?spot=${slug}`}
-          className="font-headline mt-8 inline-flex items-center gap-2 rounded-full border-2 border-black px-4 py-2.5 text-[13px] text-white"
-          style={{ background: "var(--pantone-orange)" }}
-        >
-          <IconMap2 size={16} stroke={2} />
-          Open in interactive map
-        </Link>
-      </div>
-    </div>
+      <MapView initialSpot={spot} />
+    </main>
   );
 }
