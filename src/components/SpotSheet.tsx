@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import {
   IconX,
   IconRoute,
@@ -22,17 +21,6 @@ import {
 import { categoryMeta } from "@/lib/categories";
 import { formatDuration, youtubeThumbnail } from "@/lib/format";
 import type { Spot } from "@/types";
-
-
-function SheetPhoto({ src, alt, onError }: { src: string; alt: string; onError: () => void }) {
-  const [loaded, setLoaded] = useState(false);
-  return (
-    <div className={`amc-sheet-photo ${loaded ? "is-loaded" : "is-loading"}`}>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={src} alt={alt} onLoad={() => setLoaded(true)} onError={onError} />
-    </div>
-  );
-}
 
 // Shared "at a glance" chip used for the quick-facts row. Kept distinct from
 // the glass-chip travel pills below so the two rows read as separate groups.
@@ -61,8 +49,6 @@ export default function SpotSheet({
   const meta = categoryMeta(spot.category);
   const Icon = meta.icon;
   const photos = spot.photos?.filter(Boolean) ?? [];
-  const [failedPhotos, setFailedPhotos] = useState<Set<string>>(() => new Set());
-  const visiblePhotos = photos.filter((src) => !failedPhotos.has(src));
   const highlights = spot.highlights?.filter(Boolean) ?? [];
   const thingsToCarry = spot.things_to_carry?.filter(Boolean) ?? [];
   const faqs = spot.faqs?.filter((f) => f.question && f.answer) ?? [];
@@ -77,21 +63,25 @@ export default function SpotSheet({
   )}`;
 
   return (
-    <div className="sheet-enter amc-spot-sheet absolute inset-x-0 bottom-0 z-30 flex max-h-[85vh] flex-col rounded-t-3xl border-t-4 border-black bg-white shadow-2xl">
-      <div className="amc-sheet-scroll flex-1 overflow-y-auto rounded-t-[20px]">
+    <div className="sheet-enter absolute inset-x-0 bottom-0 z-30 flex max-h-[85vh] flex-col rounded-t-3xl border-t-4 border-black bg-white shadow-2xl">
+      <div className="flex-1 overflow-y-auto rounded-t-[20px]">
         {/* Hero photo strip, falls back to a black-outline icon panel when there are no photos yet */}
-        <div className="amc-sheet-hero relative">
-          {visiblePhotos.length > 0 ? (
-            <div className="amc-sheet-gallery flex snap-x snap-mandatory gap-0 overflow-x-auto rounded-t-[20px]">
-              {visiblePhotos.map((src, i) => (
-                <SheetPhoto key={src + i} src={src} alt={`${spot.name} photo ${i + 1}`} onError={() => setFailedPhotos((current) => new Set(current).add(src))} />
+        <div className="relative">
+          {photos.length > 0 ? (
+            <div className="flex h-40 snap-x snap-mandatory gap-0 overflow-x-auto rounded-t-[20px]">
+              {photos.map((src, i) => (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  key={src + i}
+                  src={src}
+                  alt={`${spot.name} photo ${i + 1}`}
+                  className="h-40 w-full flex-shrink-0 snap-center object-cover"
+                />
               ))}
             </div>
           ) : (
-            <div className="amc-sheet-photo-fallback">
-              <span><Icon size={30} stroke={2} /></span>
-              <small>{spot.category.toUpperCase()} ESCAPE</small>
-              <strong>{spot.name}</strong>
+            <div className="flex h-24 items-center justify-center rounded-t-[20px] border-b-2 border-black bg-white">
+              <Icon size={32} stroke={1.5} color="#000" />
             </div>
           )}
           <div className="absolute inset-x-0 top-0 mx-auto mt-2 h-1 w-10 rounded-full bg-black/30" />
@@ -105,8 +95,8 @@ export default function SpotSheet({
           </button>
         </div>
 
-        <div className="amc-sheet-content px-5 pt-4">
-          <div className="amc-sheet-title flex items-center gap-2.5">
+        <div className="px-5 pt-4">
+          <div className="flex items-center gap-2.5">
             <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full border-2 border-black bg-white">
               <Icon size={18} stroke={2} color="#000" />
             </span>
@@ -119,7 +109,7 @@ export default function SpotSheet({
           </div>
 
           {hasFacts && (
-            <div className="amc-sheet-facts mt-4 flex flex-wrap gap-2">
+            <div className="mt-4 flex flex-wrap gap-2">
               {spot.difficulty && <FactChip icon={<IconRoute size={14} />} label={spot.difficulty} />}
               {spot.altitude_m != null && (
                 <FactChip icon={<IconRuler2 size={14} />} label={`${spot.altitude_m} m`} />
@@ -130,7 +120,7 @@ export default function SpotSheet({
           )}
 
           {spot.description && (
-            <p className="amc-sheet-description mt-3 text-[14px] leading-relaxed text-[var(--ink)]">{spot.description}</p>
+            <p className="mt-3 text-[14px] leading-relaxed text-[var(--ink)]">{spot.description}</p>
           )}
 
           {highlights.length > 0 && (
@@ -251,7 +241,7 @@ export default function SpotSheet({
         </div>
       </div>
 
-      <div className="amc-sheet-actions flex flex-shrink-0 gap-2.5 border-t-2 border-black bg-white px-5 pt-3 pb-[calc(env(safe-area-inset-bottom)+12px)]">
+      <div className="flex flex-shrink-0 gap-2.5 border-t-2 border-black bg-white px-5 pt-3 pb-[calc(env(safe-area-inset-bottom)+12px)]">
         <a
           href={directionsUrl}
           target="_blank"
