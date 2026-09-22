@@ -279,7 +279,7 @@ button,a,[role="button"]{touch-action:manipulation;-webkit-tap-highlight-color:t
 
 
 /* Default snap is content-sized: handle + header/filters/section label + one complete card + nav clearance. */
-.amc-discovery-panel.state-half{height:min(59dvh,500px)}
+.amc-discovery-panel.state-half{height:min(61dvh,517px)}
 /* Short phones keep the same complete card, with a compact card rhythm so it clears the floating nav. */
 @media(max-width:374px) and (max-height:700px){
   .amc-card-photo{height:70px}
@@ -290,3 +290,7 @@ button,a,[role="button"]{touch-action:manipulation;-webkit-tap-highlight-color:t
   .amc-stat-row span{padding:2px 3px;font-size:9px}
 }
 @media(max-width:374px) and (max-height:700px){.amc-card-photo{height:62px}}
+
+/* Final gesture contract: only handle/header/filter area resizes the drawer; cards never do. */
+.amc-discovery-panel .amc-drawer-scroll{touch-action:none}
+.amc-discovery-panel .amc-card-list{touch-action:pan-x pan-y;overscroll-behavior:contain}
