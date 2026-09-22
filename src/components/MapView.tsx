@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import mapboxgl from "mapbox-gl";
+import type mapboxgl from "mapbox-gl";
 import { supabase } from "@/lib/supabase";
 import { getGpsLocation, getIpLocation, haversineKm, isInMaharashtra } from "@/lib/geo";
 import { loadSavedLocation, saveLocation, type QuickCity } from "@/lib/locationOverride";
@@ -14,7 +14,6 @@ import SpotSheet from "./SpotSheet";
 import GeoGateBanner from "./GeoGateBanner";
 import BottomNav,{type AppSection} from "./BottomNav";import SpotCard from "./SpotCard";import SurpriseMe from "./SurpriseMe";import AccountView from "./AccountView";import{loadSavedSpotIds,saveSpotIds}from"@/lib/savedSpots";
 
-mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN!;
 
 const CENTER: [number, number] = [73.55, 18.75];
 // Below this zoom, pins collapse to name-only (no stats row) so a full
@@ -24,6 +23,7 @@ const DETAIL_ZOOM_THRESHOLD = 10.5;
 export default function MapView() {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
+  const mapboxRef = useRef<typeof import("mapbox-gl")["default"] | null>(null);
   const markersRef = useRef<mapboxgl.Marker[]>([]);
   const userMarkerRef = useRef<mapboxgl.Marker | null>(null);
 
@@ -56,8 +56,8 @@ export default function MapView() {
   }
 
   function drawUserPin(lat: number, lng: number) {
-    const map = mapRef.current;
-    if (!map) return;
+    const map = mapRef.current, mapbox = mapboxRef.current;
+    if (!map || !mapbox) return;
     if (userMarkerRef.current) userMarkerRef.current.remove();
     const pin = document.createElement("div");
     pin.style.cssText = `display: flex; flex-direction: column; align-items: center;`;
@@ -72,7 +72,7 @@ export default function MapView() {
         <image href="/user-location.jpg" x="9" y="7" width="34" height="34" clip-path="url(#userPinPhoto)" preserveAspectRatio="xMidYMid slice"/>
       </svg>
     `;
-    userMarkerRef.current = new mapboxgl.Marker({ element: pin, anchor: "bottom" })
+    userMarkerRef.current = new mapbox.Marker({ element: pin, anchor: "bottom" })
       .setLngLat([lng, lat])
       .addTo(map);
   }
@@ -143,25 +143,25 @@ export default function MapView() {
   // init map once we know where to open it
   useEffect(() => {
     if (!containerRef.current || mapRef.current || !initialView) return;
-    const map = new mapboxgl.Map({
-      container: containerRef.current,
-      style: "mapbox://styles/mapbox/outdoors-v12",
-      center: initialView.center,
-      zoom: initialView.zoom,
-      attributionControl: false,
-    });
-    map.on("load", () => setMapReady(true));
-    map.on("zoom", updatePinDetailVisibility);
-    mapRef.current = map;
-
-    const resizeObserver = new ResizeObserver(() => map.resize());
-    resizeObserver.observe(containerRef.current);
-
-    return () => {
-      resizeObserver.disconnect();
-      map.remove();
-      mapRef.current = null;
+    let cancelled = false;
+    let resizeObserver: ResizeObserver | null = null;
+    let map: mapboxgl.Map | null = null;
+    const start = async () => {
+      // Let the shell, location state and drawer paint before loading Mapbox.
+      await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+      const mapbox = (await import("mapbox-gl")).default;
+      if (cancelled || !containerRef.current) return;
+      mapbox.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN!;
+      mapboxRef.current = mapbox;
+      map = new mapbox.Map({container:containerRef.current,style:"mapbox://styles/mapbox/outdoors-v12",center:initialView.center,zoom:initialView.zoom,attributionControl:false});
+      map.on("load", () => setMapReady(true));
+      map.on("zoom", updatePinDetailVisibility);
+      mapRef.current = map;
+      resizeObserver = new ResizeObserver(() => map?.resize());
+      resizeObserver.observe(containerRef.current);
     };
+    start();
+    return () => {cancelled=true;resizeObserver?.disconnect();map?.remove();mapRef.current=null;mapboxRef.current=null};
   }, [initialView]);
 
   // fetch spots once
@@ -229,7 +229,9 @@ export default function MapView() {
         if (slug) window.history.pushState(null, "", `/${spot.category}/${slug}`);
       });
 
-      const marker = new mapboxgl.Marker({ element: el, anchor: "bottom" })
+      const mapbox = mapboxRef.current;
+      if (!mapbox) return;
+      const marker = new mapbox.Marker({ element: el, anchor: "bottom" })
         .setLngLat([spot.lng, spot.lat])
         .addTo(map);
       markersRef.current.push(marker);
@@ -257,5 +259,5 @@ export default function MapView() {
   function openSpot(s:Spot){setSelectedSpot(s);const slug=slugById.get(s.id);if(slug)history.pushState(null,"",`/${s.category}/${slug}`);focusSpot(s)}
   function save(id:string){setSavedIds(cur=>{const n=new Set(cur);n.add(id);saveSpotIds([...n]);return n})}
   function nextDrawer(dir:number){setDrawerState(v=>{const states:["min","half","full"]=["min","half","full"];return states[Math.max(0,Math.min(2,states.indexOf(v)+dir))]})}
-  return <div className={`amc-app section-${section}`}><TopBar search={search} onSearch={setSearch}/>{section==="explore"&&<><div className="amc-map" ref={containerRef}/>{!mapReady&&<div className="amc-map-loading"/>}{gate&&!gateDismissed&&<GeoGateBanner city={gate.city} onDismiss={()=>setGateDismissed(true)} onNotify={()=>setGateDismissed(true)}/>}<div className="amc-location-float"><LocationPicker label={locationLabel} confirmed={locationConfirmed} onPick={handlePickCity} onUseGps={handleNearMe} locatingGps={locating}/></div><aside className={`amc-discovery-panel state-${drawerState}`}><button className="amc-drawer-grab" aria-label={`Drawer ${drawerState}`} onClick={()=>{if(!drawerMoved.current)nextDrawer(drawerState==="full"?-1:1);drawerMoved.current=false}} onPointerDown={e=>{drawerStartY.current=e.clientY;drawerMoved.current=false;e.currentTarget.setPointerCapture(e.pointerId)}} onPointerMove={e=>{if(drawerStartY.current!==null&&Math.abs(e.clientY-drawerStartY.current)>12)drawerMoved.current=true}} onPointerUp={e=>{if(drawerStartY.current!==null){const d=e.clientY-drawerStartY.current;if(d< -35)nextDrawer(1);else if(d>35)nextDrawer(-1)}drawerStartY.current=null}}><span/></button><div className="amc-drawer-scroll"><div className="amc-panel-title"><div><p>NEAR {locationLabel.toUpperCase()}</p><h1>{visible.length} spots better than Monday <span>· {maxDistanceKm} km</span></h1></div></div>{drawerState!=="min"&&<><CategoryChips active={activeCategory} onChange={setActiveCategory} maxDistanceKm={maxDistanceKm} onDistanceChange={setMaxDistanceKm}/><div className="amc-results-label"><span>ALL WITHIN {maxDistanceKm} KM</span><span>NEAREST FIRST ↓</span></div><div className="amc-card-list" onScroll={e=>{const box=(e.currentTarget as HTMLElement).getBoundingClientRect();const cards=[...e.currentTarget.querySelectorAll<HTMLElement>("[data-spot-id]")];const best=cards.sort((a,b)=>Math.abs(a.getBoundingClientRect().left-box.left)-Math.abs(b.getBoundingClientRect().left-box.left))[0];const spot=visible.find(s=>s.id===best?.dataset.spotId);if(spot)focusSpot(spot)}}>{visible.map(s=><SpotCard key={s.id} spot={s} distance={distanceFor(s)} slug={slugById.get(s.id)} onFocus={()=>focusSpot(s)} onOpen={()=>openSpot(s)}/>)}</div></>}</div></aside></>}{section==="surprise"&&<SurpriseMe spots={spots} origin={initialView?.center??null} saved={savedIds} onSave={save} slugFor={s=>slugById.get(s.id)}/>} {section==="account"&&<AccountView spots={spots} saved={savedIds} distanceFor={distanceFor} slugFor={s=>slugById.get(s.id)} onFocus={focusSpot} onOpen={openSpot}/>} {selectedSpot&&<SpotSheet spot={selectedSpot} onClose={closeSheet}/>}<BottomNav active={section} onChange={setSection}/></div>;
+  return <div className={`amc-app section-${section}`}><TopBar search={search} onSearch={setSearch}/>{section==="explore"&&<><div className="amc-map" ref={containerRef}/>{!mapReady&&<div className="amc-map-loading"><div className="amc-map-grid"/><span>Finding your escape route…</span></div>}{gate&&!gateDismissed&&<GeoGateBanner city={gate.city} onDismiss={()=>setGateDismissed(true)} onNotify={()=>setGateDismissed(true)}/>}<div className="amc-location-float"><LocationPicker label={locationLabel} confirmed={locationConfirmed} onPick={handlePickCity} onUseGps={handleNearMe} locatingGps={locating}/></div><aside className={`amc-discovery-panel state-${drawerState}`}><button className="amc-drawer-grab" aria-label={`Drawer ${drawerState}`} onClick={()=>{if(!drawerMoved.current)nextDrawer(drawerState==="full"?-1:1);drawerMoved.current=false}} onPointerDown={e=>{drawerStartY.current=e.clientY;drawerMoved.current=false;e.currentTarget.setPointerCapture(e.pointerId)}} onPointerMove={e=>{if(drawerStartY.current!==null&&Math.abs(e.clientY-drawerStartY.current)>12)drawerMoved.current=true}} onPointerUp={e=>{if(drawerStartY.current!==null){const d=e.clientY-drawerStartY.current;if(d< -35)nextDrawer(1);else if(d>35)nextDrawer(-1)}drawerStartY.current=null}}><span/></button><div className="amc-drawer-scroll"><div className="amc-panel-title"><div><p>NEAR {locationLabel.toUpperCase()}</p><h1>{spots.length===0?"Finding spots":visible.length+" spots better than Monday"} <span>· {maxDistanceKm} km</span></h1></div></div>{drawerState!=="min"&&<><CategoryChips active={activeCategory} onChange={setActiveCategory} maxDistanceKm={maxDistanceKm} onDistanceChange={setMaxDistanceKm}/><div className="amc-results-label"><span>ALL WITHIN {maxDistanceKm} KM</span><span>NEAREST FIRST ↓</span></div><div className="amc-card-list" onScroll={e=>{const box=(e.currentTarget as HTMLElement).getBoundingClientRect();const cards=[...e.currentTarget.querySelectorAll<HTMLElement>("[data-spot-id]")];const best=cards.sort((a,b)=>Math.abs(a.getBoundingClientRect().left-box.left)-Math.abs(b.getBoundingClientRect().left-box.left))[0];const spot=visible.find(s=>s.id===best?.dataset.spotId);if(spot)focusSpot(spot)}}>{spots.length===0?[0,1].map(i=><div key={i} className="amc-spot-card amc-card-skeleton"><i/><b/><span/></div>):visible.map(s=><SpotCard key={s.id} spot={s} distance={distanceFor(s)} slug={slugById.get(s.id)} onFocus={()=>focusSpot(s)} onOpen={()=>openSpot(s)}/>)}</div></>}</div></aside></>}{section==="surprise"&&<SurpriseMe spots={spots} origin={initialView?.center??null} saved={savedIds} onSave={save} slugFor={s=>slugById.get(s.id)}/>} {section==="account"&&<AccountView spots={spots} saved={savedIds} distanceFor={distanceFor} slugFor={s=>slugById.get(s.id)} onFocus={focusSpot} onOpen={openSpot}/>} {selectedSpot&&<SpotSheet spot={selectedSpot} onClose={closeSheet}/>}<BottomNav active={section} onChange={setSection}/></div>;
 }
