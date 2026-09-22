@@ -156,3 +156,9 @@ body,
 .amc-panel-tagline{display:block;margin-top:3px;font:400 7px/1.2 var(--font-pixel)}
 .amc-results-label>span:first-child{display:grid;gap:2px}.amc-results-label strong{font:400 8px/1 var(--font-pixel)}.amc-results-label small{font:400 7px/1 var(--font-pixel);text-transform:lowercase}
 .amc-presets button:last-child{text-transform:none}
+
+/* Full orange canvas on secondary tabs; Explore alone lets drawer content show through. */
+.section-surprise .amc-surprise,.section-account .amc-account-view{top:0}
+.section-surprise .amc-surprise-scroll{padding-top:90px}
+.section-account .amc-account-view{padding-top:90px}
+.section-surprise .amc-nav-dock,.section-account .amc-nav-dock{background:var(--pantone-orange)}
