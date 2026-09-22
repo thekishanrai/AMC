@@ -143,7 +143,7 @@ body,
 .amc-nav-dock{height:calc(80px + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom)}
 
 /* Authoritative mobile nav block. Keep nav sizing and safe-area behavior here. */
-.amc-nav-dock{position:fixed;z-index:79;left:0;right:0;bottom:0;height:calc(80px + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);background:#fff;pointer-events:none}
+.amc-nav-dock{position:fixed;z-index:79;left:0;right:0;bottom:0;height:calc(80px + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);background:transparent;pointer-events:none}
 .amc-bottom-nav{position:absolute;z-index:80;left:14px;right:14px;bottom:10px;height:58px;border:2px solid #000;border-radius:18px;background:#111;box-shadow:3px 3px 0 #000;display:flex;align-items:center;justify-content:space-around;color:#8b8b86;pointer-events:auto}
 .amc-bottom-nav button{position:relative;display:grid;grid-template-rows:25px 11px;align-content:center;place-items:center;gap:0;width:96px;height:50px;padding:1px 0;border-radius:24px;font-size:9px;line-height:1}
 .amc-nav-icon{position:relative;z-index:1;display:grid;place-items:center;width:25px!important;height:25px!important;min-width:25px;min-height:25px;max-width:25px;max-height:25px;border-radius:50%;transform:none!important}
