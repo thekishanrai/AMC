@@ -17,21 +17,11 @@ const CATEGORY_LABEL_SINGULAR: Record<Category, string> = {
 };
 
 function pageTitle(spot: Spot): string {
-  if (spot.category === "trek") return `${spot.name} | Everything You Need to Know`;
-  const label = CATEGORY_LABEL_SINGULAR[spot.category];
-  const heading = spot.name.toLowerCase().includes(label.toLowerCase())
-    ? spot.name
-    : `${spot.name} ${label}`;
-  return `${heading} | Everything You Need to Know`;
+  return `${spot.name} | Everything You Need to Know`;
 }
 
 function pageDescription(spot: Spot): string {
-  if (spot.description) {
-    return spot.description.length > 155
-      ? `${spot.description.slice(0, 152).trimEnd()}…`
-      : spot.description;
-  }
-  return `${spot.name}: distance, difficulty, best season and how to reach, for a weekend trip near Mumbai and Pune.`;
+  return spot.description ?? `${spot.name}: distance, difficulty, best season and how to reach, for a weekend trip near Mumbai and Pune.`;
 }
 
 export async function generateStaticParams() {
@@ -61,7 +51,9 @@ export async function generateMetadata({
     title,
     description,
     alternates: { canonical: url },
-    openGraph: { title, description, url },
+    robots: { index: true, follow: true },
+    openGraph: { title, description, url, type: "website", siteName: "Anti Monday Club" },
+    twitter: { card: "summary", title, description },
   };
 }
 
@@ -83,6 +75,8 @@ export default async function SpotPage({
     name: spot.name,
     description: spot.description ?? pageDescription(spot),
     url: canonicalUrl,
+    mainEntityOfPage: canonicalUrl,
+    touristType: CATEGORY_LABEL_SINGULAR[spot.category],
     geo: {
       "@type": "GeoCoordinates",
       latitude: spot.lat,
@@ -94,6 +88,18 @@ export default async function SpotPage({
       addressCountry: "IN",
     },
   };
+
+  const faqJsonLd = spot.faqs?.length ? {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: spot.faqs
+      .filter((faq) => faq.question && faq.answer)
+      .map((faq) => ({
+        "@type": "Question",
+        name: faq.question,
+        acceptedAnswer: { "@type": "Answer", text: faq.answer },
+      })),
+  } : null;
 
   const breadcrumbJsonLd = {
     "@context": "https://schema.org",
@@ -114,6 +120,12 @@ export default async function SpotPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
+      {faqJsonLd && faqJsonLd.mainEntity.length > 0 && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+        />
+      )}
       <MapView initialSpot={spot} />
     </main>
   );

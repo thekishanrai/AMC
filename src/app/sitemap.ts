@@ -9,8 +9,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const spotUrls: MetadataRoute.Sitemap = spots.map((spot) => ({
     url: `${SITE_URL}/${spot.category}/${slugById.get(spot.id)}`,
-    lastModified: new Date(),
+    changeFrequency: "weekly",
+    priority: 0.8,
   }));
 
-  return [{ url: SITE_URL, lastModified: new Date() }, ...spotUrls];
+  return [{ url: SITE_URL, changeFrequency: "daily", priority: 1 }, ...spotUrls];
 }
