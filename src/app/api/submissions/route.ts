@@ -6,12 +6,12 @@ export const runtime = "nodejs";
 
 const allowedTypes = new Set(["request-location", "share-feedback", "report-bug", "contact"]);
 const allowedFileTypes = new Set(["image/jpeg", "image/png", "image/webp", "image/gif", "video/mp4", "video/quicktime"]);
-const requiredByType: Record<string, string[]> = {
-  "request-location": ["place", "map", "type", "why", "contact"],
-  "share-feedback": ["surface", "feeling", "feedback"],
-  "report-bug": ["area", "actual"],
-  contact: ["reason", "name", "contact", "subject", "message"],
-};
+const formTables = {
+  "request-location": { table: "location_requests", required: ["place", "map", "type", "why", "contact"] },
+  "share-feedback": { table: "feedback_submissions", required: ["surface", "feeling", "feedback"] },
+  "report-bug": { table: "bug_reports", required: ["area", "actual"] },
+  contact: { table: "contact_messages", required: ["reason", "name", "contact", "subject", "message"] },
+} as const;
 
 function clean(value: FormDataEntryValue) {
   return String(value).trim().slice(0, 5000);
@@ -35,13 +35,14 @@ export async function POST(request: NextRequest) {
     if (key === "form_type" || key === "attachment" || key === "website" || typeof value !== "string") continue;
     fields[key] = clean(value);
   }
-  if (requiredByType[formType].some((key) => !fields[key])) return NextResponse.json({ error: "Please fill every required field." }, { status: 400 });
+  const config = formTables[formType as keyof typeof formTables];
+  if (config.required.some((key) => !fields[key])) return NextResponse.json({ error: "Please fill every required field." }, { status: 400 });
 
   const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
   const ipHash = createHash("sha256").update(`${serviceKey}:${ip}`).digest("hex");
   const supabase = createClient(url, serviceKey, { auth: { persistSession: false, autoRefreshToken: false } });
   const since = new Date(Date.now() - 15 * 60_000).toISOString();
-  const { count, error: countError } = await supabase.from("form_submissions").select("id", { count: "exact", head: true }).eq("ip_hash", ipHash).gte("created_at", since);
+  const { count, error: countError } = await supabase.from(config.table).select("id", { count: "exact", head: true }).eq("ip_hash", ipHash).gte("created_at", since);
   if (countError) return NextResponse.json({ error: "Could not submit right now." }, { status: 500 });
   if ((count ?? 0) >= 5) return NextResponse.json({ error: "Too many messages. Try again in 15 minutes." }, { status: 429 });
 
@@ -57,17 +58,26 @@ export async function POST(request: NextRequest) {
     attachmentInfo = { path, name: attachment.name.slice(0, 180), type: attachment.type, size: attachment.size };
   }
 
-  const { error } = await supabase.from("form_submissions").insert({
-    form_type: formType,
-    fields,
+  const common = {
+    page_path: clean(data.get("page_path") ?? "").slice(0, 500),
+    user_agent: (request.headers.get("user-agent") ?? "").slice(0, 500),
+    ip_hash: ipHash,
+  };
+  const attachmentColumns = {
     attachment_path: attachmentInfo.path ?? null,
     attachment_name: attachmentInfo.name ?? null,
     attachment_type: attachmentInfo.type ?? null,
     attachment_size: attachmentInfo.size ?? null,
-    page_path: clean(data.get("page_path") ?? "").slice(0, 500),
-    user_agent: (request.headers.get("user-agent") ?? "").slice(0, 500),
-    ip_hash: ipHash,
-  });
+  };
+  const rowByType = {
+    "request-location": { place_name: fields.place, map_link_or_area: fields.map, place_type: fields.type, reason: fields.why, contact: fields.contact, ...attachmentColumns, ...common },
+    "share-feedback": { surface: fields.surface, feeling: fields.feeling, feedback: fields.feedback, page_link: fields.page || null, contact: fields.contact || null, ...common },
+    "report-bug": { broken_area: fields.area, actual_behavior: fields.actual, expected_behavior: fields.expected || null, device_browser: fields.device || null, contact: fields.contact || null, ...attachmentColumns, ...common },
+    contact: { reason: fields.reason, sender_name: fields.name, contact: fields.contact, subject: fields.subject, message: fields.message, ...common },
+  };
+  // The runtime table is validated through the closed formTables map above;
+  // casting here avoids Supabase's dynamic-table generic collapsing to one row shape.
+  const { error } = await supabase.from(config.table).insert(rowByType[formType as keyof typeof rowByType] as never);
   if (error) return NextResponse.json({ error: "Could not save your message." }, { status: 500 });
   return NextResponse.json({ ok: true });
 }
