@@ -43,9 +43,11 @@ function FactChip({
 export default function SpotSheet({
   spot,
   onClose,
+  shareUrl,
 }: {
   spot: Spot;
   onClose: () => void;
+  shareUrl: string;
 }) {
   const meta = categoryMeta(spot.category);
   const Icon = meta.icon;
@@ -64,9 +66,10 @@ export default function SpotSheet({
     spot.difficulty || spot.altitude_m != null || spot.duration_label || spot.best_season;
 
   const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${spot.lat},${spot.lng}`;
-  const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(
-    `${spot.name} — ${directionsUrl}`
-  )}`;
+  const whatsappText = `*found somewhere we should go 👀*\n${shareUrl}`;
+  // This target is the same canonical contact-chooser shape returned by the
+  // WhatsApp link builder; encode at render time so each detail URL stays exact.
+  const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(whatsappText)}`;
 
   return (
     <div className="sheet-enter amc-spot-sheet absolute inset-x-0 bottom-0 z-30 flex max-h-[85vh] flex-col rounded-t-3xl border-t-4 border-black bg-white shadow-2xl">

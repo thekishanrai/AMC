@@ -47,16 +47,13 @@ export async function generateMetadata({
   const description = pageDescription(spot);
   const url = `/${spot.category}/${slug}`;
 
-  const hasKhargharShareCard = spot.name === "Kharghar Hills";
-  const shareImage = hasKhargharShareCard ? [{ url: "/kharghar-hills-og-demo.png", width: 1200, height: 630, alt: "Kharghar Hills - Anti Monday Club" }] : undefined;
-
   return {
     title,
     description,
     alternates: { canonical: url },
     robots: { index: true, follow: true },
-    openGraph: { title, description, url, type: "website", siteName: "Anti Monday Club", images: shareImage },
-    twitter: { card: hasKhargharShareCard ? "summary_large_image" : "summary", title, description, images: hasKhargharShareCard ? ["/kharghar-hills-og-demo.png"] : undefined },
+    openGraph: { title, description, url, type: "website", siteName: "Anti Monday Club" },
+    twitter: { card: "summary", title, description },
   };
 }
 
