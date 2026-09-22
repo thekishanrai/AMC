@@ -181,3 +181,16 @@ body,
 .amc-results-label strong,.amc-results-label>span:last-child{font-size:14px;line-height:1}
 .amc-location-sheet h2{font-size:24px!important}
 .amc-card-copy h3,.amc-account-menu strong{font-size:18px}
+
+
+/* Final typography contract: every headline is Jersey 25; all supporting copy is Share Tech. */
+.font-headline,h1,h2,h3,.amc-panel-title p,.amc-label,.amc-results-label strong,
+.amc-surprise-heading,.amc-swipe-title h2,.amc-account-intro h1,.amc-account-menu strong,
+.amc-sheet-title h2,.amc-sheet-photo-fallback strong,.amc-sheet-section-label{font-family:var(--font-home-headline),sans-serif!important;font-weight:400!important}
+.amc-swipe-copy>p,.amc-swipe-directions,.amc-drive-season,.amc-sheet-description,
+.amc-sheet-title-suffix,.amc-sheet-content p,.amc-account-menu small{font-family:var(--font-body),sans-serif!important}
+.amc-results-label{display:block;padding-top:17px}
+.amc-results-label strong{font-size:clamp(20px,5.8vw,26px);line-height:1;display:block}
+.amc-results-label small{display:block;margin-top:2px;font-family:var(--font-headline),sans-serif!important;font-stretch:condensed;font-size:10px;line-height:1;text-transform:lowercase}
+.amc-nav-label{font-size:9.92px;font-weight:700}
+.amc-wordmark{display:block;pointer-events:auto}
