@@ -172,7 +172,7 @@ export default function MapView({ initialSpot = null }: { initialSpot?: Spot | n
       if (cancelled || !containerRef.current) return;
       mapbox.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN!;
       mapboxRef.current = mapbox;
-      map = new mapbox.Map({container:containerRef.current,style:"mapbox://styles/mapbox/outdoors-v12",center:initialView.center,zoom:initialView.zoom,attributionControl:false});
+      map = new mapbox.Map({container:containerRef.current,style:"mapbox://styles/mapbox/light-v11",center:initialView.center,zoom:initialView.zoom,attributionControl:false});
       map.on("load", () => setMapReady(true));
       map.on("zoom", updatePinDetailVisibility);
       mapRef.current = map;
