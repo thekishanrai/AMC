@@ -267,3 +267,16 @@ body,
 .amc-discovery-panel .amc-card-list{touch-action:pan-x}
 /* Prevent the browser's vertical pan recognizer from stealing downward sheet drags on drawer content. */
 .amc-discovery-panel .amc-drawer-scroll{touch-action:none}
+
+/* Instant taps: defer drawer layout work until a real drag and keep ordinary controls off the delayed gesture path. */
+button,a,[role="button"]{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.amc-discovery-panel,.amc-discovery-panel .amc-drawer-scroll{touch-action:none}
+.amc-discovery-panel .amc-card-list{touch-action:pan-x}
+
+/* 15% quieter search control, ring and glyph scaled together. */
+.amc-top-actions button{width:37.4px!important;height:37.4px!important;min-width:37.4px!important;min-height:37.4px!important}
+.amc-top-actions button svg{width:15.3px;height:15.3px}
+
+
+/* Default snap is content-sized: handle + header/filters/section label + one complete card + nav clearance. */
+.amc-discovery-panel.state-half{height:min(calc(100dvh - 108px),var(--amc-default-drawer-height,590px))}
