@@ -302,3 +302,6 @@ button,a,[role="button"]{touch-action:manipulation;-webkit-tap-highlight-color:t
 .amc-instagram-title{position:relative;z-index:1;max-width:330px;margin-top:7px;font-family:var(--font-home-headline),sans-serif;font-size:clamp(28px,8.5vw,35px);font-weight:400;line-height:.9}
 .amc-instagram-note{position:relative;z-index:1;max-width:315px;margin-top:8px;color:#fffaf2;font-family:var(--font-body),sans-serif;font-size:12px;line-height:1.25}
 .amc-instagram-handle{display:flex;align-items:center;gap:4px;width:max-content;margin-top:9px;padding:7px 10px;border-radius:999px;background:var(--pantone-orange);color:#111;font-family:var(--font-body),sans-serif;font-size:13px;font-weight:700;line-height:1;text-decoration:none}
+
+/* User-selected 5% readability bump for bottom-nav labels. */
+.amc-nav-label{font-size:10.416px}
