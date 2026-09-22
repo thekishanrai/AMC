@@ -194,3 +194,11 @@ body,
 .amc-results-label small{display:block;margin-top:2px;font-family:var(--font-headline),sans-serif!important;font-stretch:condensed;font-size:10px;line-height:1;text-transform:lowercase}
 .amc-nav-label{font-size:9.92px;font-weight:700}
 .amc-wordmark{display:block;pointer-events:auto}
+
+.amc-swipe-directions button:last-child{font-family:var(--font-body),sans-serif;font-size:inherit;font-weight:800}
+
+/* Detail metadata and fact chips are supporting information, always Share Tech. */
+.amc-sheet-facts,.amc-sheet-facts>span,.amc-sheet-content [class*="rounded-full"],
+.amc-sheet-content [class*="rounded-xl"],.amc-sheet-gallery,.amc-sheet-photo-fallback small,
+.amc-sheet-actions,.amc-drive-season,.amc-starburst,.amc-photo-type,
+.amc-swipe-title>span{font-family:var(--font-body),sans-serif!important}
