@@ -242,3 +242,11 @@ body,
 /* Quiet search control: transparent on the black bar, with a low-key orange outline and glyph. */
 .amc-top-actions button{background:transparent;border-color:var(--pantone-orange);color:var(--pantone-orange);box-shadow:none}
 .amc-top-actions button svg{stroke:currentColor}
+
+/* Three-tier Explore type scale: one hero, quieter section heads, compact labels/meta. */
+.amc-panel-title h1{font-size:clamp(22px,6.2vw,28px)!important}
+.amc-results-label strong,.amc-label{font-size:18px!important;line-height:1!important}
+.amc-panel-title p{font-family:var(--font-body),sans-serif!important;font-size:11px!important;line-height:1.1!important;text-transform:uppercase}
+.amc-results-label small{font-size:10px!important}
+.amc-presets button,.amc-category-row button,.amc-card-copy p,.amc-stat-row span{font-size:11px}
+.state-min .amc-panel-title h1{font-size:clamp(17px,4.8vw,21px)!important}
