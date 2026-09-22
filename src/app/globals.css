@@ -162,3 +162,11 @@ body,
 .section-surprise .amc-surprise-scroll{padding-top:90px}
 .section-account .amc-account-view{padding-top:90px}
 .section-surprise .amc-nav-dock,.section-account .amc-nav-dock{background:var(--pantone-orange)}
+
+/* Accessible mobile hit areas without enlarging the icon artwork. */
+.amc-top-actions button,.amc-save-round,.amc-banner-dismiss{width:44px;height:44px;min-width:44px;min-height:44px;display:grid;place-items:center}
+.amc-banner-dismiss{border-radius:50%}
+.amc-notify-button,.amc-location-float button{min-height:44px}
+.amc-drawer-grab{height:44px;min-height:44px;display:grid;place-items:center}
+.amc-drawer-scroll{height:calc(100% - 44px)}
+.amc-location-sheet button[aria-label="Close"],.amc-spot-sheet button[aria-label="Close"]{width:44px!important;height:44px!important;min-width:44px;min-height:44px;display:grid;place-items:center}

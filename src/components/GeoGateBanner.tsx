@@ -17,7 +17,7 @@ export default function GeoGateBanner({
         type="button"
         onClick={onDismiss}
         aria-label="Dismiss"
-        className="absolute right-3 top-3 text-[var(--ink-muted)]"
+        className="amc-banner-dismiss absolute right-2 top-2 text-[var(--ink-muted)]"
       >
         <IconX size={16} />
       </button>
@@ -27,7 +27,7 @@ export default function GeoGateBanner({
       <button
         type="button"
         onClick={onNotify}
-        className="mt-3 flex items-center gap-1.5 rounded-full border-2 border-black px-3 py-1.5 text-xs font-medium text-white"
+        className="amc-notify-button mt-3 flex items-center gap-1.5 rounded-full border-2 border-black px-3 text-xs font-medium text-white"
         style={{ background: "var(--pantone-orange)" }}
       >
         <IconBell size={14} />
