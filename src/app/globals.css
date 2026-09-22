@@ -265,3 +265,5 @@ body,
 /* Pointer-owned vertical arbitration lets full-sheet content scroll and hands a top-edge downward pull to the sheet. */
 .amc-discovery-panel,.amc-discovery-panel.state-full{touch-action:none}
 .amc-discovery-panel .amc-card-list{touch-action:pan-x}
+/* Prevent the browser's vertical pan recognizer from stealing downward sheet drags on drawer content. */
+.amc-discovery-panel .amc-drawer-scroll{touch-action:none}
