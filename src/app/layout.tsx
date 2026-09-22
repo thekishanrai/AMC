@@ -47,7 +47,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${bitcountGridSingle.variable} ${shareTech.variable} ${pressStart2P.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col overflow-hidden">{children}</body>
+      <head><link rel="preconnect" href="https://api.mapbox.com" crossOrigin="anonymous"/><link rel="preconnect" href="https://tiles.mapbox.com" crossOrigin="anonymous"/><link rel="dns-prefetch" href="https://api.mapbox.com"/><link rel="dns-prefetch" href="https://tiles.mapbox.com"/></head><body className="min-h-full flex flex-col overflow-hidden">{children}</body>
     </html>
   );
 }
