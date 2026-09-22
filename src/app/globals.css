@@ -238,3 +238,7 @@ body,
 
 /* Detail section headlines stay Jersey 25 but read at body-copy size. */
 .amc-sheet-section-label{font-size:14px!important;line-height:1.25!important}
+
+/* Quiet search control: transparent on the black bar, with a low-key orange outline and glyph. */
+.amc-top-actions button{background:transparent;border-color:var(--pantone-orange);color:var(--pantone-orange);box-shadow:none}
+.amc-top-actions button svg{stroke:currentColor}
