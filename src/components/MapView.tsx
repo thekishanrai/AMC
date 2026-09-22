@@ -3,8 +3,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import mapboxgl from "mapbox-gl";
 import { supabase } from "@/lib/supabase";
-import { markerSvg, statIconSvg } from "@/lib/markerIcon";
-import { formatDuration } from "@/lib/format";
 import { getGpsLocation, getIpLocation, haversineKm, isInMaharashtra } from "@/lib/geo";
 import { loadSavedLocation, saveLocation, type QuickCity } from "@/lib/locationOverride";
 import { buildSlugMap } from "@/lib/slug";
@@ -14,6 +12,7 @@ import CategoryChips, { DEFAULT_DISTANCE_KM } from "./CategoryChips";
 import LocationPicker from "./LocationPicker";
 import SpotSheet from "./SpotSheet";
 import GeoGateBanner from "./GeoGateBanner";
+import BottomNav,{type AppSection} from "./BottomNav";import SpotCard from "./SpotCard";import SurpriseMe from "./SurpriseMe";import AccountView from "./AccountView";import{loadSavedSpotIds,saveSpotIds}from"@/lib/savedSpots";
 
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN!;
 
@@ -21,14 +20,6 @@ const CENTER: [number, number] = [73.55, 18.75];
 // Below this zoom, pins collapse to name-only (no stats row) so a full
 // region of spots stays browsable instead of turning into a wall of pills.
 const DETAIL_ZOOM_THRESHOLD = 10.5;
-
-function escapeHtml(value: string) {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-}
 
 export default function MapView() {
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -53,6 +44,9 @@ export default function MapView() {
   const [gateDismissed, setGateDismissed] = useState(false);
   const [locationLabel, setLocationLabel] = useState(() => loadSavedLocation()?.label ?? "Locating…");
   const [locationConfirmed, setLocationConfirmed] = useState(() => loadSavedLocation() != null);
+  const[section,setSection]=useState<AppSection>("explore"),[search,setSearch]=useState("");
+  const[drawerState,setDrawerState]=useState<"min"|"half"|"full">("half");const drawerStartY=useRef<number|null>(null),drawerMoved=useRef(false);
+  const[savedIds,setSavedIds]=useState<Set<string>>(()=>new Set(loadSavedSpotIds()));
 
   const slugById = useMemo(() => buildSlugMap(spots), [spots]);
 
@@ -193,6 +187,7 @@ export default function MapView() {
     const spot = spots.find((s) => slugById.get(s.id) === slug);
     if (!spot) return;
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSelectedSpot(spot);
     map.flyTo({ center: [spot.lng, spot.lat], zoom: 13, padding: { bottom: 280, top: 0, left: 0, right: 0 } });
   }, [spots, mapReady, slugById]);
@@ -208,6 +203,7 @@ export default function MapView() {
     const [userLng, userLat] = initialView.center;
     const filtered = spots.filter((s) => {
       if (activeCategory !== "all" && s.category !== activeCategory) return false;
+      if(search&&!`${s.name} ${s.region??""}`.toLowerCase().includes(search.toLowerCase()))return false;
       // Distance from the visitor's detected location personalizes results, but
       // a bad/generic geolocation (VPN, unresolvable IP, edge fallback) must
       // never hide every spot — falling back to the fixed Mumbai/Pune anchors
@@ -221,42 +217,10 @@ export default function MapView() {
     });
 
     filtered.forEach((spot) => {
-      const stats: string[] = [];
-      if (spot.distance_from_mumbai_km != null) {
-        stats.push(`<span style="display:flex;align-items:center;gap:3px;">${statIconSvg("pin")}${spot.distance_from_mumbai_km} km</span>`);
-      }
-      if (spot.time_by_car_minutes != null) {
-        stats.push(`<span style="display:flex;align-items:center;gap:3px;">${statIconSvg("car")}${formatDuration(spot.time_by_car_minutes)}</span>`);
-      }
-      if (spot.time_by_bike_minutes != null) {
-        stats.push(`<span style="display:flex;align-items:center;gap:3px;">${statIconSvg("bike")}${formatDuration(spot.time_by_bike_minutes)}</span>`);
-      }
-
-      const detailed = map.getZoom() >= DETAIL_ZOOM_THRESHOLD;
       const el = document.createElement("button");
       el.type = "button";
-      el.className = "glass-solid";
-      el.style.cssText = `
-        display: flex; flex-direction: column;
-        padding: ${detailed ? "5px 12px" : "6px 10px"}; border-radius: 16px;
-        cursor: pointer; text-align: left;
-      `;
-      el.innerHTML = `
-        <span style="display:flex;align-items:center;gap:6px;line-height:1;white-space:nowrap;">
-          <span style="display:flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:999px;background:#ffffff;border:2px solid #000000;flex-shrink:0;">
-            ${markerSvg(spot.category)}
-          </span>
-          <span style="font-family:var(--font-headline),monospace;font-size:17px;font-weight:600;line-height:1;color:#000000;">${escapeHtml(spot.name)}</span>
-        </span>
-        ${
-          stats.length > 0
-            ? `<span class="pin-detail" style="display:${detailed ? "flex" : "none"};flex-direction:column;">
-                 <span style="height:1px;background:rgba(0,0,0,0.15);margin:3px 6px 3px 28px;"></span>
-                 <span style="display:flex;align-items:center;gap:9px;font-size:12px;line-height:1;color:#000000;padding-left:28px;white-space:nowrap;">${stats.join("")}</span>
-               </span>`
-            : ""
-        }
-      `;
+      el.className = "amc-map-name-label";
+      el.textContent = spot.name;
       el.addEventListener("click", (e) => {
         e.stopPropagation();
         setSelectedSpot(spot);
@@ -270,7 +234,7 @@ export default function MapView() {
         .addTo(map);
       markersRef.current.push(marker);
     });
-  }, [spots, activeCategory, maxDistanceKm, mapReady, initialView, slugById]);
+  }, [spots, activeCategory, maxDistanceKm, mapReady, initialView, slugById,search]);
 
   async function handleNearMe() {
     setLocating(true);
@@ -287,50 +251,11 @@ export default function MapView() {
     });
   }
 
-  return (
-    <div className="relative h-full w-full overflow-hidden">
-      <div
-        ref={containerRef}
-        style={{ position: "absolute", inset: 0, height: "100%", width: "100%" }}
-      />
-
-      {!mapReady && (
-        <div
-          className="absolute inset-0 z-40"
-          style={{ background: "rgb(28 26 23)" }}
-          aria-hidden
-        />
-      )}
-
-      <TopBar />
-
-      {gate && !gateDismissed && (
-        <GeoGateBanner
-          city={gate.city}
-          onDismiss={() => setGateDismissed(true)}
-          onNotify={() => setGateDismissed(true)}
-        />
-      )}
-
-      <div className="absolute inset-x-0 bottom-0 z-20 flex flex-col items-center">
-        <div className="mb-3">
-          <LocationPicker
-            label={locationLabel}
-            confirmed={locationConfirmed}
-            onPick={handlePickCity}
-            onUseGps={handleNearMe}
-            locatingGps={locating}
-          />
-        </div>
-        <CategoryChips
-          active={activeCategory}
-          onChange={setActiveCategory}
-          maxDistanceKm={maxDistanceKm}
-          onDistanceChange={setMaxDistanceKm}
-        />
-      </div>
-
-      {selectedSpot && <SpotSheet spot={selectedSpot} onClose={closeSheet} />}
-    </div>
-  );
+  function distanceFor(s:Spot){if(!initialView)return s.distance_from_mumbai_km??Infinity;const[lng,lat]=initialView.center;return Math.min(haversineKm(lat,lng,s.lat,s.lng),s.distance_from_mumbai_km??Infinity,s.distance_from_pune_km??Infinity)}
+  const visible=spots.filter(s=>(activeCategory==="all"||s.category===activeCategory)&&distanceFor(s)<=maxDistanceKm&&(!search||`${s.name} ${s.region??""}`.toLowerCase().includes(search.toLowerCase()))).sort((a,b)=>distanceFor(a)-distanceFor(b));
+  function focusSpot(s:Spot){mapRef.current?.flyTo({center:[s.lng,s.lat],zoom:11.8,padding:{bottom:drawerState==="min"?90:320,top:80,left:0,right:0}})}
+  function openSpot(s:Spot){setSelectedSpot(s);const slug=slugById.get(s.id);if(slug)history.pushState(null,"",`/${s.category}/${slug}`);focusSpot(s)}
+  function save(id:string){setSavedIds(cur=>{const n=new Set(cur);n.add(id);saveSpotIds([...n]);return n})}
+  function nextDrawer(dir:number){setDrawerState(v=>{const states:["min","half","full"]=["min","half","full"];return states[Math.max(0,Math.min(2,states.indexOf(v)+dir))]})}
+  return <div className={`amc-app section-${section}`}><TopBar search={search} onSearch={setSearch}/>{section==="explore"&&<><div className="amc-map" ref={containerRef}/>{!mapReady&&<div className="amc-map-loading"/>}{gate&&!gateDismissed&&<GeoGateBanner city={gate.city} onDismiss={()=>setGateDismissed(true)} onNotify={()=>setGateDismissed(true)}/>}<div className="amc-location-float"><LocationPicker label={locationLabel} confirmed={locationConfirmed} onPick={handlePickCity} onUseGps={handleNearMe} locatingGps={locating}/></div><aside className={`amc-discovery-panel state-${drawerState}`}><button className="amc-drawer-grab" aria-label={`Drawer ${drawerState}`} onClick={()=>{if(!drawerMoved.current)nextDrawer(drawerState==="full"?-1:1);drawerMoved.current=false}} onPointerDown={e=>{drawerStartY.current=e.clientY;drawerMoved.current=false;e.currentTarget.setPointerCapture(e.pointerId)}} onPointerMove={e=>{if(drawerStartY.current!==null&&Math.abs(e.clientY-drawerStartY.current)>12)drawerMoved.current=true}} onPointerUp={e=>{if(drawerStartY.current!==null){const d=e.clientY-drawerStartY.current;if(d< -35)nextDrawer(1);else if(d>35)nextDrawer(-1)}drawerStartY.current=null}}><span/></button><div className="amc-drawer-scroll"><div className="amc-panel-title"><div><p>NEAR {locationLabel.toUpperCase()}</p><h1>{visible.length} weekend escapes</h1></div><span>within {maxDistanceKm} km</span></div>{drawerState!=="min"&&<><CategoryChips active={activeCategory} onChange={setActiveCategory} maxDistanceKm={maxDistanceKm} onDistanceChange={setMaxDistanceKm}/><div className="amc-results-label"><span>ALL WITHIN {maxDistanceKm} KM</span><span>NEAREST FIRST ↓</span></div><div className="amc-card-list" onScroll={e=>{const box=(e.currentTarget as HTMLElement).getBoundingClientRect();const cards=[...e.currentTarget.querySelectorAll<HTMLElement>("[data-spot-id]")];const best=cards.sort((a,b)=>Math.abs(a.getBoundingClientRect().left-box.left)-Math.abs(b.getBoundingClientRect().left-box.left))[0];const spot=visible.find(s=>s.id===best?.dataset.spotId);if(spot)focusSpot(spot)}}>{visible.map(s=><SpotCard key={s.id} spot={s} distance={distanceFor(s)} slug={slugById.get(s.id)} onFocus={()=>focusSpot(s)} onOpen={()=>openSpot(s)}/>)}</div></>}</div></aside></>}{section==="surprise"&&<SurpriseMe spots={spots} origin={initialView?.center??null} saved={savedIds} onSave={save}/>} {section==="account"&&<AccountView spots={spots} saved={savedIds} distanceFor={distanceFor} slugFor={s=>slugById.get(s.id)} onFocus={focusSpot} onOpen={openSpot}/>} {selectedSpot&&<SpotSheet spot={selectedSpot} onClose={closeSheet}/>}<BottomNav active={section} onChange={setSection}/></div>;
 }

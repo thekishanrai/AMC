@@ -23,6 +23,8 @@ const CATEGORY_LABEL_SINGULAR: Record<Category, string> = {
   trek: "Trek",
   waterfall: "Waterfall",
   camping: "Campsite",
+  adventure: "Adventure",
+  activity: "Activity",
 };
 
 function pageTitle(spot: Spot): string {

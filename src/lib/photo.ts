@@ -1,0 +1,1 @@
+export function photoSrc(value?:string|null):string|null{if(!value)return null;const raw=value.split("|")[0]?.trim();if(!raw)return null;if(/instagram\.com\/(p|reel)\//i.test(raw))return `/api/photo?url=${encodeURIComponent(raw)}`;return raw}
