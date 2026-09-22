@@ -62,7 +62,7 @@ export default function SpotSheet({
   // Detail heroes use only direct uploaded image files. Social post/reel URLs
   // are intentionally excluded; they are not reliable image assets.
   const photos = (spot.photos?.filter(Boolean) ?? []).filter((src) =>
-    /^https?:\/\//i.test(src) && !/instagram\.com\/(p|reel)\//i.test(src)
+    /^https?:\/\//i.test(src) && !/instagram\.com\//i.test(src)
   );
   const [failedPhotos, setFailedPhotos] = useState<Set<string>>(() => new Set());
   const visiblePhotos = photos.filter((src) => !failedPhotos.has(src));
