@@ -17,6 +17,7 @@ const CATEGORY_LABEL_SINGULAR: Record<Category, string> = {
 };
 
 function pageTitle(spot: Spot): string {
+  if (spot.category === "trek") return `${spot.name} | Everything You Need to Know`;
   const label = CATEGORY_LABEL_SINGULAR[spot.category];
   const heading = spot.name.toLowerCase().includes(label.toLowerCase())
     ? spot.name
