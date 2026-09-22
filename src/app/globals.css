@@ -207,3 +207,34 @@ body,
 .amc-discovery-panel{transition:height .42s cubic-bezier(.22,1,.36,1);will-change:height}
 .amc-discovery-panel.is-dragging{transition:none;user-select:none}
 .amc-discovery-panel.is-dragging .amc-drawer-grab{cursor:grabbing}
+
+
+/* Drawer gestures start only on this dedicated top-edge handle. Panel content keeps native scrolling. */
+.amc-drawer-grab{position:relative;z-index:2;cursor:grab;touch-action:none;overscroll-behavior:contain}
+.amc-drawer-scroll{touch-action:pan-y;overscroll-behavior-y:contain}
+.amc-drawer-scroll button,.amc-drawer-scroll a{touch-action:manipulation}
+
+/* One readable support size across the Surprise card's instruction and compact metadata. */
+.amc-surprise{--swipe-support-size:13px}
+.amc-surprise-tagline,.amc-swipe-directions button:last-child,.amc-photo-type,
+.amc-swipe-title>span,.amc-drive-season b,.amc-drive-season small{
+  font-family:var(--font-body),sans-serif!important;
+  font-size:var(--swipe-support-size)!important;
+  line-height:1.15!important;
+}
+.amc-photo-type,.amc-swipe-title>span{padding:5px 8px}
+.amc-drive-season{gap:14px;text-align:left}
+.amc-drive-season small{margin-top:2px;font-size:12px!important}
+
+/* Detail metadata is body copy, not micro-copy. */
+.amc-sheet-facts>span,.amc-sheet-content [class*="rounded-full"],
+.amc-sheet-content [class*="rounded-xl"]{font-size:13px!important;line-height:1.25!important}
+
+/* Match the heavy wordmark with a stronger, optically centered search glyph. */
+.amc-top-actions button svg{width:22px;height:22px;stroke-width:3;transform:translate(-.25px,.25px)}
+
+/* More opens directly on the menu, without a duplicate section masthead. */
+.amc-account-view .amc-account-menu{margin-top:0}
+
+/* Detail section headlines stay Jersey 25 but read at body-copy size. */
+.amc-sheet-section-label{font-size:14px!important;line-height:1.25!important}
