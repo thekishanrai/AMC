@@ -202,3 +202,8 @@ body,
 .amc-sheet-content [class*="rounded-xl"],.amc-sheet-gallery,.amc-sheet-photo-fallback small,
 .amc-sheet-actions,.amc-drive-season,.amc-starburst,.amc-photo-type,
 .amc-swipe-title>span{font-family:var(--font-body),sans-serif!important}
+
+/* Finger-tracked drawer with a soft native-feeling snap between three states. */
+.amc-discovery-panel{transition:height .42s cubic-bezier(.22,1,.36,1);will-change:height}
+.amc-discovery-panel.is-dragging{transition:none;user-select:none}
+.amc-discovery-panel.is-dragging .amc-drawer-grab{cursor:grabbing}
