@@ -256,3 +256,8 @@ body,
 .amc-location-float button{font-family:var(--font-body),sans-serif!important;font-weight:700}
 .amc-results-label small{font-family:var(--font-body),sans-serif!important;font-size:11px!important;line-height:1.1!important;font-stretch:normal}
 .amc-top-actions button svg{width:18px;height:18px;stroke-width:2.75}
+
+/* The whole sheet surface can initiate a vertical drag; native content scrolling still wins in the full state. */
+.amc-discovery-panel{touch-action:pan-y}
+.amc-discovery-panel.state-min,.amc-discovery-panel.state-half{touch-action:none}
+.amc-discovery-panel .amc-card-list{touch-action:pan-x}
