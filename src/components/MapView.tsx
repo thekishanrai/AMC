@@ -245,14 +245,16 @@ export default function MapView({ initialSpot = null }: { initialSpot?: Spot | n
   async function handleNearMe() {
     setLocating(true);
     const loc = await getGpsLocation();
-    const resolved = loc ?? (await getIpLocation());
     setLocating(false);
-    if (!resolved) return;
+    if (!loc) {
+      // A denied, unavailable or timed-out GPS request should leave the user
+      // with a useful local browse state rather than an IP/VPN surprise.
+      applyLocation(19.076, 72.8777, "Mumbai", { pin: false });
+      return;
+    }
 
-    // Only a real GPS fix is trustworthy enough to save as "this is where I
-    // am" — an IP fallback here is still just a guess, so it isn't persisted.
-    applyLocation(resolved.lat, resolved.lng, resolved.city ?? "Your location", {
-      persist: loc != null,
+    applyLocation(loc.lat, loc.lng, loc.city ?? "Your location", {
+      persist: true,
       pin: true,
     });
   }

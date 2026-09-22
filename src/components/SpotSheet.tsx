@@ -23,16 +23,6 @@ import { formatDuration } from "@/lib/format";
 import type { Spot } from "@/types";
 
 
-function SheetPhoto({ src, alt, onError }: { src: string; alt: string; onError: () => void }) {
-  const [loaded, setLoaded] = useState(false);
-  return (
-    <div className={`amc-sheet-photo ${loaded ? "is-loaded" : "is-loading"}`}>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={src} alt={alt} onLoad={() => setLoaded(true)} onError={onError} />
-    </div>
-  );
-}
-
 // Shared "at a glance" chip used for the quick-facts row. Kept distinct from
 // the glass-chip travel pills below so the two rows read as separate groups.
 function FactChip({
@@ -86,7 +76,8 @@ export default function SpotSheet({
           {visiblePhotos.length > 0 ? (
             <div className="amc-sheet-gallery flex snap-x snap-mandatory gap-0 overflow-x-auto rounded-t-[20px]">
               {visiblePhotos.map((src, i) => (
-                <SheetPhoto key={src + i} src={src} alt={`${spot.name} photo ${i + 1}`} onError={() => setFailedPhotos((current) => new Set(current).add(src))} />
+                // eslint-disable-next-line @next/next/no-img-element
+                <img key={src + i} src={src} alt={`${spot.name} photo ${i + 1}`} className="amc-sheet-photo" onError={() => setFailedPhotos((current) => new Set(current).add(src))} />
               ))}
             </div>
           ) : (
