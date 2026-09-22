@@ -305,3 +305,31 @@ button,a,[role="button"]{touch-action:manipulation;-webkit-tap-highlight-color:t
 
 /* User-selected 5% readability bump for bottom-nav labels. */
 .amc-nav-label{font-size:10.416px}
+
+/* Branded recovery page for broken links. */
+.amc-404-page{min-height:100dvh;overflow:hidden;background:var(--pantone-orange);color:#111;padding:12px 14px}
+.amc-static-topbar{height:54px;border:2px solid #000;border-radius:16px;background:#111;color:var(--pantone-orange);display:flex;align-items:center;justify-content:space-between;padding:0 14px;box-shadow:3px 3px #000}
+.amc-static-topbar a{color:inherit;text-decoration:none}.amc-static-topbar>span{font-family:var(--font-body);font-size:11px}
+.amc-404-main{display:flex;min-height:calc(100dvh - 66px);flex-direction:column;align-items:center;padding:54px 4px 26px;text-align:center}
+.amc-404-code{position:relative;font-family:var(--font-home-headline);font-size:clamp(140px,48vw,190px);line-height:.72;color:#fff7e9;-webkit-text-stroke:4px #111;text-shadow:8px 8px #111}
+.amc-404-code span{position:absolute;right:19%;top:9%;font-size:54px;color:var(--pantone-orange);-webkit-text-stroke:2px #111;transform:rotate(12deg)}
+.amc-pixel-trekker{width:85px;height:120px;margin-top:-10px;background:#111;clip-path:polygon(22% 0,78% 0,78% 14%,100% 14%,100% 40%,78% 40%,78% 62%,100% 62%,100% 100%,61% 100%,61% 75%,39% 75%,39% 100%,0 100%,0 62%,22% 62%,22% 40%,0 40%,0 14%,22% 14%);position:relative}
+.amc-pixel-trekker:after{content:"";position:absolute;width:33px;height:25px;left:26px;top:20px;background:#fff7e9}
+.amc-404-copy{margin-top:24px;border:3px solid #000;border-radius:20px;background:#fff7e9;padding:18px;width:100%;box-shadow:5px 5px #111}
+.amc-404-copy h1{font-family:var(--font-home-headline);font-size:38px;line-height:.9}.amc-404-copy p{margin:10px auto 0;max-width:290px;font-size:13px;line-height:1.35}
+.amc-404-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:15px;width:100%}.amc-404-actions a{border:3px solid #000;border-radius:14px;padding:13px 8px;background:#111;color:var(--pantone-orange);font-family:var(--font-home-headline);font-size:19px;box-shadow:3px 3px #000;text-decoration:none}.amc-404-actions a:last-child{background:#fff7e9;color:#111}
+.amc-404-hint{margin-top:20px;font-size:11px}.amc-404-trail{margin-top:auto;font-family:var(--font-home-headline);font-size:26px;letter-spacing:.15em}
+
+/* Legal content intentionally stays plain and easy to replace. */
+.amc-terms-page{min-height:100dvh;overflow-y:auto;background:#fff;color:#111}
+.amc-terms-top{height:74px;border-bottom:2px solid #111;padding:0 18px;display:flex;align-items:center;justify-content:space-between}.amc-terms-top a{color:#111;text-decoration:none;font-family:var(--font-body);font-size:11px}.amc-terms-top .amc-wordmark{font-family:var(--font-home-headline);font-size:19px}
+.amc-terms-content{padding:28px 20px 50px}.amc-terms-content h1{font-family:var(--font-home-headline);font-size:48px;line-height:.9}.amc-terms-updated{margin-top:9px;color:#666;font-size:11px}.amc-terms-intro{margin-top:18px;font-size:14px;line-height:1.45}
+.amc-terms-toc{margin-top:22px;padding:14px 0;border-top:1px solid #bbb;border-bottom:1px solid #bbb}.amc-terms-toc a{display:block;color:#111;font-size:12px;line-height:1.8;text-decoration:none}
+.amc-terms-content section{scroll-margin-top:16px;padding:22px 0;border-bottom:1px solid #ddd}.amc-terms-content section h2{font-family:var(--font-home-headline);font-size:24px}.amc-terms-content section p{margin-top:8px;font-size:13px;line-height:1.55}.amc-terms-content aside{margin-top:24px;padding:14px;border:1px solid #111;font-size:12px;line-height:1.45}
+
+/* About Us - approved origin-story direction. */
+.amc-about-page{min-height:100dvh;overflow-y:auto;background:var(--pantone-orange);color:#111;padding:12px 14px 42px}
+.amc-about-content{padding-top:22px}.amc-about-hero{border:3px solid #000;border-radius:22px;background:#fff7e9;padding:18px;box-shadow:5px 5px #111}.amc-about-hero>span,.amc-about-story span{font-family:var(--font-body);font-size:11px;letter-spacing:.07em}.amc-about-hero h1{margin-top:8px;color:var(--pantone-orange);font-family:var(--font-home-headline);font-size:48px;line-height:.88;-webkit-text-stroke:1px #111}.amc-about-hero p{margin-top:11px;font-size:13px;line-height:1.35}
+.amc-about-story{margin-top:18px;border-left:5px solid #111;padding-left:15px}.amc-about-story>div{padding-bottom:22px}.amc-about-story h2{margin-top:4px;font-family:var(--font-home-headline);font-size:30px;line-height:1}.amc-about-story p{margin-top:6px;font-size:13px;line-height:1.4}
+.amc-about-open{margin-top:16px;border:2px solid #000;border-radius:18px;background:#111;color:#fff7e9;padding:16px;box-shadow:3px 3px #111}.amc-about-open h2{color:var(--pantone-orange);font-family:var(--font-home-headline);font-size:26px}.amc-about-open p{margin-top:7px;font-size:13px;line-height:1.4}.amc-about-closing{margin-top:20px;font-family:var(--font-home-headline);font-size:36px;line-height:.95}
+.amc-account-menu>a{display:grid;grid-template-columns:42px 1fr 15px;align-items:center;text-align:left;border:2px solid #000;border-radius:15px;background:#fffaf2;padding:9px 11px;box-shadow:2px 2px 0 #000;color:#111;text-decoration:none}
