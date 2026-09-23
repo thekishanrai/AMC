@@ -443,3 +443,4 @@ button,a,[role="button"]{touch-action:manipulation;-webkit-tap-highlight-color:t
 .amc-static-topbar,.amc-terms-top{zoom:1.2}
 .amc-static-topbar,.amc-terms-top{max-width:720px;margin-left:auto!important;margin-right:auto!important}
 }
+.amc-swipe-directions{justify-content:flex-end!important}
