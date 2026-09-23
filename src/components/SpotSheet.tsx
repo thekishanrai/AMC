@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import {
   IconX,
   IconRoute,
@@ -14,13 +15,18 @@ import {
   IconAlertTriangle,
   IconDirections,
   IconBrandWhatsapp,
-  IconBrandYoutube,
   IconTrain,
   IconHelpCircle,
 } from "@tabler/icons-react";
 import { categoryMeta } from "@/lib/categories";
-import { formatDuration, youtubeThumbnail } from "@/lib/format";
+import { photoSrc } from "@/lib/photo";
+import { formatDuration } from "@/lib/format";
+
+// Hero photos through the image proxy ship only after the owner reviews the
+// sourced images; flip to true once approved.
+const HERO_PHOTOS_VIA_PROXY = false;
 import type { Spot } from "@/types";
+
 
 // Shared "at a glance" chip used for the quick-facts row. Kept distinct from
 // the glass-chip travel pills below so the two rows read as separate groups.
@@ -42,49 +48,56 @@ function FactChip({
 export default function SpotSheet({
   spot,
   onClose,
+  shareUrl,
 }: {
   spot: Spot;
   onClose: () => void;
+  shareUrl: string;
 }) {
   const meta = categoryMeta(spot.category);
   const Icon = meta.icon;
-  const photos = spot.photos?.filter(Boolean) ?? [];
+  // Detail heroes use only direct uploaded image files. Social post/reel URLs
+  // are intentionally excluded; they are not reliable image assets.
+  // Instagram post/reel links resolve through the same cached image proxy the
+  // cards use, so the hero shows the spot photo instead of the empty fallback.
+  const photos = (HERO_PHOTOS_VIA_PROXY ? spot.photos?.filter(Boolean) ?? [] : [])
+    .map((src) => photoSrc(src))
+    .filter((src): src is string => !!src && (/^https?:\/\//i.test(src) || src.startsWith("/api/photo")));
+  const [failedPhotos, setFailedPhotos] = useState<Set<string>>(() => new Set());
+  const visiblePhotos = photos.filter((src) => !failedPhotos.has(src));
   const highlights = spot.highlights?.filter(Boolean) ?? [];
   const thingsToCarry = spot.things_to_carry?.filter(Boolean) ?? [];
   const faqs = spot.faqs?.filter((f) => f.question && f.answer) ?? [];
-  const videoThumb = spot.youtube_url ? youtubeThumbnail(spot.youtube_url) : null;
 
   const hasFacts =
     spot.difficulty || spot.altitude_m != null || spot.duration_label || spot.best_season;
 
   const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${spot.lat},${spot.lng}`;
-  const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(
-    `${spot.name} — ${directionsUrl}`
-  )}`;
+  const whatsappText = `*found somewhere we should go 👀*\n${shareUrl}`;
+  // This target is the same canonical contact-chooser shape returned by the
+  // WhatsApp link builder; encode at render time so each detail URL stays exact.
+  const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(whatsappText)}`;
 
   return (
-    <div className="sheet-enter absolute inset-x-0 bottom-0 z-30 flex max-h-[85vh] flex-col rounded-t-3xl border-t-4 border-black bg-white shadow-2xl">
-      <div className="flex-1 overflow-y-auto rounded-t-[20px]">
+    <div className="sheet-enter amc-spot-sheet absolute inset-x-0 bottom-0 z-30 flex max-h-[85vh] flex-col rounded-t-3xl border-t-4 border-black bg-white shadow-2xl">
+      <div className="amc-sheet-scroll flex-1 overflow-y-auto rounded-t-[20px]">
         {/* Hero photo strip, falls back to a black-outline icon panel when there are no photos yet */}
-        <div className="relative">
-          {photos.length > 0 ? (
-            <div className="flex h-40 snap-x snap-mandatory gap-0 overflow-x-auto rounded-t-[20px]">
-              {photos.map((src, i) => (
+        <div className="amc-sheet-hero relative">
+          {visiblePhotos.length > 0 ? (
+            <div className="amc-sheet-gallery flex snap-x snap-mandatory gap-0 overflow-x-auto rounded-t-[20px]">
+              {visiblePhotos.map((src, i) => (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  key={src + i}
-                  src={src}
-                  alt={`${spot.name} photo ${i + 1}`}
-                  className="h-40 w-full flex-shrink-0 snap-center object-cover"
-                />
+                <img key={src + i} src={src} alt={`${spot.name} photo ${i + 1}`} className="amc-sheet-photo" onError={() => setFailedPhotos((current) => new Set(current).add(src))} />
               ))}
             </div>
           ) : (
-            <div className="flex h-24 items-center justify-center rounded-t-[20px] border-b-2 border-black bg-white">
-              <Icon size={32} stroke={1.5} color="#000" />
+            <div className="amc-sheet-photo-fallback">
+              <span><Icon size={30} stroke={2} /></span>
+              <small>{spot.category.toUpperCase()} ESCAPE</small>
+              <strong>{spot.name}</strong>
             </div>
           )}
-          <div className="absolute inset-x-0 top-0 mx-auto mt-2 h-1 w-10 rounded-full bg-black/30" />
+          <div className="amc-sheet-handle absolute inset-x-0 top-0 mx-auto mt-2 h-1 w-10 rounded-full bg-black/30" />
           <button
             type="button"
             onClick={onClose}
@@ -95,21 +108,32 @@ export default function SpotSheet({
           </button>
         </div>
 
-        <div className="px-5 pt-4">
-          <div className="flex items-center gap-2.5">
+        <div className="amc-sheet-content px-5 pt-4">
+          <div className="amc-sheet-title flex items-center gap-2.5">
             <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full border-2 border-black bg-white">
               <Icon size={18} stroke={2} color="#000" />
             </span>
             <div>
               <h2 className="font-headline text-[19px] leading-tight">{spot.name}</h2>
+              <p className="amc-sheet-title-suffix">| Everything You Need to Know</p>
               <p className="text-xs text-[var(--ink-muted)]">
                 {spot.region ? spot.region : <span className="capitalize">{spot.category}</span>}
               </p>
             </div>
+            <div className="amc-sheet-inline-actions">
+              <a href={directionsUrl} target="_blank" rel="noopener noreferrer" className="is-directions">
+                <IconDirections size={18} />
+                Get directions
+              </a>
+              <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="is-share">
+                <IconBrandWhatsapp size={18} />
+                Share
+              </a>
+            </div>
           </div>
 
           {hasFacts && (
-            <div className="mt-4 flex flex-wrap gap-2">
+            <div className="amc-sheet-facts mt-4 flex flex-wrap gap-2">
               {spot.difficulty && <FactChip icon={<IconRoute size={14} />} label={spot.difficulty} />}
               {spot.altitude_m != null && (
                 <FactChip icon={<IconRuler2 size={14} />} label={`${spot.altitude_m} m`} />
@@ -120,38 +144,27 @@ export default function SpotSheet({
           )}
 
           {spot.description && (
-            <p className="mt-3 text-[14px] leading-relaxed text-[var(--ink)]">{spot.description}</p>
+            <p className="amc-sheet-description mt-3 text-[14px] leading-relaxed text-[var(--ink)]">{spot.description}</p>
           )}
 
+          <div className="amc-sheet-sections">
           {highlights.length > 0 && (
-            <ul className="mt-3 space-y-1.5">
-              {highlights.map((h, i) => (
-                <li key={i} className="flex items-start gap-2 text-[13px] leading-relaxed">
-                  <IconSparkles size={14} className="mt-0.5 flex-shrink-0 text-[var(--pantone-orange)]" />
-                  <span>{h}</span>
-                </li>
-              ))}
-            </ul>
+            <div className="amc-sheet-section">
+              <p className="amc-sheet-section-label">Why go</p>
+              <ul className="mt-2 space-y-1.5">
+                {highlights.map((h, i) => (
+                  <li key={i} className="flex items-start gap-2 text-[13px] leading-relaxed">
+                    <IconSparkles size={14} className="mt-0.5 flex-shrink-0 text-[var(--pantone-orange)]" />
+                    <span>{h}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
           )}
 
-          {videoThumb && (
-            <a
-              href={spot.youtube_url!}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="relative mt-3.5 block aspect-video overflow-hidden rounded-2xl border-2 border-black bg-black"
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={videoThumb} alt={`${spot.name} video`} className="h-full w-full object-cover" />
-              <span className="absolute inset-0 flex items-center justify-center bg-black/25">
-                <span className="flex h-11 w-14 items-center justify-center rounded-xl bg-[#ff0000]">
-                  <IconBrandYoutube size={22} color="#fff" stroke={1.6} />
-                </span>
-              </span>
-            </a>
-          )}
-
-          <div className="mt-4 flex flex-wrap gap-2">
+          <div className="amc-sheet-section">
+            <p className="amc-sheet-section-label">Travel at a glance</p>
+            <div className="mt-2 flex flex-wrap gap-2">
             {spot.distance_from_mumbai_km != null && (
               <span className="flex items-center gap-1.5 glass-chip rounded-full px-3 py-1.5 text-xs">
                 <IconMapPin size={15} />
@@ -176,11 +189,12 @@ export default function SpotSheet({
                 {spot.distance_from_pune_km} km · Pune
               </span>
             )}
+            </div>
           </div>
 
           {spot.how_to_reach && (
-            <div className="mt-4 border-t-2 border-black pt-3">
-              <p className="text-[11px] font-medium uppercase tracking-wide text-[var(--ink-muted)]">
+            <div className="amc-sheet-section">
+              <p className="amc-sheet-section-label">
                 How to reach
               </p>
               <p className="mt-1 text-[13px] leading-relaxed">{spot.how_to_reach}</p>
@@ -188,18 +202,18 @@ export default function SpotSheet({
           )}
 
           {spot.nearest_station && (
-            <div className="mt-4">
-              <p className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-[var(--ink-muted)]">
+            <div className="amc-sheet-section">
+              <p className="amc-sheet-section-label flex items-center gap-1.5">
                 <IconTrain size={14} />
-                Nearest station
+                Nearest railway station
               </p>
               <p className="mt-1 text-[13px] leading-relaxed">{spot.nearest_station}</p>
             </div>
           )}
 
           {thingsToCarry.length > 0 && (
-            <div className="mt-4">
-              <p className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-[var(--ink-muted)]">
+            <div className="amc-sheet-section">
+              <p className="amc-sheet-section-label flex items-center gap-1.5">
                 <IconBackpack size={14} />
                 Things to carry
               </p>
@@ -213,6 +227,8 @@ export default function SpotSheet({
             </div>
           )}
 
+          </div>
+
           {spot.safety_note && (
             <div className="mt-4 flex items-start gap-2 rounded-2xl border-2 border-[var(--pantone-orange)] bg-[#fff3ec] px-3 py-2.5">
               <IconAlertTriangle size={16} className="mt-0.5 flex-shrink-0 text-[var(--pantone-orange)]" />
@@ -221,8 +237,8 @@ export default function SpotSheet({
           )}
 
           {faqs.length > 0 && (
-            <div className="mt-4 border-t-2 border-black pt-3 pb-4">
-              <p className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-[var(--ink-muted)]">
+            <div className="amc-sheet-section pb-4">
+              <p className="amc-sheet-section-label flex items-center gap-1.5">
                 <IconHelpCircle size={14} />
                 FAQs
               </p>
@@ -241,10 +257,7 @@ export default function SpotSheet({
         </div>
       </div>
 
-      <div
-        className="flex flex-shrink-0 gap-2.5 border-t-4 border-black px-5 pt-4 pb-[calc(env(safe-area-inset-bottom)+16px)]"
-        style={{ background: "var(--pantone-orange)" }}
-      >
+      <div className="amc-sheet-actions flex flex-shrink-0 gap-2.5 border-t-2 border-black bg-white px-5 pt-3 pb-[calc(env(safe-area-inset-bottom)+12px)]">
         <a
           href={directionsUrl}
           target="_blank"

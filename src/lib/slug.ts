@@ -19,7 +19,9 @@ export function buildSlugMap(spots: Spot[]): Map<string, string> {
   const sorted = [...spots].sort((a, b) => a.id.localeCompare(b.id));
 
   for (const spot of sorted) {
-    const base = slugify(spot.name) || spot.id;
+    // Never leak database UUIDs into public URLs. A non-Latin name may
+    // slugify to an empty string, so use a readable category/region fallback.
+    const base = slugify(spot.name) || `${spot.category}-${slugify(spot.region ?? "") || "maharashtra"}`;
     const seen = (counts.get(base) ?? 0) + 1;
     counts.set(base, seen);
     slugById.set(spot.id, seen === 1 ? base : `${base}-${seen}`);

@@ -80,3 +80,421 @@ body,
 .banner-enter {
   animation: banner-down 0.3s ease-out;
 }
+
+:root{--pantone-orange:#FF5800}body{overflow:hidden}.amc-app{position:relative;height:100dvh;overflow:hidden;background:var(--pantone-orange)}.amc-map{position:absolute;inset:0;background:#ff9864}.amc-map-loading{position:absolute;inset:0;background:#ff9864}.amc-top-wrap{position:absolute;z-index:70;top:12px;left:14px;right:14px;pointer-events:none}.amc-topbar{height:54px;border:2px solid #000;border-radius:16px;background:#111;color:var(--pantone-orange);display:flex;align-items:center;justify-content:space-between;padding:0 9px 0 14px;box-shadow:3px 3px #000;pointer-events:auto}.amc-wordmark{font:400 13px var(--font-pixel)}.amc-top-actions button,.amc-save-round{width:36px;height:36px;border:2px solid #000;border-radius:50%;background:#fffaf2;display:grid;place-items:center}.amc-search{display:flex;gap:8px;align-items:center;height:46px;margin-top:8px;padding:0 12px;border:2px solid #000;border-radius:14px;background:#fffaf2;pointer-events:auto}.amc-search input{width:100%;background:transparent;outline:0}.amc-location-float{position:absolute;z-index:25;top:76px;left:14px}.amc-location-float button{background:#111;color:var(--pantone-orange)}.amc-location-modal{position:fixed;z-index:1000;inset:0;display:flex;align-items:flex-end}.amc-location-backdrop{position:absolute;inset:0;background:#0008}.amc-location-sheet{position:relative;width:100%;background:#fffaf2;border:3px solid #000;border-bottom:0;border-radius:24px 24px 0 0;padding:18px 20px 24px}.amc-gps{display:flex;width:100%;justify-content:center;gap:8px;margin:16px 0;padding:12px;border:2px solid #000;border-radius:14px;background:var(--pantone-orange)}.amc-city-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.amc-city-grid button{border:2px solid #000;border-radius:12px;padding:10px}.amc-discovery-panel{position:absolute;z-index:30;left:0;right:0;bottom:64px;border:3px solid #000;border-bottom:0;border-radius:25px 25px 0 0;background:var(--pantone-orange);transition:height .25s;overflow:hidden}.amc-discovery-panel.state-min{height:91px}.amc-discovery-panel.state-half{height:min(55dvh,500px)}.amc-discovery-panel.state-full{height:calc(100dvh - 146px)}.amc-drawer-grab{width:100%;height:28px;touch-action:none}.amc-drawer-grab span{display:block;width:52px;height:5px;margin:auto;border-radius:10px;background:#111}.amc-drawer-scroll{height:calc(100% - 28px);overflow-y:auto}.amc-panel-title{display:flex;justify-content:space-between;align-items:end;padding:0 16px 8px}.amc-panel-title p,.amc-label,.amc-results-label,.amc-section-title p{font:400 9px var(--font-pixel)}.amc-panel-title h1{font:700 23px var(--font-headline)}.state-min .amc-panel-title{align-items:center}.state-min .amc-panel-title>span{display:none}.state-min .amc-panel-title p{display:inline}.state-min .amc-panel-title h1{display:inline;margin-left:8px;font-size:15px}.amc-filter-block{padding:0 16px}.amc-label{margin:14px 0 7px}.amc-presets,.amc-category-row{display:flex;gap:7px;overflow-x:auto}.amc-presets button,.amc-category-row button{flex:none;display:flex;gap:4px;border:2px solid #000;border-radius:10px;background:#fffaf2;padding:8px 11px;font-weight:800}.amc-presets .is-active,.amc-category-row .is-active{background:#111;color:var(--pantone-orange)}.amc-results-label{display:flex;justify-content:space-between;padding:17px 16px 8px;font-size:8px}.amc-card-list{display:flex;gap:12px;overflow-x:auto;padding:0 16px 24px;scrollbar-width:none}.amc-spot-card{position:relative;flex:0 0 230px;border:2px solid #000;border-radius:19px;background:#fffaf2;overflow:hidden;box-shadow:4px 4px #000}.amc-card-main{width:100%;text-align:left}.amc-card-photo{height:105px;background:#ffd0b8 center/cover no-repeat;position:relative}.amc-card-photo strong{position:absolute;left:8px;bottom:8px;background:var(--pantone-orange);border:2px solid #000;border-radius:99px;padding:5px;font-size:9px}.amc-card-copy{padding:10px}.amc-card-copy h3{font:700 18px var(--font-headline)}.amc-card-copy p{font-size:11px}.amc-stat-row{display:flex;gap:5px;margin-top:8px}.amc-stat-row span{border:1px solid #000;border-radius:7px;padding:4px;font-size:9px}.amc-save-round{position:absolute;right:8px;top:8px}.amc-bottom-nav{position:absolute;z-index:80;left:0;right:0;bottom:0;height:66px;background:#111;color:#777;display:flex;justify-content:space-around;align-items:center}.amc-bottom-nav button{display:grid;justify-items:center;font-size:10px}.amc-bottom-nav .is-active{color:var(--pantone-orange)}.amc-surprise,.amc-account-view{position:absolute;inset:0 0 66px;background:var(--pantone-orange);overflow:hidden}.amc-surprise-scroll,.amc-account-view{overflow-y:auto;padding:88px 18px 30px}.amc-surprise-heading{font:900 41px/.8 var(--font-headline)}.amc-surprise-heading span,.amc-surprise-heading strong{display:block}.amc-surprise-tagline{margin-top:9px;font-weight:800}.amc-deck-count{font:400 9px var(--font-pixel);margin-top:5px}.amc-swipe-card{max-width:460px;margin:14px auto 0;border:3px solid #000;border-radius:27px;background:#fffaf2;overflow:hidden;box-shadow:7px 7px #111;touch-action:pan-y}.amc-swipe-photo{height:42dvh;min-height:280px;background:#ff9864 center/cover no-repeat;position:relative}.amc-starburst{position:absolute;right:12px;bottom:-32px;width:88px;height:88px;border:3px solid #000;border-radius:50%;background:#111;color:var(--pantone-orange);display:grid;place-content:center;text-align:center;font:900 24px var(--font-headline)}.amc-starburst small{font:400 8px var(--font-pixel)}.amc-swipe-copy{padding:18px}.amc-swipe-copy p{font:400 9px var(--font-pixel)}.amc-swipe-copy h2{font:900 30px var(--font-headline)}.amc-swipe-facts{display:flex;gap:6px;margin-top:10px}.amc-swipe-facts span{border:2px solid #000;border-radius:99px;padding:5px;font-size:10px}.amc-swipe-directions{display:flex;justify-content:space-between;max-width:460px;margin:15px auto;font:400 9px var(--font-pixel)}.amc-account-view{padding-left:16px;padding-right:16px}.amc-section-title h1{font:800 30px var(--font-headline)}.amc-saved-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin-top:15px}.amc-saved-grid .amc-spot-card{width:100%}.amc-empty-card{margin-top:20px;border:3px solid #000;border-radius:20px;background:#fffaf2;padding:20px}.amc-app>.sheet-enter{bottom:66px;max-height:calc(100dvh - 82px);z-index:60}
+@media(min-width:900px) and (max-width:0px){.amc-map{right:38%}.amc-discovery-panel,.amc-discovery-panel.state-min,.amc-discovery-panel.state-half,.amc-discovery-panel.state-full{top:0;left:auto;right:0;bottom:66px;width:38%;height:auto;border-radius:0;padding-top:88px}.amc-drawer-grab{display:none}.amc-card-list{display:grid;grid-template-columns:1fr 1fr;overflow:visible}.amc-spot-card{min-width:0}.amc-top-wrap{right:calc(38% + 14px)}}
+/* Permanent app-shell boundaries: header 78px, navigation 66px, content owns the middle. */
+.amc-app{padding-top:78px;padding-bottom:66px}.amc-top-wrap{position:fixed;height:66px}.amc-bottom-nav{position:fixed}.amc-surprise,.amc-account-view{top:78px;bottom:66px}.amc-surprise-scroll,.amc-account-view{padding-top:12px}.amc-location-float{top:86px}.amc-discovery-panel.state-full{height:calc(100dvh - 144px)}.amc-app>.sheet-enter{top:78px;bottom:66px;max-height:none}
+/* Floating pill navigation reference */
+.amc-bottom-nav{left:14px;right:14px;bottom:10px;height:58px;border:2px solid #000;border-radius:17px;box-shadow:3px 3px 0 #000}.amc-bottom-nav button{position:relative;z-index:1;min-width:82px;height:50px}.amc-bottom-nav button svg{position:relative;z-index:2}.amc-bottom-nav button.is-active svg{color:#111}.amc-bottom-nav button.is-active:before{content:"";position:absolute;z-index:0;top:1px;width:38px;height:38px;border-radius:50%;background:var(--pantone-orange)}.amc-bottom-nav button span{position:relative;z-index:2;margin-top:0}.amc-app{padding-bottom:78px}.amc-surprise,.amc-account-view{bottom:78px}.amc-discovery-panel{bottom:78px}.amc-app>.sheet-enter{bottom:78px}
+/* Navigation dock: orange runs to device edge, dark pill floats inside. */
+.amc-nav-dock{position:fixed;z-index:79;left:0;right:0;bottom:0;height:80px;background:var(--pantone-orange)}
+.amc-bottom-nav{position:absolute;left:14px;right:14px;bottom:10px;height:58px;border:2px solid #000;border-radius:18px;background:#111;box-shadow:3px 3px 0 #000;display:flex;align-items:center;justify-content:space-around;color:#8b8b86}
+.amc-bottom-nav button{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;width:92px;height:54px;font-size:9px}
+.amc-nav-icon{position:relative;z-index:1;width:34px;height:34px;display:grid;place-items:center;border-radius:50%}.amc-nav-label{position:relative;z-index:2}.amc-bottom-nav .is-active{color:#fff}.amc-bottom-nav .is-active .amc-nav-icon{background:var(--pantone-orange);color:#111;border:2px solid #111;transform:translateY(-5px)}.amc-bottom-nav .is-active .amc-nav-label{color:var(--pantone-orange);transform:translateY(-4px)}
+.amc-app{padding-bottom:80px}.amc-discovery-panel{bottom:80px}.amc-surprise,.amc-account-view{bottom:80px}.amc-app>.sheet-enter{bottom:80px}
+/* Swipe card always fits inside the fixed shell even on short phones. */
+.amc-surprise-scroll{height:100%;display:flex;flex-direction:column;overflow-y:auto;padding-bottom:12px}.amc-swipe-card{flex:0 0 auto;margin-top:10px}.amc-swipe-photo{height:clamp(210px,31dvh,285px);min-height:0}.amc-swipe-copy{padding:13px 18px}.amc-swipe-copy h2{font-size:27px;line-height:.95}.amc-swipe-directions{margin:10px auto 4px;width:100%}
+/* Account combines saved right-swipes with a useful menu. */
+.amc-account-view{padding:12px 16px 22px}.amc-account-saves{display:flex;gap:12px;overflow-x:auto;padding:14px 3px 10px}.amc-account-empty{margin-top:14px;border:2px solid #000;border-radius:17px;background:#fffaf2;padding:14px}.amc-account-empty strong{font:800 17px var(--font-headline)}.amc-account-empty p{margin-top:4px;font-size:12px;line-height:1.35}.amc-account-menu{display:grid;gap:8px;margin-top:16px}.amc-account-menu button{display:grid;grid-template-columns:42px 1fr 15px;align-items:center;text-align:left;border:2px solid #000;border-radius:15px;background:#fffaf2;padding:9px 11px;box-shadow:2px 2px 0 #000}.amc-menu-icon{width:34px;height:34px;border-radius:50%;background:var(--pantone-orange);display:grid;place-items:center}.amc-account-menu strong,.amc-account-menu small{display:block}.amc-account-menu strong{font:700 14px var(--font-headline)}.amc-account-menu small{margin-top:1px;color:var(--ink-muted);font-size:10px}.amc-account-menu b{font-size:22px}
+.amc-account-intro p{font:400 9px var(--font-pixel)}.amc-account-intro h1{font:800 30px var(--font-headline);margin-top:3px}.amc-account-view .amc-account-menu{margin-top:18px}
+/* Device-safe active nav: fixed geometry, no transforms. */
+.amc-bottom-nav button{width:96px;height:54px;display:grid;grid-template-rows:32px 14px;place-items:center;gap:0;padding:2px 0;line-height:1}.amc-nav-icon{position:relative;z-index:1;display:grid;place-items:center;width:32px!important;height:32px!important;min-width:32px;min-height:32px;max-width:32px;max-height:32px;border-radius:50%;box-sizing:border-box;transform:none!important}.amc-nav-icon svg{display:block;width:18px!important;height:18px!important;max-width:18px;max-height:18px;flex:none}.amc-nav-label{display:block;height:14px;line-height:14px;font-size:9px;transform:none!important;white-space:nowrap}.amc-bottom-nav .is-active .amc-nav-icon{width:32px!important;height:32px!important;background:var(--pantone-orange);color:#111;border:0;transform:none!important}.amc-bottom-nav .is-active .amc-nav-label{color:var(--pantone-orange);transform:none!important}
+/* Float the pill directly over page/drawer content; no solid dock band. */
+.amc-nav-dock{background:transparent;pointer-events:none}.amc-bottom-nav{pointer-events:auto}
+/* The drawer itself extends to the device edge behind the floating nav. */
+.amc-discovery-panel{bottom:0}.amc-discovery-panel.state-min{height:169px}.amc-discovery-panel.state-half{height:calc(min(55dvh,500px) + 78px)}.amc-discovery-panel.state-full{height:calc(100dvh - 66px)}.amc-drawer-scroll{padding-bottom:78px}
+/* Active tab is one fixed orange capsule wrapping icon and label together. */
+.amc-bottom-nav button{width:96px;height:50px;border-radius:24px}.amc-bottom-nav button.is-active{width:96px;height:50px;background:var(--pantone-orange);color:#111}.amc-bottom-nav .is-active .amc-nav-icon{background:transparent;color:#111}.amc-bottom-nav .is-active .amc-nav-label{color:#111}
+/* Mobile polish: tighter nav rhythm, smaller default drawer and location control. */
+.amc-bottom-nav button{grid-template-rows:29px 13px;gap:0;padding:3px 0}.amc-nav-icon{width:29px!important;height:29px!important;min-width:29px;min-height:29px;max-width:29px;max-height:29px}.amc-nav-label{height:13px;line-height:13px;font-size:9.45px}.amc-discovery-panel.state-half{height:calc(min(49.5dvh,450px) + 78px)}.amc-location-float button{font-size:11px;padding:7px 10px;min-height:32px}.amc-location-float{transform:scale(.9);transform-origin:left top}
+/* Approved mockup details: compact location capsule and simple map name labels. */
+.amc-location-float{top:76px;left:14px;transform:none}.amc-location-float button{height:34px;min-height:34px;padding:0 13px;border:2px solid #000;border-radius:999px;background:#111;color:var(--pantone-orange);box-shadow:2px 2px 0 #000;font:700 12px/1 var(--font-headline);gap:4px}.amc-location-caret{font-size:8px;color:var(--pantone-orange);transform:translateY(1px)}.amc-map-name-label{appearance:none;background:#fffaf2!important;color:#111!important;border:2px solid #111!important;border-radius:11px!important;box-shadow:2px 2px 0 #111!important;padding:6px 9px!important;font:700 11px/1 var(--font-headline)!important;white-space:nowrap;cursor:pointer}
+/* Surprise card, matched to the approved card composition. */
+.amc-swipe-card{border-radius:25px;background:#fffaf2;padding:8px;box-shadow:6px 6px #111}.amc-swipe-photo{border:2px solid #111;border-radius:18px;background-position:center;overflow:hidden}.amc-photo-type{position:absolute;left:9px;top:9px;border:1.5px solid #111;border-radius:99px;background:var(--pantone-orange);padding:4px 7px;font:700 8px/1 var(--font-headline)}.amc-starburst{right:10px;bottom:10px;width:68px;height:68px;border:0;border-radius:0;background:#111;clip-path:polygon(50% 0,61% 23%,82% 9%,79% 34%,100% 39%,78% 54%,94% 75%,68% 73%,66% 100%,49% 79%,30% 96%,31% 70%,5% 77%,23% 55%,0 43%,27% 37%,16% 14%,39% 25%);color:var(--pantone-orange);font-size:15px;transform:rotate(-8deg)}.amc-starburst b,.amc-starburst small{display:block}.amc-starburst small{font:700 8px/1 var(--font-headline)}.amc-swipe-copy{padding:10px 4px 2px}.amc-swipe-title{display:flex;align-items:center;justify-content:space-between;gap:8px}.amc-swipe-title h2{font:900 25px/.95 var(--font-headline)}.amc-swipe-title>span{flex:none;border-radius:99px;background:#111;color:#fff;padding:4px 6px;font:700 7px/1 var(--font-headline)}.amc-swipe-copy>p{margin-top:3px;font:500 10px/1.1 var(--font-headline)}.amc-trip-row{display:flex;align-items:end;justify-content:space-between;gap:6px;margin-top:8px}.amc-trip-icons{display:flex;align-items:center;gap:3px}.amc-trip-icons i{width:22px;height:22px;border-radius:50%;background:var(--pantone-orange);display:grid;place-items:center}.amc-trip-icons svg{width:12px;height:12px}.amc-trip-icons b{margin-left:4px;font:700 8px/1 var(--font-headline);white-space:nowrap}.amc-drive-season{display:flex;gap:10px;text-align:right}.amc-drive-season span{display:grid}.amc-drive-season b{font:700 9px/1 var(--font-headline);white-space:nowrap}.amc-drive-season small{font:700 6px/1.3 var(--font-headline)}
+/* Visually snug icon-label stack on every nav tab. */
+.amc-bottom-nav button{grid-template-rows:25px 11px;align-content:center;padding:1px 0}.amc-nav-icon{width:25px!important;height:25px!important;min-width:25px;min-height:25px;max-width:25px;max-height:25px}.amc-nav-icon svg{width:17px!important;height:17px!important}.amc-nav-label{height:11px;line-height:10px;margin-top:-1px}
+/* Surprise hierarchy: single-line title and larger card. */
+.amc-surprise-heading{display:block!important;white-space:nowrap;font-size:clamp(31px,10.5vw,43px);line-height:1}.amc-surprise-tagline{margin-top:4px}.amc-swipe-card{width:min(100%,390px);margin-top:8px}.amc-swipe-photo{height:clamp(275px,38dvh,350px)}.amc-starburst{width:78px;height:78px;padding:0;place-content:center}.amc-starburst b{font-size:14px;line-height:1;white-space:nowrap}.amc-starburst small{margin-top:2px;font-size:8px;white-space:nowrap}
+/* Compact drawer header: a single count + radius line at every mobile width. */
+.amc-panel-title{display:block;padding:0 16px 8px}.amc-panel-title>div{min-width:0}.amc-panel-title h1{display:flex!important;align-items:baseline;gap:5px;white-space:nowrap;font-size:clamp(14px,4.35vw,18px);line-height:1.05}.amc-panel-title h1 span{display:inline!important;flex:none;border-radius:99px;background:#111;color:var(--pantone-orange);padding:3px 6px;font:400 7px/1 var(--font-pixel)}.state-min .amc-panel-title h1{display:flex!important;margin-left:0;font-size:clamp(13px,4vw,16px)}.state-min .amc-panel-title p{display:block}.state-min .amc-panel-title h1 span{display:inline!important}
+@media(max-width:374px){.amc-panel-title h1{font-size:13px;gap:3px}.amc-panel-title h1 span{padding:3px 5px;font-size:6px}}
+/* Surprise card refinements: readable badge, clean facts, spaced actions. */
+.amc-photo-type{text-transform:none}.amc-starburst{background:#111;color:#fff}.amc-starburst b{color:#fff;font-size:15px;text-shadow:0 1px 0 #000}.amc-starburst small{color:#fff;font-size:9px}.amc-trip-row{justify-content:flex-end}.amc-swipe-directions{margin-top:18px;padding:0 4px}.amc-swipe-card{cursor:pointer}
+/* Progressive first paint: the app shell renders before Mapbox and data. */
+.amc-map-loading{display:grid;place-items:center;overflow:hidden;background:#ff9864;z-index:2}.amc-map-grid{position:absolute;inset:-20%;opacity:.48;background:linear-gradient(28deg,transparent 47%,#fff8 48% 50%,transparent 51%),linear-gradient(115deg,transparent 45%,#d6673b66 46% 48%,transparent 49%),radial-gradient(circle at 20% 35%,#b8d892 0 9%,transparent 10%),radial-gradient(circle at 76% 58%,#b8d892 0 12%,transparent 13%);background-size:180px 140px,230px 170px,100% 100%,100% 100%;animation:amc-map-drift 9s linear infinite}.amc-map-loading>span{position:relative;border:2px solid #111;border-radius:99px;background:#fffaf2;padding:8px 12px;font:400 8px var(--font-pixel);box-shadow:2px 2px #111}@keyframes amc-map-drift{to{transform:translate3d(-30px,20px,0)}}.amc-card-skeleton{height:206px;padding:0;overflow:hidden}.amc-card-skeleton i{display:block;height:112px;background:linear-gradient(90deg,#ffd0b8,#fff2e8,#ffd0b8);background-size:220% 100%;animation:amc-shimmer 1.4s infinite}.amc-card-skeleton b,.amc-card-skeleton span{display:block;height:14px;margin:14px 12px 0;border-radius:8px;background:#1113}.amc-card-skeleton span{width:55%;height:10px;margin-top:8px}@keyframes amc-shimmer{to{background-position:-220% 0}}.amc-boot-controls{height:98px;margin:8px 16px;border-radius:12px;background:linear-gradient(#1112 0 0) 0 8px/100% 32px no-repeat,linear-gradient(#1112 0 0) 0 54px/86% 32px no-repeat}.amc-boot-shell .amc-topbar i{width:36px;height:36px;border-radius:50%;background:#fffaf2}.amc-boot-shell .amc-bottom-nav button{color:#888}.amc-boot-shell .amc-bottom-nav .is-active{color:#111}
+/* Instant real-map first frame while interactive Mapbox initializes. */
+.amc-static-map{background-color:#d9e5ce;background-image:url("https://tile.openstreetmap.org/8/179/114.png"),url("https://tile.openstreetmap.org/8/180/114.png"),url("https://tile.openstreetmap.org/8/179/115.png"),url("https://tile.openstreetmap.org/8/180/115.png");background-size:256px 256px;background-position:calc(50% - 128px) calc(50% - 256px),calc(50% + 128px) calc(50% - 256px),calc(50% - 128px) 50%,calc(50% + 128px) 50%;background-repeat:no-repeat;z-index:2}.amc-map-loading.amc-static-map{display:block}.amc-map-grid,.amc-map-loading>span{display:none}
+/* Skeleton comparison: map and remote photo frames shimmer in place. */
+.amc-map-skeleton{display:block!important;background:#d7cec3;overflow:hidden}.amc-map-skeleton:before{content:"";position:absolute;inset:-20%;background:linear-gradient(28deg,transparent 46%,#eee6dc 47% 50%,transparent 51%),linear-gradient(112deg,transparent 45%,#bcb2a7 46% 48%,transparent 49%),radial-gradient(circle at 18% 35%,#c1b8ac 0 9%,transparent 10%),radial-gradient(circle at 76% 60%,#c1b8ac 0 12%,transparent 13%);background-size:190px 145px,240px 175px,100% 100%,100% 100%}.amc-map-skeleton:after,.progressive-photo.is-loading:after{content:"";position:absolute;inset:0;transform:translateX(-100%);background:linear-gradient(100deg,transparent 25%,#ffffff70 48%,transparent 72%);animation:amc-skeleton-sweep 1.35s infinite}@keyframes amc-skeleton-sweep{to{transform:translateX(100%)}}.progressive-photo{position:relative;background-position:center;background-size:cover;transition:background-image .2s ease}.progressive-photo.is-loading{background-color:#e0d7ce;overflow:hidden}.progressive-photo.is-loading>*{visibility:visible}.progressive-photo.is-loaded:after{display:none}
+/* Ground the floating navigation on a clean device-edge surface. */
+.amc-nav-dock{background:#fff}
+/* Spot sheet hierarchy and resilient media treatment. */
+.amc-spot-sheet{border-top-width:3px;box-shadow:0 -12px 36px #0003}.amc-sheet-gallery,.amc-sheet-photo,.amc-sheet-photo-fallback{height:176px}.amc-sheet-photo{position:relative;flex:0 0 100%;overflow:hidden;background:#ded5cb}.amc-sheet-photo:before{content:"";position:absolute;inset:0;background:linear-gradient(105deg,transparent 25%,#fff8 48%,transparent 72%);transform:translateX(-100%);animation:amc-skeleton-sweep 1.35s infinite}.amc-sheet-photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .25s ease}.amc-sheet-photo.is-loaded img{opacity:1}.amc-sheet-photo.is-loaded:before{display:none}.amc-sheet-photo-fallback{display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-end;padding:22px 20px;background:var(--pantone-orange);background-image:radial-gradient(circle at 82% 22%,#fff5 0 13%,transparent 14%),linear-gradient(145deg,transparent 58%,#111 59% 61%,transparent 62%);border-bottom:2px solid #111;color:#111}.amc-sheet-photo-fallback span{width:46px;height:46px;border:2px solid #111;border-radius:50%;display:grid;place-items:center;background:#fff}.amc-sheet-photo-fallback small{margin-top:10px;font:400 8px var(--font-pixel)}.amc-sheet-photo-fallback strong{margin-top:3px;max-width:90%;font:800 24px/.95 var(--font-headline)}.amc-sheet-content{padding-top:16px}.amc-sheet-title{padding-bottom:14px;border-bottom:1px solid #1112}.amc-sheet-title h2{font-size:22px!important}.amc-sheet-facts{margin-top:13px!important}.amc-sheet-facts>span{background:#fffaf2;border-radius:999px;padding:7px 11px;box-shadow:1px 1px 0 #111}.amc-sheet-description{margin-top:15px!important;font-size:14px;line-height:1.55}.amc-sheet-content>div[class*="border-t"]{margin-top:20px;padding-top:16px}.amc-sheet-actions{padding-top:10px!important;padding-bottom:10px!important}.amc-sheet-actions a{border-radius:999px!important;min-height:48px}
+@media(max-width:374px){.amc-sheet-gallery,.amc-sheet-photo,.amc-sheet-photo-fallback{height:150px}.amc-sheet-title h2{font-size:20px!important}.amc-sheet-content{padding-left:16px;padding-right:16px}}
+
+/* Direct location pages use the full lower viewport; X returns to Explore. */
+.amc-app:has(> .amc-spot-sheet):not(:has(> .amc-nav-dock))>.amc-spot-sheet{bottom:0}
+/* Approved location sheet: full hierarchy, direct-photo hero or orange fallback. */
+.amc-sheet-title>div{min-width:0}.amc-sheet-title-suffix{margin-top:2px;color:var(--ink-muted);font:400 8px/1.25 var(--font-pixel)}.amc-sheet-section{margin-top:20px;padding-top:14px;border-top:1px solid #ded5cf}.amc-sheet-section-label{color:var(--pantone-orange);font:400 8px/1.2 var(--font-pixel);text-transform:uppercase;letter-spacing:.02em}.amc-sheet-scroll{scrollbar-width:thin}.amc-sheet-content{padding-bottom:4px}
+
+/* Mobile input and device-safe navigation fixes. */
+.amc-search input{font-size:16px}
+.amc-nav-dock{height:calc(80px + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom)}
+
+/* Authoritative mobile nav block. Keep nav sizing and safe-area behavior here. */
+.amc-nav-dock{position:fixed;z-index:79;left:0;right:0;bottom:0;height:calc(80px + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);background:transparent;pointer-events:none}
+.amc-bottom-nav{position:absolute;z-index:80;left:14px;right:14px;bottom:10px;height:58px;border:2px solid #000;border-radius:18px;background:#111;box-shadow:3px 3px 0 #000;display:flex;align-items:center;justify-content:space-around;color:#8b8b86;pointer-events:auto}
+.amc-bottom-nav button{position:relative;display:grid;grid-template-rows:25px 11px;align-content:center;place-items:center;gap:0;width:96px;height:50px;padding:1px 0;border-radius:24px;font-size:9px;line-height:1}
+.amc-nav-icon{position:relative;z-index:1;display:grid;place-items:center;width:25px!important;height:25px!important;min-width:25px;min-height:25px;max-width:25px;max-height:25px;border-radius:50%;transform:none!important}
+.amc-nav-icon svg{display:block;width:17px!important;height:17px!important;max-width:17px;max-height:17px;flex:none}
+.amc-nav-label{position:relative;z-index:2;display:block;height:11px;line-height:10px;margin-top:-1px;font-size:9.45px;white-space:nowrap;transform:none!important}
+.amc-bottom-nav button.is-active{width:96px;height:50px;background:var(--pantone-orange);color:#111}
+.amc-bottom-nav .is-active .amc-nav-icon{background:transparent;color:#111;border:0;transform:none!important}
+.amc-bottom-nav .is-active .amc-nav-label{color:#111;transform:none!important}
+
+.amc-panel-tagline{display:block;margin-top:3px;font:400 7px/1.2 var(--font-pixel)}
+.amc-results-label>span:first-child{display:grid;gap:2px}.amc-results-label strong{font:400 8px/1 var(--font-pixel)}.amc-results-label small{font:400 7px/1 var(--font-pixel);text-transform:lowercase}
+.amc-presets button:last-child{text-transform:none}
+
+/* Full orange canvas on secondary tabs; Explore alone lets drawer content show through. */
+.section-surprise .amc-surprise,.section-account .amc-account-view{top:0}
+.section-surprise .amc-surprise-scroll{padding-top:90px}
+.section-account .amc-account-view{padding-top:90px}
+.section-surprise .amc-nav-dock,.section-account .amc-nav-dock{background:var(--pantone-orange)}
+
+/* Accessible mobile hit areas without enlarging the icon artwork. */
+.amc-top-actions button,.amc-save-round,.amc-banner-dismiss{width:44px;height:44px;min-width:44px;min-height:44px;display:grid;place-items:center}
+.amc-banner-dismiss{border-radius:50%}
+.amc-notify-button,.amc-location-float button{min-height:44px}
+.amc-drawer-grab{height:44px;min-height:44px;display:grid;place-items:center}
+.amc-drawer-scroll{height:calc(100% - 44px)}
+.amc-location-sheet button[aria-label="Close"],.amc-spot-sheet button[aria-label="Close"]{width:44px!important;height:44px!important;min-width:44px;min-height:44px;display:grid;place-items:center}
+
+
+/* Jersey 25 owns app headlines; body/description copy remains Share Tech. */
+.amc-panel-title p,.amc-panel-title h1,.amc-label,.amc-results-label strong,.amc-results-label>span:last-child,
+.amc-location-sheet h2,.amc-surprise-heading,.amc-swipe-title h2,.amc-account-intro h1,
+.amc-account-menu strong,.amc-card-copy h3{font-family:var(--font-home-headline),sans-serif!important;font-weight:400!important;letter-spacing:.01em}
+.amc-panel-title p,.amc-label{font-size:16px;line-height:1}
+.amc-panel-title h1{font-size:clamp(20px,5.8vw,26px);line-height:1}
+.amc-results-label strong,.amc-results-label>span:last-child{font-size:14px;line-height:1}
+.amc-location-sheet h2{font-size:24px!important}
+.amc-card-copy h3,.amc-account-menu strong{font-size:18px}
+
+
+/* Final typography contract: every headline is Jersey 25; all supporting copy is Share Tech. */
+.font-headline,h1,h2,h3,.amc-panel-title p,.amc-label,.amc-results-label strong,
+.amc-surprise-heading,.amc-swipe-title h2,.amc-account-intro h1,.amc-account-menu strong,
+.amc-sheet-title h2,.amc-sheet-photo-fallback strong,.amc-sheet-section-label{font-family:var(--font-home-headline),sans-serif!important;font-weight:400!important}
+.amc-swipe-copy>p,.amc-swipe-directions,.amc-drive-season,.amc-sheet-description,
+.amc-sheet-title-suffix,.amc-sheet-content p,.amc-account-menu small{font-family:var(--font-body),sans-serif!important}
+.amc-results-label{display:block;padding-top:17px}
+.amc-results-label strong{font-size:clamp(20px,5.8vw,26px);line-height:1;display:block}
+.amc-results-label small{display:block;margin-top:2px;font-family:var(--font-headline),sans-serif!important;font-stretch:condensed;font-size:10px;line-height:1;text-transform:lowercase}
+.amc-nav-label{font-size:9.92px;font-weight:700}
+.amc-wordmark{display:block;pointer-events:auto}
+
+.amc-swipe-directions button:last-child{font-family:var(--font-body),sans-serif;font-size:inherit;font-weight:800}
+
+/* Detail metadata and fact chips are supporting information, always Share Tech. */
+.amc-sheet-facts,.amc-sheet-facts>span,.amc-sheet-content [class*="rounded-full"],
+.amc-sheet-content [class*="rounded-xl"],.amc-sheet-gallery,.amc-sheet-photo-fallback small,
+.amc-sheet-actions,.amc-drive-season,.amc-starburst,.amc-photo-type,
+.amc-swipe-title>span{font-family:var(--font-body),sans-serif!important}
+
+/* Finger-tracked drawer with a soft native-feeling snap between three states. */
+.amc-discovery-panel{transition:height .42s cubic-bezier(.22,1,.36,1);will-change:height}
+.amc-discovery-panel.is-dragging{transition:none;user-select:none}
+.amc-discovery-panel.is-dragging .amc-drawer-grab{cursor:grabbing}
+
+
+/* Drawer gestures start only on this dedicated top-edge handle. Panel content keeps native scrolling. */
+.amc-drawer-grab{position:relative;z-index:2;cursor:grab;touch-action:none;overscroll-behavior:contain}
+.amc-drawer-scroll{touch-action:pan-y;overscroll-behavior-y:contain}
+.amc-drawer-scroll button,.amc-drawer-scroll a{touch-action:manipulation}
+
+/* One readable support size across the Surprise card's instruction and compact metadata. */
+.amc-surprise{--swipe-support-size:13px}
+.amc-surprise-tagline,.amc-swipe-directions button:last-child,.amc-photo-type,
+.amc-swipe-title>span,.amc-drive-season b,.amc-drive-season small{
+  font-family:var(--font-body),sans-serif!important;
+  font-size:var(--swipe-support-size)!important;
+  line-height:1.15!important;
+}
+.amc-photo-type,.amc-swipe-title>span{padding:5px 8px}
+.amc-drive-season{gap:14px;text-align:left}
+.amc-drive-season small{margin-top:2px;font-size:12px!important}
+
+/* Detail metadata is body copy, not micro-copy. */
+.amc-sheet-facts>span,.amc-sheet-content [class*="rounded-full"],
+.amc-sheet-content [class*="rounded-xl"]{font-size:13px!important;line-height:1.25!important}
+
+/* Match the heavy wordmark with a stronger, optically centered search glyph. */
+.amc-top-actions button svg{width:22px;height:22px;stroke-width:3;transform:translate(-.25px,.25px)}
+
+/* More opens directly on the menu, without a duplicate section masthead. */
+.amc-account-view .amc-account-menu{margin-top:0}
+
+/* Detail section headlines stay Jersey 25 but read at body-copy size. */
+.amc-sheet-section-label{font-size:14px!important;line-height:1.25!important}
+
+/* Quiet search control: transparent on the black bar, with a low-key orange outline and glyph. */
+.amc-top-actions button{background:transparent;border-color:var(--pantone-orange);color:var(--pantone-orange);box-shadow:none}
+.amc-top-actions button svg{stroke:currentColor}
+
+/* Three-tier Explore type scale: one hero, quieter section heads, compact labels/meta. */
+.amc-panel-title h1{font-size:clamp(22px,6.2vw,28px)!important}
+.amc-results-label strong,.amc-label{font-size:18px!important;line-height:1!important}
+.amc-panel-title p{font-family:var(--font-body),sans-serif!important;font-size:11px!important;line-height:1.1!important;text-transform:uppercase}
+.amc-results-label small{font-size:10px!important}
+.amc-presets button,.amc-category-row button,.amc-card-copy p,.amc-stat-row span{font-size:11px}
+.state-min .amc-panel-title h1{font-size:clamp(17px,4.8vw,21px)!important}
+.amc-sheet-content .amc-sheet-section-label{font-family:var(--font-home-headline),sans-serif!important;font-weight:400!important}
+
+/* Final compact-label alignment. */
+.amc-location-float button{font-family:var(--font-body),sans-serif!important;font-weight:700}
+.amc-results-label small{font-family:var(--font-body),sans-serif!important;font-size:11px!important;line-height:1.1!important;font-stretch:normal}
+.amc-top-actions button svg{width:18px;height:18px;stroke-width:2.75}
+
+/* The whole sheet surface can initiate a vertical drag; native content scrolling still wins in the full state. */
+.amc-discovery-panel{touch-action:pan-y}
+.amc-discovery-panel.state-min,.amc-discovery-panel.state-half{touch-action:none}
+.amc-discovery-panel .amc-card-list{touch-action:pan-x}
+.amc-wordmark{font-family:var(--font-home-headline),sans-serif!important;font-size:18px;font-weight:400;letter-spacing:.04em}
+/* Pointer-owned vertical arbitration lets full-sheet content scroll and hands a top-edge downward pull to the sheet. */
+.amc-discovery-panel,.amc-discovery-panel.state-full{touch-action:none}
+.amc-discovery-panel .amc-card-list{touch-action:pan-x}
+/* Prevent the browser's vertical pan recognizer from stealing downward sheet drags on drawer content. */
+.amc-discovery-panel .amc-drawer-scroll{touch-action:none}
+
+/* Instant taps: defer drawer layout work until a real drag and keep ordinary controls off the delayed gesture path. */
+button,a,[role="button"]{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.amc-discovery-panel,.amc-discovery-panel .amc-drawer-scroll{touch-action:none}
+.amc-discovery-panel .amc-card-list{touch-action:pan-x}
+
+/* 15% quieter search control, ring and glyph scaled together. */
+.amc-top-actions button{width:37.4px!important;height:37.4px!important;min-width:37.4px!important;min-height:37.4px!important}
+.amc-top-actions button svg{width:15.3px;height:15.3px}
+
+
+/* Default snap is content-sized: handle + header/filters/section label + one complete card + nav clearance. */
+.amc-discovery-panel.state-half{height:min(61dvh,517px)}
+/* Short phones keep the same complete card, with a compact card rhythm so it clears the floating nav. */
+@media(max-width:374px) and (max-height:700px){
+  .amc-card-photo{height:70px}
+  .amc-card-copy{padding:6px 8px}
+  .amc-card-copy h3{font-size:16px}
+  .amc-card-copy p{font-size:10px;line-height:1}
+  .amc-stat-row{margin-top:4px}
+  .amc-stat-row span{padding:2px 3px;font-size:9px}
+}
+@media(max-width:374px) and (max-height:700px){.amc-card-photo{height:62px}}
+
+/* Final gesture contract: only handle/header/filter area resizes the drawer; cards never do. */
+.amc-discovery-panel .amc-drawer-scroll{touch-action:none}
+.amc-discovery-panel .amc-card-list{touch-action:pan-x pan-y;overscroll-behavior:contain}
+
+/* Instagram follow card on More. Keep card copy sentence case/lowercase. */
+.amc-instagram-follow{position:relative;display:grid;gap:3px;margin:0 0 12px;padding:16px 17px 17px;overflow:hidden;border:2px solid #000;border-radius:19px;background:#111;color:var(--pantone-orange);box-shadow:4px 4px #000}
+.amc-instagram-follow:after{content:"";position:absolute;right:-30px;top:-52px;width:128px;height:128px;border:2px solid var(--pantone-orange);border-radius:50%;opacity:.38}
+.amc-instagram-kicker{display:flex;align-items:center;gap:6px;font-family:var(--font-body),sans-serif;font-size:10px;font-weight:700;line-height:1;letter-spacing:.08em}
+.amc-instagram-title{position:relative;z-index:1;max-width:330px;margin-top:7px;font-family:var(--font-home-headline),sans-serif;font-size:clamp(28px,8.5vw,35px);font-weight:400;line-height:.9}
+.amc-instagram-note{position:relative;z-index:1;max-width:315px;margin-top:8px;color:#fffaf2;font-family:var(--font-body),sans-serif;font-size:12px;line-height:1.25}
+.amc-instagram-handle{display:flex;align-items:center;gap:4px;width:max-content;margin-top:9px;padding:7px 10px;border-radius:999px;background:var(--pantone-orange);color:#111;font-family:var(--font-body),sans-serif;font-size:13px;font-weight:700;line-height:1;text-decoration:none}
+
+/* User-selected 5% readability bump for bottom-nav labels. */
+.amc-nav-label{font-size:10.416px}
+
+/* Branded recovery page for broken links. */
+.amc-404-page{min-height:100dvh;overflow:hidden;background:var(--pantone-orange);color:#111;padding:12px 14px}
+.amc-static-topbar{height:54px;border:2px solid #000;border-radius:16px;background:#111;color:var(--pantone-orange);display:flex;align-items:center;justify-content:space-between;padding:0 14px;box-shadow:3px 3px #000}
+.amc-static-topbar a{color:inherit;text-decoration:none}.amc-static-topbar>span{font-family:var(--font-body);font-size:11px}
+.amc-404-main{display:flex;min-height:calc(100dvh - 66px);flex-direction:column;align-items:center;padding:54px 4px 26px;text-align:center}
+.amc-404-code{position:relative;font-family:var(--font-home-headline);font-size:clamp(140px,48vw,190px);line-height:.72;color:#fff7e9;-webkit-text-stroke:4px #111;text-shadow:8px 8px #111}
+.amc-404-code span{position:absolute;right:19%;top:9%;font-size:54px;color:var(--pantone-orange);-webkit-text-stroke:2px #111;transform:rotate(12deg)}
+.amc-pixel-trekker{width:85px;height:120px;margin-top:-10px;background:#111;clip-path:polygon(22% 0,78% 0,78% 14%,100% 14%,100% 40%,78% 40%,78% 62%,100% 62%,100% 100%,61% 100%,61% 75%,39% 75%,39% 100%,0 100%,0 62%,22% 62%,22% 40%,0 40%,0 14%,22% 14%);position:relative}
+.amc-pixel-trekker:after{content:"";position:absolute;width:33px;height:25px;left:26px;top:20px;background:#fff7e9}
+.amc-404-copy{margin-top:24px;border:3px solid #000;border-radius:20px;background:#fff7e9;padding:18px;width:100%;box-shadow:5px 5px #111}
+.amc-404-copy h1{font-family:var(--font-home-headline);font-size:38px;line-height:.9}.amc-404-copy p{margin:10px auto 0;max-width:290px;font-size:13px;line-height:1.35}
+.amc-404-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:15px;width:100%}.amc-404-actions a{border:3px solid #000;border-radius:14px;padding:13px 8px;background:#111;color:var(--pantone-orange);font-family:var(--font-home-headline);font-size:19px;box-shadow:3px 3px #000;text-decoration:none}.amc-404-actions a:last-child{background:#fff7e9;color:#111}
+.amc-404-hint{margin-top:20px;font-size:11px}.amc-404-trail{margin-top:auto;font-family:var(--font-home-headline);font-size:26px;letter-spacing:.15em}
+
+/* Legal content intentionally stays plain and easy to replace. */
+.amc-terms-page{min-height:100dvh;overflow-y:auto;background:#fffaf2;color:#111}
+.amc-terms-top{height:74px;border-bottom:2px solid #111;padding:0 18px;display:flex;align-items:center;justify-content:space-between}.amc-terms-top a{color:#111;text-decoration:none;font-family:var(--font-body);font-size:11px}.amc-terms-top .amc-wordmark{font-family:var(--font-home-headline);font-size:19px}
+.amc-terms-content{padding:28px 20px 50px}.amc-terms-content h1{font-family:var(--font-home-headline);font-size:48px;line-height:.9}.amc-terms-updated{margin-top:9px;color:#666;font-size:11px}.amc-terms-intro{margin-top:18px;font-size:14px;line-height:1.45}
+.amc-terms-toc{margin-top:22px;padding:14px 0;border-top:1px solid #bbb;border-bottom:1px solid #bbb}.amc-terms-toc a{display:block;color:#111;font-size:12px;line-height:1.8;text-decoration:none}
+.amc-terms-content section{scroll-margin-top:16px;padding:22px 0;border-bottom:1px solid #ddd}.amc-terms-content section h2{font-family:var(--font-home-headline);font-size:24px}.amc-terms-content section p{margin-top:8px;font-size:13px;line-height:1.55}.amc-terms-content aside{margin-top:24px;padding:14px;border:1px solid #111;font-size:12px;line-height:1.45}
+
+/* About Us - approved origin-story direction. */
+.amc-about-page{min-height:100dvh;overflow-y:auto;background:var(--pantone-orange);color:#111;padding:12px 14px 42px}
+.amc-about-content{padding-top:22px}.amc-about-hero{border:3px solid #000;border-radius:22px;background:#fff7e9;padding:18px;box-shadow:5px 5px #111}.amc-about-hero>span,.amc-about-story span{font-family:var(--font-body);font-size:11px;letter-spacing:.07em}.amc-about-hero h1{margin-top:8px;color:var(--pantone-orange);font-family:var(--font-home-headline);font-size:48px;line-height:.88;-webkit-text-stroke:1px #111}.amc-about-hero p{margin-top:11px;font-size:13px;line-height:1.35}
+.amc-about-story{margin-top:18px;border-left:5px solid #111;padding-left:15px}.amc-about-story>div{padding-bottom:22px}.amc-about-story h2{margin-top:4px;font-family:var(--font-home-headline);font-size:30px;line-height:1}.amc-about-story p{margin-top:6px;font-size:13px;line-height:1.4}
+.amc-about-open{margin-top:16px;border:2px solid #000;border-radius:18px;background:#111;color:#fff7e9;padding:16px;box-shadow:3px 3px #111}.amc-about-open h2{color:var(--pantone-orange);font-family:var(--font-home-headline);font-size:26px}.amc-about-open p{margin-top:7px;font-size:13px;line-height:1.4}.amc-about-closing{margin-top:20px;font-family:var(--font-home-headline);font-size:36px;line-height:.95}
+.amc-account-menu>a{display:grid;grid-template-columns:42px 1fr 15px;align-items:center;text-align:left;border:2px solid #000;border-radius:15px;background:#fffaf2;padding:9px 11px;box-shadow:2px 2px 0 #000;color:#111;text-decoration:none}
+
+/* One shared format, four focused utility forms. */
+.amc-utility-page{min-height:100dvh;overflow-y:auto;background:var(--pantone-orange);color:#111;padding:12px 14px 42px}.amc-utility-page .amc-static-topbar a{color:inherit;text-decoration:none}.amc-utility-main{padding-top:22px}.amc-utility-hero{position:relative;border:3px solid #000;background:var(--pantone-orange);padding:18px;box-shadow:7px 7px #111}.amc-utility-hero>span{font-family:var(--font-body);font-size:11px;letter-spacing:.07em}.amc-utility-hero>b{position:absolute;right:16px;top:13px;font-family:var(--font-home-headline);font-size:52px}.amc-utility-hero h1{max-width:295px;margin-top:8px;font-family:var(--font-home-headline);font-size:45px;line-height:.9}.amc-utility-hero p{max-width:300px;margin-top:9px;font-size:13px;line-height:1.35}
+.amc-utility-form{margin-top:24px;border-top:3px solid #111;padding-top:6px}.amc-form-field{display:block;margin-top:14px}.amc-form-field>span:first-child{display:block;margin:0 2px 6px;font-family:var(--font-home-headline);font-size:13px}.amc-form-field>input,.amc-form-field>textarea{width:100%;border:2px solid #000;border-radius:13px;background:#fff7e9;padding:13px;font-family:var(--font-body);font-size:13px;box-shadow:2px 2px #111;outline:none}.amc-form-field>textarea{height:130px;resize:vertical}.amc-form-field>input:focus,.amc-form-field>textarea:focus{box-shadow:2px 2px #111,0 0 0 2px var(--pantone-orange),0 0 0 4px #111}
+.amc-form-upload{position:relative;display:block;border:2px dashed #000;border-radius:13px;background:#fff7e9;padding:24px 12px;text-align:center;box-shadow:2px 2px #111}.amc-form-upload b{display:block;font-family:var(--font-home-headline);font-size:20px}.amc-form-upload small{display:block;font-size:10px}.amc-form-upload input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
+.amc-form-choices{display:flex!important;flex-wrap:wrap;gap:7px}.amc-form-choices>span{position:relative}.amc-form-choices input{position:absolute;opacity:0}.amc-form-choices span span{display:block;border:2px solid #000;border-radius:999px;background:#fff7e9;padding:8px 10px;font-size:11px}.amc-form-choices input:checked+span{background:#111;color:var(--pantone-orange)}.amc-form-choices input:focus-visible+span{outline:3px solid #111;outline-offset:2px}
+.amc-form-submit{width:100%;margin-top:18px;border:3px solid #000;border-radius:15px;background:#111;color:var(--pantone-orange);padding:14px;font-family:var(--font-home-headline);font-size:22px;box-shadow:4px 4px #000}.amc-form-note{margin-top:16px;font-size:11px;line-height:1.3}.amc-form-related{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:22px}.amc-form-related a{border-top:2px solid #111;padding-top:7px;color:#111;text-align:center;font-size:10px;line-height:1.2;text-decoration:none}
+.amc-form-honeypot{position:absolute!important;left:-9999px!important;width:1px!important;height:1px!important;opacity:0!important}.amc-form-submit:disabled{opacity:.65}.amc-form-status{margin-top:12px;border:2px solid #111;border-radius:12px;padding:10px 12px;background:#fff7e9;font-size:12px}.amc-form-status.is-success{background:#111;color:var(--pantone-orange)}.amc-form-status.is-error{background:#fff7e9;color:#b00020}
+/* ===== Desktop (approved mockups: header bar, home B, Surprise Me, location panel). Mobile is untouched. ===== */
+.amc-search-desktop,.amc-sheet-inline-actions,.amc-surprise-keys{display:none}
+.amc-surprise-intro{display:contents}
+@media(max-width:1023px){.has-sheet .amc-nav-dock{display:none}}
+@media(min-width:1024px){
+/* Header: one solid bar, wordmark left, tabs centered, search right */
+.amc-app{padding:68px 0 0!important}
+.amc-top-wrap{position:fixed!important;top:0!important;left:0!important;right:0!important;height:68px!important;z-index:90!important}
+.amc-topbar{height:68px!important;border:0!important;border-bottom:3px solid #000!important;border-radius:0!important;box-shadow:none!important;padding:0 24px 0 28px!important}
+.amc-wordmark{font-size:16px!important}
+.amc-top-actions,.amc-search{display:none!important}
+.amc-search-desktop{display:flex;align-items:center;gap:8px;width:clamp(220px,22vw,320px);height:42px;border:2px solid #3a3a3a;border-radius:12px;padding:0 10px 0 12px;background:#1b1b1b;color:#9a9a94}
+.amc-search-desktop:focus-within{border-color:var(--pantone-orange);color:var(--pantone-orange)}
+.amc-search-desktop input{flex:1;min-width:0;background:transparent;outline:0;color:#fffaf2;font:400 14px var(--font-body)}
+.amc-search-desktop input::placeholder{color:#9a9a94}
+.amc-search-desktop button{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:#333;color:#fffaf2}
+.amc-nav-dock{position:fixed!important;top:0!important;bottom:auto!important;left:50%!important;right:auto!important;transform:translateX(-50%);height:68px!important;width:auto!important;background:transparent!important;z-index:95!important;pointer-events:none!important;display:block!important}
+.amc-bottom-nav{position:static!important;height:68px!important;border:0!important;border-radius:0!important;box-shadow:none!important;background:transparent!important;gap:6px;padding:0!important;pointer-events:auto}
+.amc-bottom-nav button,.amc-bottom-nav button.is-active{display:flex!important;flex-direction:row!important;align-items:center;width:auto!important;height:42px!important;padding:0 16px 0 12px!important;gap:7px!important;border:2px solid transparent;border-radius:12px!important;color:#b8b8b2!important;cursor:pointer;transition:background .15s,color .15s}
+.amc-bottom-nav button:before,.amc-bottom-nav button:after{display:none!important}
+.amc-bottom-nav button:hover{background:#222;color:#fffaf2!important}
+.amc-bottom-nav button.is-active{background:var(--pantone-orange)!important;color:#111!important;border-color:#000}
+.amc-bottom-nav .is-active .amc-nav-icon,.amc-bottom-nav .is-active .amc-nav-label{color:#111!important}
+.amc-nav-label{font-size:14px!important;height:auto!important;line-height:1!important;margin:0!important}
+.amc-nav-icon{width:20px!important;height:20px!important;min-width:20px!important;min-height:20px!important;max-width:20px!important;max-height:20px!important;background:transparent!important}
+/* Home B: full-bleed map, floating always-open list panel on the right */
+.amc-map,.amc-map-loading{position:fixed!important;top:68px!important;left:0!important;right:0!important;bottom:0!important}
+.amc-location-float{position:fixed!important;top:88px!important;left:20px!important}
+.amc-discovery-panel,.amc-discovery-panel.state-min,.amc-discovery-panel.state-half,.amc-discovery-panel.state-full{position:fixed!important;top:88px!important;bottom:20px!important;right:20px!important;left:auto!important;width:min(440px,40vw)!important;height:auto!important;border:3px solid #000!important;border-radius:24px!important;box-shadow:7px 7px 0 #000!important;padding:0!important;transition:none!important}
+.amc-drawer-grab{display:none!important}
+.amc-drawer-scroll{height:100%!important;padding:18px 4px 24px!important;scrollbar-width:thin}
+.amc-panel-title h1{font-size:24px!important;white-space:normal!important}
+.amc-presets,.amc-category-row{flex-wrap:wrap!important;overflow:visible!important}
+.amc-presets button,.amc-category-row button{cursor:pointer}
+.amc-presets button:not(.is-active):hover,.amc-category-row button:not(.is-active):hover{background:#fff;box-shadow:2px 2px 0 #000}
+.amc-card-list{display:flex!important;flex-direction:column!important;gap:12px!important;overflow:visible!important;padding:0 16px 24px!important}
+.amc-spot-card{flex:none!important;width:auto!important;min-width:0!important;transition:transform .15s,box-shadow .15s}
+.amc-spot-card:hover{transform:translate(-2px,-2px);box-shadow:6px 6px #000}
+.amc-card-main{display:grid!important;grid-template-columns:150px 1fr!important;cursor:pointer}
+.amc-card-photo{height:auto!important;min-height:118px}
+.amc-card-copy{padding-right:56px!important}
+.amc-card-skeleton{height:118px!important}
+.banner-enter.glass-solid{left:auto!important;right:calc(min(440px,40vw) + 44px)!important;top:88px!important;max-width:420px}
+/* Location page: floating panel on the right, map stays visible and centers the spot beside it */
+.has-sheet .amc-discovery-panel,.has-sheet .amc-location-float{display:none!important}
+.amc-app>.sheet-enter,.amc-spot-sheet{position:fixed!important;top:88px!important;bottom:20px!important;right:20px!important;left:auto!important;width:min(760px,56vw)!important;max-height:none!important;border:3px solid #000!important;border-radius:24px!important;box-shadow:7px 7px 0 #000!important;overflow:hidden;animation:none!important;z-index:60!important}
+.amc-sheet-scroll{border-radius:0!important}
+.amc-sheet-handle{display:none!important}
+.amc-sheet-hero{padding:22px 24px 0}
+.amc-sheet-gallery,.amc-sheet-photo,.amc-sheet-photo-fallback{height:clamp(220px,34vh,340px)!important;border-radius:18px!important}
+.amc-sheet-gallery,.amc-sheet-photo-fallback{border:3px solid #000!important;overflow:hidden}
+.amc-sheet-photo{border:0!important}
+.amc-sheet-hero>button{top:34px!important;right:36px!important;width:40px!important;height:40px!important;cursor:pointer}
+.amc-sheet-content{padding:20px 24px 30px!important}
+.amc-sheet-title{align-items:center!important}
+.amc-sheet-title h2{font-size:34px!important;line-height:1!important}
+.amc-sheet-inline-actions{display:flex;gap:10px;margin-left:auto;flex:none}
+.amc-sheet-inline-actions a{display:flex;align-items:center;gap:8px;border:2px solid #000;border-radius:14px;padding:11px 18px;box-shadow:3px 3px 0 #000;font-size:14px;font-weight:700;transition:transform .15s,box-shadow .15s}
+.amc-sheet-inline-actions a:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 #000}
+.amc-sheet-inline-actions .is-directions{background:#111;color:#fff}
+.amc-sheet-inline-actions .is-share{background:#25D366;color:#111}
+.amc-sheet-actions{display:none!important}
+.amc-sheet-description{font-size:15.5px!important;max-width:none!important}
+.amc-sheet-sections{display:grid;grid-template-columns:1fr 1fr;gap:0 32px;align-items:start}
+.amc-sheet-content .amc-sheet-section.pb-4{grid-column:1/-1}
+/* Surprise Me: intro left, card right, card height tied to the viewport so it always fits */
+.amc-surprise{position:fixed!important;top:68px!important;bottom:0!important;left:0!important;right:0!important}
+.amc-surprise-scroll{height:100%!important;padding:24px 48px!important;display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:center!important;gap:clamp(40px,6vw,96px)!important;overflow:hidden!important}
+.amc-surprise-intro{display:block;width:clamp(300px,30vw,440px)}
+.amc-surprise-heading{font-size:clamp(52px,5vw,72px)!important;white-space:normal!important;line-height:.9!important}
+.amc-surprise-tagline{font-size:18px!important;margin-top:14px!important}
+.amc-surprise-keys{display:flex;gap:14px;margin-top:34px}
+.amc-surprise-keys button{display:flex;align-items:center;gap:9px;font:400 15px var(--font-body);cursor:pointer}
+.amc-surprise-keys kbd{display:inline-grid;place-items:center;min-width:42px;height:42px;border:2px solid #000;border-radius:10px;background:#fffaf2;box-shadow:3px 3px #000;font:700 18px var(--font-body);transition:transform .1s,box-shadow .1s}
+.amc-surprise-keys button:hover kbd{transform:translate(-1px,-1px);box-shadow:4px 4px #000}
+.amc-surprise-keys button:active kbd{transform:translate(2px,2px);box-shadow:1px 1px #000}
+.amc-swipe-card{flex:none!important;width:min(400px,calc((100dvh - 116px) * .62))!important;margin:0!important;cursor:grab}
+.amc-swipe-card:active{cursor:grabbing}
+.amc-swipe-photo{height:calc(100dvh - 116px - 170px)!important;max-height:440px!important;min-height:200px!important}
+.amc-swipe-directions{display:none!important}
+.amc-surprise-empty{position:fixed;top:68px;left:0;right:0;bottom:0;display:grid;place-content:center;text-align:center}
+/* More */
+.amc-account-view{position:fixed!important;top:68px!important;bottom:0!important;left:0!important;right:0!important;padding:40px max(24px,calc((100vw - 880px)/2)) 40px!important}
+}
+@media(min-width:1024px){
+/* No photo yet: a slim category band instead of a tall empty block that repeats the title */
+.amc-sheet-photo-fallback{height:96px!important;display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:flex-start!important;gap:12px;padding:0 22px!important}
+.amc-sheet-photo-fallback strong{display:none!important}
+.amc-sheet-photo-fallback small{margin:0!important;font-size:11px!important}
+.amc-sheet-hero>button{top:70px!important;right:40px!important;transform:translateY(-50%)}
+.amc-sheet-gallery~button{top:34px!important;transform:none}
+.amc-sheet-title{flex-wrap:wrap;row-gap:14px}
+.amc-sheet-title>div:not(.amc-sheet-inline-actions){flex:1 1 260px;min-width:0}
+}
+/* Short phones: shrink the Surprise photo so the swipe hints stay above the nav */
+@media(max-width:1023px) and (max-height:760px){.amc-swipe-photo{height:clamp(170px,calc(100dvh - 410px),350px)!important}}
+@media(min-width:1024px){
+/* Desktop utility pages (approved mockups): black top bar, forms intro-left/form-right, Terms TOC-left, About wide */
+.amc-404-main{width:100%;max-width:720px;margin-left:auto!important;margin-right:auto!important;zoom:1.2}
+.amc-utility-hero>b,.amc-utility-num{display:none!important}
+.amc-utility-page,.amc-about-page,.amc-terms-page{height:100vh;overflow-y:auto;padding:0!important}
+.amc-static-topbar,.amc-terms-top{position:sticky!important;top:0;z-index:10;height:68px!important;margin:0!important;border:0!important;border-bottom:3px solid #000!important;border-radius:0!important;box-shadow:none!important;background:#111!important;color:var(--pantone-orange)!important;padding:0 28px!important;display:flex!important;align-items:center;justify-content:space-between}
+.amc-static-topbar .amc-wordmark,.amc-terms-top .amc-wordmark{font-size:16px!important;color:var(--pantone-orange)!important}
+.amc-static-topbar>a:last-child,.amc-terms-top>a:last-child{font-size:14px!important;color:#fffaf2!important;border:2px solid #3a3a3a;border-radius:12px;padding:9px 14px}
+/* forms: intro left (sticky), form right */
+.amc-utility-main{display:grid!important;grid-template-columns:minmax(320px,420px) minmax(420px,600px);grid-template-rows:auto 1fr;gap:28px 56px;justify-content:center;align-items:start;align-content:start;padding:48px 32px 60px!important;margin:0 auto!important}
+.amc-utility-hero{grid-column:1;grid-row:1;position:sticky;top:100px;padding:28px!important;border-radius:24px!important;box-shadow:7px 7px 0 #000!important}
+.amc-utility-hero h1{font-size:56px!important;line-height:.9!important}
+.amc-utility-hero p{font-size:16px!important;max-width:none!important;margin-top:12px!important}
+.amc-utility-hero b{font-size:44px!important}
+.amc-utility-form{grid-column:2;grid-row:1/3;background:#fffaf2;border:3px solid #000;border-radius:24px;box-shadow:7px 7px 0 #000;padding:28px!important;margin:0!important}
+.amc-utility-form .amc-form-field>span,.amc-utility-form label>span:first-child{font-size:12px!important}
+.amc-utility-form input,.amc-utility-form textarea{font-size:15px!important}
+.amc-form-related{grid-column:1;grid-row:2;align-self:start;grid-template-columns:1fr!important;gap:10px!important;margin:0!important;}
+.amc-form-related a{text-align:left!important;font-size:15px!important;border:2px solid #000!important;border-radius:14px;background:#fffaf2;padding:12px 14px!important;box-shadow:3px 3px 0 #000}
+.amc-form-related a:after{content:" \2192";float:right}
+/* terms: sticky TOC left, reading column right */
+.amc-terms-content{display:grid!important;grid-template-columns:260px minmax(0,700px);gap:0 64px;justify-content:center;padding:56px 32px 80px!important;margin:0 auto!important}
+.amc-terms-content>h1,.amc-terms-content>.amc-terms-updated,.amc-terms-content>.amc-terms-intro{grid-column:1/-1}
+.amc-terms-content>h1{font-size:72px!important;line-height:.9!important}
+.amc-terms-content>.amc-terms-intro{font-size:18px!important;margin-bottom:28px!important}
+.amc-terms-toc{grid-column:1;grid-row:4/span 20;align-self:start;position:sticky;top:100px;border:2px solid #000!important;border-radius:16px;padding:16px!important;display:grid;gap:10px}
+.amc-terms-toc a{font-size:14px!important}
+.amc-terms-content>section{grid-column:2}
+.amc-terms-content>section h2{font-size:26px!important}
+.amc-terms-content>section p{font-size:16px!important;line-height:1.6!important}
+/* about: wide hero, chapters as 3 columns */
+.amc-about-content{max-width:1120px!important;margin:0 auto!important;padding:48px 32px 70px!important}
+.amc-about-hero{padding:40px!important;border-radius:26px!important}
+.amc-about-hero h1{font-size:88px!important;line-height:.9!important}
+.amc-about-hero p{font-size:18px!important}
+.amc-about-story{display:grid!important;grid-template-columns:repeat(3,1fr);gap:24px;border-left:0!important;padding-left:0!important;margin-top:36px!important}
+.amc-about-story>div{border-top:4px solid #111;padding-top:14px!important;margin:0!important}
+.amc-about-story h2{font-size:30px!important;line-height:1!important}
+.amc-about-story p{font-size:16px!important;margin-top:10px!important}
+.amc-about-open{margin-top:36px!important;padding:32px!important;border-radius:22px!important;display:flex!important;align-items:center;justify-content:space-between;gap:24px}
+.amc-about-open h2{font-size:44px!important}
+.amc-about-open p{font-size:16px!important}
+.amc-about-closing{font-size:40px!important;margin-top:40px!important;line-height:1!important}
+}
+@media(min-width:1024px){
+/* More on desktop: Instagram lead card left, menu right, centered in the viewport */
+.amc-account-view{display:grid!important;grid-template-columns:minmax(360px,1fr) minmax(380px,1fr);gap:28px;align-content:center;align-items:stretch;padding:40px max(32px,calc((100vw - 1040px)/2))!important;overflow-y:auto}
+.amc-account-view .amc-instagram-follow{margin:0!important;min-height:100%;display:flex!important;flex-direction:column;justify-content:flex-end;padding:32px!important;border-radius:26px!important;box-shadow:7px 7px 0 #000!important}
+.amc-account-view .amc-instagram-title{font-size:clamp(40px,3.6vw,54px)!important;line-height:.95!important;max-width:12ch}
+.amc-account-view .amc-instagram-note{font-size:16px!important;margin-top:14px!important}
+.amc-account-view .amc-instagram-kicker{font-size:13px!important}
+.amc-account-view .amc-instagram-handle{margin-top:22px!important;font-size:16px!important;padding:12px 18px!important;transition:transform .15s,box-shadow .15s}
+.amc-account-view .amc-instagram-handle:hover{transform:translate(-2px,-2px);box-shadow:4px 4px 0 #000}
+.amc-account-view .amc-account-menu{margin:0!important;gap:12px!important;align-content:center}
+.amc-account-menu a,.amc-account-menu button{padding:14px 16px!important;grid-template-columns:48px 1fr 18px!important;transition:transform .15s,box-shadow .15s}
+.amc-account-menu a:hover,.amc-account-menu button:hover{transform:translate(-2px,-2px);box-shadow:5px 5px 0 #000!important}
+.amc-account-menu .amc-menu-icon{width:40px!important;height:40px!important}
+.amc-account-menu strong{font-size:17px!important}
+.amc-account-menu small{font-size:12px!important}
+}
+.amc-swipe-directions{justify-content:flex-end!important}

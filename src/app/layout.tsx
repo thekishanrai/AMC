@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Bitcount_Grid_Single, Share_Tech, Press_Start_2P } from "next/font/google";
+import { Bitcount_Grid_Single, Jersey_25, Share_Tech, Press_Start_2P } from "next/font/google";
 import "./globals.css";
 import { SITE_URL } from "@/lib/site";
 
@@ -7,6 +7,12 @@ const bitcountGridSingle = Bitcount_Grid_Single({
   variable: "--font-headline",
   subsets: ["latin"],
   weight: "variable",
+});
+
+const jersey25 = Jersey_25({
+  variable: "--font-home-headline",
+  subsets: ["latin"],
+  weight: "400",
 });
 
 const shareTech = Share_Tech({
@@ -45,9 +51,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${bitcountGridSingle.variable} ${shareTech.variable} ${pressStart2P.variable} h-full antialiased`}
+      className={`${bitcountGridSingle.variable} ${jersey25.variable} ${shareTech.variable} ${pressStart2P.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col overflow-hidden">{children}</body>
+      <head><link rel="preconnect" href="https://api.mapbox.com" crossOrigin="anonymous"/><link rel="preconnect" href="https://tiles.mapbox.com" crossOrigin="anonymous"/><link rel="dns-prefetch" href="https://api.mapbox.com"/><link rel="dns-prefetch" href="https://tiles.mapbox.com"/></head><body className="min-h-full flex flex-col overflow-hidden">{children}</body>
     </html>
   );
 }
