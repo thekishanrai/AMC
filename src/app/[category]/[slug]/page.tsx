@@ -1,12 +1,29 @@
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import type { Metadata } from "next";
-import { getPublishedSpots } from "@/lib/spots";
-import { buildSlugMap, findSpotBySlug } from "@/lib/slug";
+import { getPublishedSpots, getSpotSummariesSafe } from "@/lib/spots";
+import { findRenamedSlug } from "@/lib/slug";
 import { SITE_URL } from "@/lib/site";
 import MapView from "@/components/MapView";
 import type { Category, Spot } from "@/types";
 
-export const dynamicParams = false;
+// Spots added after a build render on first visit, then cache for an hour.
+export const dynamicParams = true;
+export const revalidate = 3600;
+
+async function findSpot(slug: string): Promise<Spot | undefined> {
+  const spots = await getPublishedSpots();
+  return spots.find((s) => s.slug === slug);
+}
+
+// Wrong category or a renamed spot: 308 to the one current URL.
+async function redirectIfMoved(category: string, slug: string, spot: Spot | undefined): Promise<void> {
+  if (spot) {
+    if (spot.category !== category) permanentRedirect(`/${spot.category}/${spot.slug}`);
+    return;
+  }
+  const moved = await findRenamedSlug(slug);
+  if (moved) permanentRedirect(`/${moved.category}/${moved.slug}`);
+}
 
 const CATEGORY_LABEL_SINGULAR: Record<Category, string> = {
   trek: "Trek",
@@ -26,11 +43,7 @@ function pageDescription(spot: Spot): string {
 
 export async function generateStaticParams() {
   const spots = await getPublishedSpots();
-  const slugById = buildSlugMap(spots);
-  return spots.map((spot) => ({
-    category: spot.category,
-    slug: slugById.get(spot.id)!,
-  }));
+  return spots.map((spot) => ({ category: spot.category, slug: spot.slug }));
 }
 
 export async function generateMetadata({
@@ -39,8 +52,7 @@ export async function generateMetadata({
   params: Promise<{ category: string; slug: string }>;
 }): Promise<Metadata> {
   const { category, slug } = await params;
-  const spots = await getPublishedSpots();
-  const spot = findSpotBySlug(spots, slug);
+  const spot = await findSpot(slug);
   if (!spot || spot.category !== category) return {};
 
   const title = pageTitle(spot);
@@ -63,9 +75,10 @@ export default async function SpotPage({
   params: Promise<{ category: string; slug: string }>;
 }) {
   const { category, slug } = await params;
-  const spots = await getPublishedSpots();
-  const spot = findSpotBySlug(spots, slug);
-  if (!spot || spot.category !== category) notFound();
+  const found = await findSpot(slug);
+  await redirectIfMoved(category, slug, found);
+  if (!found) notFound();
+  const spot = found;
 
   const canonicalUrl = `${SITE_URL}/${spot.category}/${slug}`;
 
@@ -110,6 +123,8 @@ export default async function SpotPage({
     ],
   };
 
+  const summaries = await getSpotSummariesSafe();
+  const cover = summaries.find((x) => x.id === spot.id);
   return (
     <main className="h-dvh w-dvw">
       <script
@@ -126,7 +141,7 @@ export default async function SpotPage({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
         />
       )}
-      <MapView initialSpot={spot} />
+      <MapView initialSpot={{ ...spot, photos: cover?.photos ?? null, credit: cover?.credit ?? null }} initialSpots={summaries} />
     </main>
   );
 }

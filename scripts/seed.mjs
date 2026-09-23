@@ -18,6 +18,7 @@ const spots = JSON.parse(
 
 const { data, error } = await supabase
   .from("spots")
+  // slug is not sent: the spots_slug_insert trigger generates it once for new rows and never changes it on upsert.
   .upsert(spots, { onConflict: "name" })
   .select("id, name");
 

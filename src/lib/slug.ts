@@ -1,36 +1,16 @@
-import type { Spot } from "@/types";
+import { supabase } from "@/lib/supabase";
 
-export function slugify(name: string): string {
-  return name
-    .toLowerCase()
-    .normalize("NFKD")
-    .replace(/[̀-ͯ]/g, "")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
-
-// Deterministic slug per spot id, stable across builds regardless of fetch
-// order. Collisions (two spots slugifying to the same string) get a -2, -3…
-// suffix, resolved in a fixed order (by id) so the same spot always gets the
-// same suffix.
-export function buildSlugMap(spots: Spot[]): Map<string, string> {
-  const counts = new Map<string, number>();
-  const slugById = new Map<string, string>();
-  const sorted = [...spots].sort((a, b) => a.id.localeCompare(b.id));
-
-  for (const spot of sorted) {
-    // Never leak database UUIDs into public URLs. A non-Latin name may
-    // slugify to an empty string, so use a readable category/region fallback.
-    const base = slugify(spot.name) || `${spot.category}-${slugify(spot.region ?? "") || "maharashtra"}`;
-    const seen = (counts.get(base) ?? 0) + 1;
-    counts.set(base, seen);
-    slugById.set(spot.id, seen === 1 ? base : `${base}-${seen}`);
-  }
-
-  return slugById;
-}
-
-export function findSpotBySlug(spots: Spot[], slug: string): Spot | undefined {
-  const slugById = buildSlugMap(spots);
-  return spots.find((s) => slugById.get(s.id) === slug);
+// Slugs are stored on spots.slug and generated once at insert (see
+// supabase/migrations/0008_spots_persistent_slugs.sql). Never compute them from names.
+// When a slug changes, the old one lands in spot_slug_history so old links redirect.
+export async function findRenamedSlug(oldSlug: string): Promise<{ category: string; slug: string } | null> {
+  const { data, error } = await supabase
+    .from("spot_slug_history")
+    .select("spots!inner(slug,category,status)")
+    .eq("old_slug", oldSlug)
+    .maybeSingle();
+  if (error || !data) return null;
+  const spot = (Array.isArray(data.spots) ? data.spots[0] : data.spots) as { slug: string; category: string; status: string } | undefined;
+  if (!spot || spot.status !== "published") return null;
+  return { category: spot.category, slug: spot.slug };
 }

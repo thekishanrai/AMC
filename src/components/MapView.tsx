@@ -1,12 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 import type mapboxgl from "mapbox-gl";
 import { supabase } from "@/lib/supabase";
 import { getGpsLocation, getIpLocation, haversineKm, isInMaharashtra } from "@/lib/geo";
 import { loadSavedLocation, saveLocation, type QuickCity } from "@/lib/locationOverride";
-import { buildSlugMap } from "@/lib/slug";
 import type { Category, Spot } from "@/types";
 import TopBar from "./TopBar";
 import CategoryChips, { DEFAULT_DISTANCE_KM } from "./CategoryChips";
@@ -23,8 +21,7 @@ const DESKTOP_QUERY = "(min-width: 1024px)";
 // region of spots stays browsable instead of turning into a wall of pills.
 const DETAIL_ZOOM_THRESHOLD = 10.5;
 
-export default function MapView({ initialSpot = null }: { initialSpot?: Spot | null }) {
-  const router = useRouter();
+export default function MapView({ initialSpot = null, initialSpots = [] }: { initialSpot?: Spot | null; initialSpots?: Spot[] }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const mapboxRef = useRef<typeof import("mapbox-gl")["default"] | null>(null);
@@ -32,12 +29,30 @@ export default function MapView({ initialSpot = null }: { initialSpot?: Spot | n
   const userMarkerRef = useRef<mapboxgl.Marker | null>(null);
 
   const [mapReady, setMapReady] = useState(false);
-  const [initialView, setInitialView] = useState<{ center: [number, number]; zoom: number } | null>(() => {
-    if (initialSpot) return { center: [initialSpot.lng, initialSpot.lat], zoom: 12 };
+  // origin = the visitor's reference point (filtering, distances, Surprise Me).
+  // bootView = where the map opens; read once at creation and never a
+  // dependency, so a location change moves the camera instead of rebuilding
+  // (and re-billing) the map.
+  const [origin, setOrigin] = useState<[number, number]>(() => {
+    if (initialSpot) return [initialSpot.lng, initialSpot.lat];
     const saved = loadSavedLocation();
-    return saved ? { center: [saved.lng, saved.lat], zoom: 11 } : { center: CENTER, zoom: 8 };
+    return saved ? [saved.lng, saved.lat] : CENTER;
   });
-  const [spots, setSpots] = useState<Spot[]>(() => initialSpot ? [initialSpot] : []);
+  const bootView = useRef<{ center: [number, number]; zoom: number } | null>(null);
+  if (bootView.current === null) bootView.current = { center: origin, zoom: initialSpot ? 12 : loadSavedLocation() ? 11 : 8 };
+  const userChoseLocation = useRef(false);
+  const [userPin, setUserPin] = useState<[number, number] | null>(null);
+  const [mapFailed, setMapFailed] = useState(false);
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [gpsError, setGpsError] = useState<string | null>(null);
+  const [spots, setSpots] = useState<Spot[]>(() => initialSpots.length ? initialSpots : initialSpot ? [initialSpot] : []);
+  const [loadStatus, setLoadStatus] = useState<"loading" | "error" | "ready">(() => initialSpots.length ? "ready" : "loading");
+  const loadAbort = useRef<AbortController | null>(null);
+  const detailCache = useRef<Map<string, Spot>>(new Map(initialSpot ? [[initialSpot.id, initialSpot]] : []));
+  const detailPending = useRef<Map<string, Promise<Spot | null>>>(new Map());
+  const pushedSpot = useRef(false);
+  const railRef = useRef<HTMLDivElement | null>(null);
+  const lastFocused = useRef<string | null>(null);
   const [activeCategory, setActiveCategory] = useState<Category | "all">("all");
   const [maxDistanceKm, setMaxDistanceKm] = useState(DEFAULT_DISTANCE_KM);
   const [selectedSpot, setSelectedSpot] = useState<Spot | null>(initialSpot);
@@ -57,24 +72,93 @@ export default function MapView({ initialSpot = null }: { initialSpot?: Spot | n
   // small batches as the user approaches the end, preserving native scroll.
   const [cardLimit, setCardLimit] = useState(12);
 
-  const slugById = useMemo(() => buildSlugMap(spots), [spots]);
+  const slugById = useMemo(() => new Map(spots.map((s) => [s.id, s.slug])), [spots]);
+
+  const spotsRef = useRef(spots), slugRef = useRef(slugById);
+  spotsRef.current = spots; slugRef.current = slugById;
+
+  // History: opening a spot adds ONE entry (switching spots replaces it).
+  // Closing goes back if we added it, otherwise just tidies the URL, so the
+  // back button never collects junk entries.
+  function pushSpotUrl(s: Spot) {
+    const slug = slugById.get(s.id);
+    if (!slug) return;
+    const url = `/${s.category}/${slug}`;
+    if (pushedSpot.current) window.history.replaceState(window.history.state, "", url);
+    else { window.history.pushState(null, "", url); pushedSpot.current = true; }
+  }
 
   function closeSheet() {
     setSelectedSpot(null);
-    router.push("/");
+    if (pushedSpot.current) { pushedSpot.current = false; window.history.back(); }
+    else if (window.location.pathname !== "/" || window.location.search) window.history.replaceState(window.history.state, "", "/");
   }
 
-  // Card details update the URL without remounting the map. Browser back and
-  // the mobile swipe-back gesture both emit popstate, so close the sheet when
-  // history returns to the homepage entry.
+  // popstate (back/forward, mobile swipe-back): sync the sheet to the URL.
   useEffect(() => {
-    if (initialSpot) return;
     const onPopState = () => {
-      if (window.location.pathname === "/") setSelectedSpot(null);
+      pushedSpot.current = false;
+      const parts = window.location.pathname.split("/").filter(Boolean);
+      if (parts.length !== 2) { setSelectedSpot(null); return; }
+      const s = spotsRef.current.find((x) => slugRef.current.get(x.id) === parts[1]) ?? null;
+      setSelectedSpot(s ? detailCache.current.get(s.id) ?? s : null);
     };
     window.addEventListener("popstate", onPopState);
     return () => window.removeEventListener("popstate", onPopState);
-  }, [initialSpot]);
+  }, []);
+
+  // Full spot details are fetched only when a sheet opens (or is about to),
+  // then cached, so the home list stays slim.
+  function prefetchDetail(id: string): Promise<Spot | null> {
+    const hit = detailCache.current.get(id);
+    if (hit) return Promise.resolve(hit);
+    const pending = detailPending.current.get(id);
+    if (pending) return pending;
+    const p = (async () => {
+      try {
+        const { data, error } = await supabase.from("spots").select("*").eq("id", id).single();
+        if (error || !data) return null;
+        const full = { ...(data as Spot), photos: spotsRef.current.find((x) => x.id === id)?.photos ?? null, credit: spotsRef.current.find((x) => x.id === id)?.credit ?? null } as Spot;
+        detailCache.current.set(id, full);
+        return full;
+      } catch { return null; } finally { detailPending.current.delete(id); }
+    })();
+    detailPending.current.set(id, p);
+    return p;
+  }
+  const selectedId = selectedSpot?.id ?? null;
+  useEffect(() => {
+    if (!selectedId || detailCache.current.has(selectedId)) return;
+    let live = true;
+    prefetchDetail(selectedId).then((full) => { if (live && full) setSelectedSpot((cur) => (cur && cur.id === full.id ? full : cur)); });
+    return () => { live = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedId]);
+  function selectSpot(s: Spot) { setSelectedSpot(detailCache.current.get(s.id) ?? s); }
+
+  // Spot list: server-rendered into the page; this client load is only the
+  // fallback/retry path. The timeout aborts the request so a hung call can
+  // never resolve later and overwrite a newer retry.
+  async function loadSpots() {
+    loadAbort.current?.abort();
+    const ctrl = new AbortController();
+    loadAbort.current = ctrl;
+    const timer = setTimeout(() => ctrl.abort(), 10_000);
+    setLoadStatus("loading");
+    try {
+      const res = await fetch("/api/spots", { signal: ctrl.signal });
+      if (!res.ok) throw new Error(String(res.status));
+      const data = (await res.json()) as Spot[];
+      if (ctrl.signal.aborted || loadAbort.current !== ctrl) return;
+      if (!Array.isArray(data) || data.length === 0) throw new Error("empty");
+      setSpots(data);
+      setLoadStatus("ready");
+    } catch {
+      if (loadAbort.current === ctrl) setLoadStatus("error");
+    } finally {
+      clearTimeout(timer);
+    }
+  }
 
   function drawUserPin(lat: number, lng: number) {
     const map = mapRef.current, mapbox = mapboxRef.current;
@@ -102,9 +186,10 @@ export default function MapView({ initialSpot = null }: { initialSpot?: Spot | n
   // camera, the filter reference point, and — for anything but a bare IP
   // guess — persists the choice so IP geolocation is never consulted again.
   function applyLocation(lat: number, lng: number, label: string, opts?: { persist?: boolean; pin?: boolean }) {
-    setInitialView({ center: [lng, lat], zoom: 11 });
+    setOrigin([lng, lat]);
     setLocationLabel(label);
     if (opts?.persist) {
+      userChoseLocation.current = true;
       saveLocation({ lat, lng, label });
       setLocationConfirmed(true);
     }
@@ -114,12 +199,27 @@ export default function MapView({ initialSpot = null }: { initialSpot?: Spot | n
     } else {
       setGate(null);
     }
-    const map = mapRef.current;
-    if (map) map.flyTo({ center: [lng, lat], zoom: 11 });
-    if (opts?.pin) drawUserPin(lat, lng);
+    moveCamera([lng, lat], 11);
+    if (opts?.pin) setUserPin([lng, lat]);
   }
 
+  // Before the map exists, a camera move just updates where it will open.
+  function moveCamera(center: [number, number], zoom: number) {
+    const map = mapRef.current;
+    if (map) map.flyTo({ center, zoom });
+    else bootView.current = { center, zoom };
+  }
+
+  // The GPS pin is driven by state, so it draws whenever the map is ready,
+  // never racing the camera move or map creation.
+  useEffect(() => {
+    if (!mapReady || !userPin) return;
+    drawUserPin(userPin[1], userPin[0]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mapReady, userPin]);
+
   function handlePickCity(city: QuickCity) {
+    setGpsError(null);
     applyLocation(city.lat, city.lng, city.name, { persist: true });
   }
 
@@ -145,13 +245,13 @@ export default function MapView({ initialSpot = null }: { initialSpot?: Spot | n
     const timeout = new Promise<null>((resolve) => setTimeout(() => resolve(null), 1500));
 
     Promise.race([getIpLocation(), timeout]).then((loc) => {
-      if (cancelled) return;
+      if (cancelled || userChoseLocation.current) return;
       if (loc) {
-        setInitialView({ center: [loc.lng, loc.lat], zoom: 11 });
+        setOrigin([loc.lng, loc.lat]);
+        moveCamera([loc.lng, loc.lat], 11);
         setLocationLabel(loc.city ?? "your area");
         if (!isInMaharashtra(loc.lat, loc.lng)) setGate({ city: loc.city });
       } else {
-        setInitialView({ center: CENTER, zoom: 8 });
         setLocationLabel("Mumbai-Pune");
       }
     });
@@ -163,18 +263,30 @@ export default function MapView({ initialSpot = null }: { initialSpot?: Spot | n
 
   // init map once we know where to open it
   useEffect(() => {
-    if (!containerRef.current || mapRef.current || !initialView) return;
+    if (!containerRef.current || mapRef.current) return;
     let cancelled = false;
     let resizeObserver: ResizeObserver | null = null;
     let map: mapboxgl.Map | null = null;
     const start = async () => {
       // Let the shell, location state and drawer paint before loading Mapbox.
       await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
-      const mapbox = (await import("mapbox-gl")).default;
+      // Mapbox is an enhancement: one retry, then a map-unavailable state
+      // while the list keeps working.
+      let mapbox: typeof import("mapbox-gl")["default"];
+      try {
+        mapbox = (await import("mapbox-gl")).default;
+      } catch {
+        await new Promise((r) => setTimeout(r, 1500));
+        if (cancelled) return;
+        try { mapbox = (await import("mapbox-gl")).default; } catch { if (!cancelled) setMapFailed(true); return; }
+      }
       if (cancelled || !containerRef.current) return;
       mapbox.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN!;
       mapboxRef.current = mapbox;
-      map = new mapbox.Map({container:containerRef.current,style:"mapbox://styles/mapbox/outdoors-v12",center:initialView.center,zoom:initialView.zoom,attributionControl:false});
+      const boot = bootView.current ?? { center: CENTER, zoom: 8 };
+      try {
+        map = new mapbox.Map({container:containerRef.current,style:"mapbox://styles/mapbox/outdoors-v12",center:boot.center,zoom:boot.zoom,attributionControl:false});
+      } catch { setMapFailed(true); return; }
       map.on("load", () => setMapReady(true));
       map.on("zoom", updatePinDetailVisibility);
       mapRef.current = map;
@@ -182,18 +294,18 @@ export default function MapView({ initialSpot = null }: { initialSpot?: Spot | n
       resizeObserver.observe(containerRef.current);
     };
     start();
-    return () => {cancelled=true;resizeObserver?.disconnect();map?.remove();mapRef.current=null;mapboxRef.current=null};
-  }, [initialView]);
+    return () => {cancelled=true;resizeObserver?.disconnect();map?.remove();mapRef.current=null;mapboxRef.current=null;setMapReady(false)};
+    // Runs once: everything it reads is a ref, so there is no stale closure.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  // fetch spots once
+  // The list normally arrives with the page; fetch only if it didn't.
   useEffect(() => {
-    supabase
-      .from("spots")
-      .select("*")
-      .eq("status", "published")
-      .then(({ data, error }) => {
-        if (!error && data) setSpots(data as Spot[]);
-      });
+    if (initialSpots.length) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadSpots();
+    return () => loadAbort.current?.abort();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // open a spot's sheet if the URL was loaded with ?spot=<slug> (e.g. a
@@ -209,19 +321,20 @@ export default function MapView({ initialSpot = null }: { initialSpot?: Spot | n
     if (!spot) return;
 
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setSelectedSpot(spot);
+    selectSpot(spot);
     map.flyTo({ center: [spot.lng, spot.lat], zoom: 13, padding: { bottom: 280, top: 0, left: 0, right: 0 } });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [spots, mapReady, slugById]);
 
   // render markers
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || !mapReady || !initialView) return;
+    if (!map || !mapReady) return;
 
     markersRef.current.forEach((m) => m.remove());
     markersRef.current = [];
 
-    const [userLng, userLat] = initialView.center;
+    const [userLng, userLat] = origin;
     const filtered = spots.filter((s) => {
       if (activeCategory !== "all" && s.category !== activeCategory) return false;
       if(search&&!`${s.name} ${s.region??""}`.toLowerCase().includes(search.toLowerCase()))return false;
@@ -244,10 +357,9 @@ export default function MapView({ initialSpot = null }: { initialSpot?: Spot | n
       el.textContent = spot.name;
       el.addEventListener("click", (e) => {
         e.stopPropagation();
-        setSelectedSpot(spot);
+        selectSpot(spot);
         map.flyTo({ center: [spot.lng, spot.lat], zoom: 13, padding: { bottom: 280, top: 0, left: 0, right: 0 } });
-        const slug = slugById.get(spot.id);
-        if (slug) window.history.pushState(null, "", `/${spot.category}/${slug}`);
+        pushSpotUrl(spot);
       });
 
       const mapbox = mapboxRef.current;
@@ -257,20 +369,23 @@ export default function MapView({ initialSpot = null }: { initialSpot?: Spot | n
         .addTo(map);
       markersRef.current.push(marker);
     });
-  }, [spots, activeCategory, maxDistanceKm, mapReady, initialView, slugById,search]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [spots, activeCategory, maxDistanceKm, mapReady, origin, slugById,search]);
 
   async function handleNearMe() {
     setLocating(true);
+    setGpsError(null);
     const loc = await getGpsLocation();
     setLocating(false);
-    if (!loc) {
-      // A denied, unavailable or timed-out GPS request should leave the user
-      // with a useful local browse state rather than an IP/VPN surprise.
-      applyLocation(19.076, 72.8777, "Mumbai", { pin: false });
+    if (!loc.ok) {
+      // Never set a location the user didn't choose: keep the current one,
+      // explain why, and leave the city picker open.
+      setGpsError(loc.reason === "denied" ? "Location is blocked in your browser. Pick your city instead." : "Couldn't find you. Try again or pick your city.");
+      setPickerOpen(true);
       return;
     }
-
-    applyLocation(loc.lat, loc.lng, loc.city ?? "Your location", {
+    setPickerOpen(false);
+    applyLocation(loc.lat, loc.lng, "Your location", {
       persist: true,
       pin: true,
     });
@@ -285,15 +400,27 @@ export default function MapView({ initialSpot = null }: { initialSpot?: Spot | n
     return () => cancelAnimationFrame(frame);
   }, [section]);
 
-  function distanceFor(s:Spot){if(!initialView)return s.distance_from_mumbai_km??Infinity;const[lng,lat]=initialView.center;return Math.min(haversineKm(lat,lng,s.lat,s.lng),s.distance_from_mumbai_km??Infinity,s.distance_from_pune_km??Infinity)}
+  function distanceFor(s:Spot){const[lng,lat]=origin;return Math.min(haversineKm(lat,lng,s.lat,s.lng),s.distance_from_mumbai_km??Infinity,s.distance_from_pune_km??Infinity)}
   const visible=spots.filter(s=>(activeCategory==="all"||s.category===activeCategory)&&distanceFor(s)<=maxDistanceKm&&(!search||`${s.name} ${s.region??""}`.toLowerCase().includes(search.toLowerCase()))).sort((a,b)=>distanceFor(a)-distanceFor(b));
-  function focusSpot(s:Spot,withSheet=false){const desktop=typeof window!=="undefined"&&window.matchMedia(DESKTOP_QUERY).matches;const panel=desktop?Math.min(withSheet?760:440,window.innerWidth*(withSheet?.56:.4))+40:0;mapRef.current?.flyTo({center:[s.lng,s.lat],zoom:11.8,padding:desktop?{top:60,bottom:60,left:60,right:panel+40}:{bottom:drawerState==="min"?90:320,top:80,left:0,right:0}})}
-  function openSpot(s:Spot){setSelectedSpot(s);const slug=slugById.get(s.id);if(slug)history.pushState(null,"",`/${s.category}/${slug}`);focusSpot(s,true)}
+  function focusSpot(s:Spot,withSheet=false,ease=false){const desktop=typeof window!=="undefined"&&window.matchMedia(DESKTOP_QUERY).matches;const panel=desktop?Math.min(withSheet?760:440,window.innerWidth*(withSheet?.56:.4))+40:0;const opts={center:[s.lng,s.lat] as [number,number],zoom:11.8,padding:desktop?{top:60,bottom:60,left:60,right:panel+40}:{bottom:drawerState==="min"?90:320,top:80,left:0,right:0}};if(ease)mapRef.current?.easeTo({...opts,duration:400});else mapRef.current?.flyTo(opts)}
+  function openSpot(s:Spot){selectSpot(s);pushSpotUrl(s);focusSpot(s,true)}
+  // Card rail: an IntersectionObserver tracks which cards are mostly visible;
+  // the map moves once, after scrolling settles, and only if the leading card
+  // changed. No layout reads per scroll event, no map jitter mid-swipe.
+  const railRatios=useRef<Map<string,number>>(new Map());const railTimer=useRef<ReturnType<typeof setTimeout>|null>(null);
+  function settleRail(){railTimer.current=null;const rail=railRef.current;if(!rail)return;const ids=[...rail.querySelectorAll<HTMLElement>("[data-spot-id]")].map(c=>c.dataset.spotId??"");const id=ids.find(i=>(railRatios.current.get(i)??0)>=0.6);if(!id||id===lastFocused.current)return;lastFocused.current=id;const s=spotsRef.current.find(x=>x.id===id);if(s){focusSpot(s,false,true);prefetchDetail(s.id)}}
+  function scheduleRailSettle(){if(railTimer.current)clearTimeout(railTimer.current);railTimer.current=setTimeout(settleRail,150)}
+  const firstVisibleId=visible[0]?.id??null;const railKey=visible.slice(0,cardLimit).map(s=>s.id).join(",");
+  // The card showing on load (or after a filter change) is the starting focus.
+  useEffect(()=>{lastFocused.current=firstVisibleId},[firstVisibleId]);
+  useEffect(()=>{const rail=railRef.current;if(!rail||section!=="explore"||window.matchMedia(DESKTOP_QUERY).matches)return;const io=new IntersectionObserver(es=>{es.forEach(e=>railRatios.current.set((e.target as HTMLElement).dataset.spotId??"",e.intersectionRatio));scheduleRailSettle()},{root:rail,threshold:[0,0.6,1]});rail.querySelectorAll("[data-spot-id]").forEach(c=>io.observe(c));const onEnd=()=>{if(railTimer.current)clearTimeout(railTimer.current);settleRail()};rail.addEventListener("scrollend",onEnd);return()=>{io.disconnect();rail.removeEventListener("scrollend",onEnd);if(railTimer.current)clearTimeout(railTimer.current)}
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[railKey,section,drawerState]);
   function save(id:string){setSavedIds(cur=>{const n=new Set(cur);n.add(id);saveSpotIds([...n]);return n})}
   function nextDrawer(dir:number){setDrawerState(v=>{const states:["min","half","full"]=["min","half","full"];return states[Math.max(0,Math.min(2,states.indexOf(v)+dir))]})}
   useEffect(()=>{if(!mapReady||!initialSpot||!window.matchMedia(DESKTOP_QUERY).matches)return;const desktopPad=Math.min(760,window.innerWidth*.56)+80;mapRef.current?.easeTo({center:[initialSpot.lng,initialSpot.lat],zoom:12,padding:{top:60,bottom:60,left:60,right:desktopPad},duration:0})},[mapReady,initialSpot]);
 useEffect(()=>{const mq=window.matchMedia(DESKTOP_QUERY);const sync=()=>{if(mq.matches)setDrawerState("half")};sync();mq.addEventListener("change",sync);return()=>mq.removeEventListener("change",sync)},[]);
 useEffect(()=>{if(section!=="explore"||drawerState==="min")return;const frame=requestAnimationFrame(()=>{const panel=document.querySelector<HTMLElement>(".amc-discovery-panel"),scroll=panel?.querySelector<HTMLElement>(".amc-drawer-scroll"),card=panel?.querySelector<HTMLElement>(".amc-spot-card");if(!panel||!scroll||!card)return;const top=card.offsetTop,styles=getComputedStyle(card),cardHeight=card.offsetHeight+parseFloat(styles.marginBottom||"0"),navClearance=78,handleHeight=44,padding=24;panel.style.setProperty("--amc-default-drawer-height",`${Math.ceil(handleHeight+top+cardHeight+padding+navClearance)}px`) });return()=>cancelAnimationFrame(frame)},[section,drawerState,spots.length,visible.length,maxDistanceKm,activeCategory])
   useEffect(()=>{if(drawerState!=="half")return;const scroll=document.querySelector<HTMLElement>(".amc-discovery-panel .amc-drawer-scroll");if(scroll)scroll.scrollTop=0},[drawerState])
-  return <div className={`amc-app section-${section}${selectedSpot?" has-sheet":""}`}><div className="amc-map" ref={containerRef}/>{section==="explore"&&!mapReady&&<div className="amc-map-loading amc-static-map"/>}<TopBar search={search} onSearch={value=>{setSearch(value);setCardLimit(12)}}/>{section==="explore"&&<>{gate&&!gateDismissed&&<GeoGateBanner city={gate.city} onDismiss={()=>setGateDismissed(true)} onNotify={()=>setGateDismissed(true)}/>}<div className="amc-location-float"><LocationPicker label={locationLabel} confirmed={locationConfirmed} onPick={handlePickCity} onUseGps={handleNearMe} locatingGps={locating}/></div><aside className={`amc-discovery-panel state-${drawerState}`} onClickCapture={e=>{if(drawerMoved.current){e.preventDefault();e.stopPropagation();drawerMoved.current=false}}} onPointerDown={e=>{if(window.matchMedia(DESKTOP_QUERY).matches)return;if((e.target as HTMLElement).closest(".amc-card-list"))return;if(e.pointerType==="mouse"&&e.button!==0)return;drawerStartY.current=e.clientY;drawerStartX.current=e.clientX;drawerStartTime.current=performance.now();drawerLastY.current=e.clientY;drawerLastTime.current=drawerStartTime.current;drawerMoved.current=false;drawerGesture.current="pending"}} onPointerMove={e=>{if(drawerStartY.current===null)return;const panel=e.currentTarget,dy=e.clientY-drawerStartY.current,dx=e.clientX-drawerStartX.current;if(drawerGesture.current==="pending"&&Math.max(Math.abs(dx),Math.abs(dy))>7){if(Math.abs(dx)>Math.abs(dy)){drawerGesture.current="content";drawerStartY.current=null;return}drawerStartHeight.current=panel.getBoundingClientRect().height;drawerGesture.current="drawer";drawerMoved.current=true;panel.setPointerCapture(e.pointerId);panel.classList.add("is-dragging")}if(drawerGesture.current!=="drawer")return;const min=169,max=window.innerHeight-66;panel.style.setProperty("height",`${Math.max(min,Math.min(max,drawerStartHeight.current-dy))}px`);drawerLastY.current=e.clientY;drawerLastTime.current=performance.now()}} onPointerUp={e=>{const panel=e.currentTarget;if(drawerStartY.current!==null&&drawerGesture.current==="drawer"){const d=e.clientY-drawerStartY.current,elapsed=Math.max(1,performance.now()-drawerLastTime.current),velocity=(e.clientY-drawerLastY.current)/elapsed;if(d< -30||velocity<-.35)nextDrawer(1);else if(d>30||velocity>.35)nextDrawer(-1)}drawerStartY.current=null;drawerGesture.current="pending";panel.classList.remove("is-dragging");panel.style.removeProperty("height")}} onPointerCancel={e=>{drawerStartY.current=null;drawerGesture.current="pending";e.currentTarget.classList.remove("is-dragging");e.currentTarget.style.removeProperty("height")}}><button className="amc-drawer-grab" data-drawer-handle aria-label={`Drawer ${drawerState}. Drag to resize`} onClick={()=>{if(!drawerMoved.current)nextDrawer(drawerState==="full"?-1:1);drawerMoved.current=false}}><span/></button><div className="amc-drawer-scroll" onScroll={e=>{if(!window.matchMedia(DESKTOP_QUERY).matches)return;const el=e.currentTarget;if(el.scrollTop+el.clientHeight>=el.scrollHeight-700)setCardLimit(limit=>Math.min(visible.length,limit+12))}}><div className="amc-panel-title"><div><p>NEAR {locationLabel.toUpperCase()}</p><h1>{spots.length===0?"Finding places":visible.length+" places to forget Monday exists"}</h1></div></div>{drawerState!=="min"&&<><CategoryChips active={activeCategory} onChange={value=>{setActiveCategory(value);setCardLimit(12)}} maxDistanceKm={maxDistanceKm} onDistanceChange={value=>{setMaxDistanceKm(value);setCardLimit(12)}}/><div className="amc-results-label"><span><strong>PLACES BETTER THAN MONDAY</strong><small>within {maxDistanceKm} km</small></span></div><div className="amc-card-list" onPointerDown={e=>e.stopPropagation()} onPointerMove={e=>e.stopPropagation()} onPointerUp={e=>e.stopPropagation()} onPointerCancel={e=>e.stopPropagation()} onScroll={e=>{const rail=e.currentTarget;const box=rail.getBoundingClientRect();const cards=[...rail.querySelectorAll<HTMLElement>("[data-spot-id]")];const best=cards.sort((a,b)=>Math.abs(a.getBoundingClientRect().left-box.left)-Math.abs(b.getBoundingClientRect().left-box.left))[0];const spot=visible.find(s=>s.id===best?.dataset.spotId);if(spot)focusSpot(spot);if(rail.scrollLeft+rail.clientWidth>=rail.scrollWidth-460)setCardLimit(limit=>Math.min(visible.length,limit+12))}}>{spots.length===0?[0,1].map(i=><div key={i} className="amc-spot-card amc-card-skeleton"><i/><b/><span/></div>):visible.slice(0,cardLimit).map(s=><SpotCard key={s.id} spot={s} distance={distanceFor(s)} slug={slugById.get(s.id)} onFocus={()=>focusSpot(s)} onOpen={()=>openSpot(s)}/>)}</div></>}</div></aside></>}{section==="surprise"&&<SurpriseMe spots={spots} origin={initialView?.center??null} saved={savedIds} onSave={save} slugFor={s=>slugById.get(s.id)}/>} {section==="account"&&<AccountView spots={spots} saved={savedIds} distanceFor={distanceFor} slugFor={s=>slugById.get(s.id)} onFocus={focusSpot} onOpen={openSpot}/>} {selectedSpot&&<SpotSheet spot={selectedSpot} onClose={closeSheet} shareUrl={`${typeof window!=="undefined"?window.location.origin:"https://antimondayclub.com"}/${selectedSpot.category}/${slugById.get(selectedSpot.id)??""}`}/>} <BottomNav active={section} onChange={next=>{if(selectedSpot)closeSheet();setSection(next)}}/></div>;
+  return <div className={`amc-app section-${section}${selectedSpot?" has-sheet":""}`}><div className="amc-map" ref={containerRef}/>{section==="explore"&&!mapReady&&!mapFailed&&<div className="amc-map-loading amc-static-map"/>}{section==="explore"&&mapFailed&&<div className="amc-map-failed" role="status">Map unavailable, list still works</div>}<TopBar search={search} onSearch={value=>{setSearch(value);setCardLimit(12)}}/>{section==="explore"&&<>{gate&&!gateDismissed&&<GeoGateBanner city={gate.city} onDismiss={()=>setGateDismissed(true)} onNotify={()=>setGateDismissed(true)}/>}<div className="amc-location-float"><LocationPicker label={locationLabel} confirmed={locationConfirmed} onPick={handlePickCity} onUseGps={handleNearMe} locatingGps={locating} open={pickerOpen} onOpenChange={o=>{setPickerOpen(o);if(!o)setGpsError(null)}} error={gpsError}/></div><aside className={`amc-discovery-panel state-${drawerState}`} onClickCapture={e=>{if(drawerMoved.current){e.preventDefault();e.stopPropagation();drawerMoved.current=false}}} onPointerDown={e=>{if(window.matchMedia(DESKTOP_QUERY).matches)return;if((e.target as HTMLElement).closest(".amc-card-list"))return;if(e.pointerType==="mouse"&&e.button!==0)return;drawerStartY.current=e.clientY;drawerStartX.current=e.clientX;drawerStartTime.current=performance.now();drawerLastY.current=e.clientY;drawerLastTime.current=drawerStartTime.current;drawerMoved.current=false;drawerGesture.current="pending"}} onPointerMove={e=>{if(drawerStartY.current===null)return;const panel=e.currentTarget,dy=e.clientY-drawerStartY.current,dx=e.clientX-drawerStartX.current;if(drawerGesture.current==="pending"&&Math.max(Math.abs(dx),Math.abs(dy))>7){if(Math.abs(dx)>Math.abs(dy)){drawerGesture.current="content";drawerStartY.current=null;return}drawerStartHeight.current=panel.getBoundingClientRect().height;drawerGesture.current="drawer";drawerMoved.current=true;panel.setPointerCapture(e.pointerId);panel.classList.add("is-dragging")}if(drawerGesture.current!=="drawer")return;const min=169,max=window.innerHeight-66;panel.style.setProperty("height",`${Math.max(min,Math.min(max,drawerStartHeight.current-dy))}px`);drawerLastY.current=e.clientY;drawerLastTime.current=performance.now()}} onPointerUp={e=>{const panel=e.currentTarget;if(drawerStartY.current!==null&&drawerGesture.current==="drawer"){const d=e.clientY-drawerStartY.current,elapsed=Math.max(1,performance.now()-drawerLastTime.current),velocity=(e.clientY-drawerLastY.current)/elapsed;if(d< -30||velocity<-.35)nextDrawer(1);else if(d>30||velocity>.35)nextDrawer(-1)}drawerStartY.current=null;drawerGesture.current="pending";panel.classList.remove("is-dragging");panel.style.removeProperty("height")}} onPointerCancel={e=>{drawerStartY.current=null;drawerGesture.current="pending";e.currentTarget.classList.remove("is-dragging");e.currentTarget.style.removeProperty("height")}}><button className="amc-drawer-grab" data-drawer-handle aria-label={`Drawer ${drawerState}. Drag to resize`} onClick={()=>{if(!drawerMoved.current)nextDrawer(drawerState==="full"?-1:1);drawerMoved.current=false}}><span/></button><div className="amc-drawer-scroll" onScroll={e=>{if(!window.matchMedia(DESKTOP_QUERY).matches)return;const el=e.currentTarget;if(el.scrollTop+el.clientHeight>=el.scrollHeight-700)setCardLimit(limit=>Math.min(visible.length,limit+12))}}><div className="amc-panel-title"><div><p>NEAR {locationLabel.toUpperCase()}</p><h1>{loadStatus==="error"&&spots.length===0?"Monday won this round.":spots.length===0?"Finding places":visible.length+" places to forget Monday exists"}</h1></div></div>{drawerState!=="min"&&<><CategoryChips active={activeCategory} onChange={value=>{setActiveCategory(value);setCardLimit(12)}} maxDistanceKm={maxDistanceKm} onDistanceChange={value=>{setMaxDistanceKm(value);setCardLimit(12)}}/><div className="amc-results-label"><span><strong>PLACES BETTER THAN MONDAY</strong><small>within {maxDistanceKm} km</small></span></div><div className="amc-card-list" onPointerDown={e=>e.stopPropagation()} onPointerMove={e=>e.stopPropagation()} onPointerUp={e=>e.stopPropagation()} onPointerCancel={e=>e.stopPropagation()} ref={railRef} onScroll={e=>{const rail=e.currentTarget;scheduleRailSettle();if(rail.scrollLeft+rail.clientWidth>=rail.scrollWidth-460)setCardLimit(limit=>Math.min(visible.length,limit+12))}}>{loadStatus==="error"&&spots.length===0?<div className="amc-load-error" role="alert"><p>Couldn&apos;t load places.</p><button type="button" onClick={()=>loadSpots()}>Retry</button></div>:spots.length===0?[0,1].map(i=><div key={i} className="amc-spot-card amc-card-skeleton"><i/><b/><span/></div>):visible.slice(0,cardLimit).map(s=><SpotCard key={s.id} spot={s} distance={distanceFor(s)} slug={slugById.get(s.id)} onFocus={()=>{focusSpot(s);prefetchDetail(s.id)}} onOpen={()=>openSpot(s)}/>)}</div></>}</div></aside></>}{section==="surprise"&&<SurpriseMe spots={spots} origin={origin} saved={savedIds} onSave={save} slugFor={s=>slugById.get(s.id)}/>} {section==="account"&&<AccountView spots={spots} saved={savedIds} distanceFor={distanceFor} slugFor={s=>slugById.get(s.id)} onFocus={focusSpot} onOpen={openSpot}/>} {selectedSpot&&<SpotSheet spot={selectedSpot} onClose={closeSheet} shareUrl={`${typeof window!=="undefined"?window.location.origin:"https://antimondayclub.com"}/${selectedSpot.category}/${slugById.get(selectedSpot.id)??""}`}/>} <BottomNav active={section} onChange={next=>{if(selectedSpot)closeSheet();setSection(next)}}/></div>;
 }

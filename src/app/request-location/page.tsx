@@ -4,6 +4,6 @@ const config: UtilityFormConfig = {slug:"request-location",number:"01",title:"RE
 {name:"map",label:"MAP LINK OR AREA",placeholder:"paste a pin or describe where",required:true},
 {name:"type",label:"WHAT KIND OF PLACE?",type:"choices",required:true,options:[{value:"trek",label:"trek"},{value:"waterfall",label:"waterfall"},{value:"camping",label:"camping"},{value:"activity",label:"activity"}]},
 {name:"why",label:"WHY SHOULD WE ADD IT?",type:"textarea",placeholder:"what makes it worth the weekend?",required:true},
-{name:"source",label:"PHOTO OR SOURCE",type:"file",placeholder:"add a useful photo",accept:"image/*"},
+{name:"source",label:"PHOTO OR SOURCE",type:"file",placeholder:"add a useful photo, max 20 MB",accept:"image/*"},
 {name:"contact",label:"YOUR CONTACT",placeholder:"email or phone",required:true}]};
 export default function Page(){return <UtilityFormPage config={config}/>}

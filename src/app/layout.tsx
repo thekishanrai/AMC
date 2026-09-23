@@ -42,8 +42,6 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
   viewportFit: "cover",
 };
 
@@ -53,7 +51,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${bitcountGridSingle.variable} ${jersey25.variable} ${shareTech.variable} ${pressStart2P.variable} h-full antialiased`}
     >
-      <head><link rel="preconnect" href="https://api.mapbox.com" crossOrigin="anonymous"/><link rel="preconnect" href="https://tiles.mapbox.com" crossOrigin="anonymous"/><link rel="dns-prefetch" href="https://api.mapbox.com"/><link rel="dns-prefetch" href="https://tiles.mapbox.com"/></head><body className="min-h-full flex flex-col overflow-hidden">{children}</body>
+      <head><link rel="preconnect" href="https://api.mapbox.com" crossOrigin="anonymous"/><link rel="dns-prefetch" href="https://api.mapbox.com"/></head><body className="min-h-full flex flex-col overflow-hidden">{children}</body>
     </html>
   );
 }

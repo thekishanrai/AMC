@@ -1,11 +1,11 @@
 import { createHash, randomUUID } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { UPLOAD_FORMS } from "@/lib/uploads";
 
 export const runtime = "nodejs";
 
 const allowedTypes = new Set(["request-location", "share-feedback", "report-bug", "contact"]);
-const allowedFileTypes = new Set(["image/jpeg", "image/png", "image/webp", "image/gif", "video/mp4", "video/quicktime"]);
 const formTables = {
   "request-location": { table: "location_requests", required: ["place", "map", "type", "why", "contact"] },
   "share-feedback": { table: "feedback_submissions", required: ["surface", "feeling", "feedback"] },
@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
   if (!url || !serviceKey) return NextResponse.json({ error: "Submissions are temporarily unavailable." }, { status: 503 });
 
   const contentLength = Number(request.headers.get("content-length") ?? 0);
-  if (contentLength > 6_000_000) return NextResponse.json({ error: "That upload is too large." }, { status: 413 });
+  if (contentLength > 1_000_000) return NextResponse.json({ error: "That message is too large." }, { status: 413 });
 
   const data = await request.formData();
   if (clean(data.get("website") ?? "")) return NextResponse.json({ ok: true }); // honeypot
@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
 
   const fields: Record<string, string> = {};
   for (const [key, value] of data.entries()) {
-    if (key === "form_type" || key === "attachment" || key === "website" || typeof value !== "string") continue;
+    if (key === "form_type" || key === "attachment" || key === "attachment_path" || key === "attachment_name" || key === "website" || typeof value !== "string") continue;
     fields[key] = clean(value);
   }
   const config = formTables[formType as keyof typeof formTables];
@@ -46,16 +46,19 @@ export async function POST(request: NextRequest) {
   if (countError) return NextResponse.json({ error: "Could not submit right now." }, { status: 500 });
   if ((count ?? 0) >= 5) return NextResponse.json({ error: "Too many messages. Try again in 15 minutes." }, { status: 429 });
 
-  const attachment = data.get("attachment");
+  // Files are uploaded straight to Storage via /api/submissions/upload-url.
+  // Here we only accept a path, and only after confirming the object exists
+  // under this form's own prefix; size and type come from Storage itself.
+  const attachmentPath = clean(data.get("attachment_path") ?? "");
   let attachmentInfo: { path?: string; name?: string; type?: string; size?: number } = {};
-  if (attachment instanceof File && attachment.size > 0) {
-    if (attachment.size > 5_242_880 || !allowedFileTypes.has(attachment.type)) return NextResponse.json({ error: "Use an image or short video under 5 MB." }, { status: 400 });
-    const safeName = attachment.name.replace(/[^a-zA-Z0-9._-]/g, "-").slice(-100);
-    const path = `${formType}/${new Date().toISOString().slice(0, 10)}/${randomUUID()}-${safeName}`;
-    const bytes = Buffer.from(await attachment.arrayBuffer());
-    const { error } = await supabase.storage.from("form-attachments").upload(path, bytes, { contentType: attachment.type, upsert: false });
-    if (error) return NextResponse.json({ error: "The attachment could not be uploaded." }, { status: 500 });
-    attachmentInfo = { path, name: attachment.name.slice(0, 180), type: attachment.type, size: attachment.size };
+  if (attachmentPath) {
+    if (!(UPLOAD_FORMS as readonly string[]).includes(formType) || !attachmentPath.startsWith(`${formType}/`) || attachmentPath.includes("..")) return NextResponse.json({ error: "That attachment is not valid." }, { status: 400 });
+    const dir = attachmentPath.slice(0, attachmentPath.lastIndexOf("/")), file = attachmentPath.slice(attachmentPath.lastIndexOf("/") + 1);
+    const { data: found, error: listError } = await supabase.storage.from("form-attachments").list(dir, { search: file, limit: 5 });
+    const object = found?.find((o) => o.name === file);
+    if (listError || !object) return NextResponse.json({ error: "The attachment did not finish uploading. Try again." }, { status: 400 });
+    const meta = (object.metadata ?? {}) as { mimetype?: string; size?: number };
+    attachmentInfo = { path: attachmentPath, name: clean(data.get("attachment_name") ?? file).slice(0, 180), type: meta.mimetype, size: meta.size };
   }
 
   const common = {

@@ -24,7 +24,6 @@ import { formatDuration } from "@/lib/format";
 
 // Hero photos through the image proxy ship only after the owner reviews the
 // sourced images; flip to true once approved.
-const HERO_PHOTOS_VIA_PROXY = false;
 import type { Spot } from "@/types";
 
 
@@ -56,13 +55,11 @@ export default function SpotSheet({
 }) {
   const meta = categoryMeta(spot.category);
   const Icon = meta.icon;
-  // Detail heroes use only direct uploaded image files. Social post/reel URLs
-  // are intentionally excluded; they are not reliable image assets.
-  // Instagram post/reel links resolve through the same cached image proxy the
-  // cards use, so the hero shows the spot photo instead of the empty fallback.
-  const photos = (HERO_PHOTOS_VIA_PROXY ? spot.photos?.filter(Boolean) ?? [] : [])
+  // Heroes come only from properly sourced spot_photos (Supabase Storage).
+  // Scraped social links are never shown; photoSrc drops them.
+  const photos = (spot.photos?.filter(Boolean) ?? [])
     .map((src) => photoSrc(src))
-    .filter((src): src is string => !!src && (/^https?:\/\//i.test(src) || src.startsWith("/api/photo")));
+    .filter((src): src is string => !!src);
   const [failedPhotos, setFailedPhotos] = useState<Set<string>>(() => new Set());
   const visiblePhotos = photos.filter((src) => !failedPhotos.has(src));
   const highlights = spot.highlights?.filter(Boolean) ?? [];
@@ -89,6 +86,7 @@ export default function SpotSheet({
                 // eslint-disable-next-line @next/next/no-img-element
                 <img key={src + i} src={src} alt={`${spot.name} photo ${i + 1}`} className="amc-sheet-photo" onError={() => setFailedPhotos((current) => new Set(current).add(src))} />
               ))}
+              {spot.credit && <small className="amc-photo-credit">{spot.credit}</small>}
             </div>
           ) : (
             <div className="amc-sheet-photo-fallback">

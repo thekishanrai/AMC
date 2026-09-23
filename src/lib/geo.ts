@@ -34,18 +34,22 @@ export interface LocationResult {
   source: "gps" | "ip";
 }
 
-export function getGpsLocation(): Promise<LocationResult | null> {
+export type GpsResult =
+  | { ok: true; lat: number; lng: number }
+  | { ok: false; reason: "denied" | "unavailable" | "timeout" };
+
+// Reports WHY a GPS request failed instead of returning null, so callers can
+// explain it rather than silently picking a location for the user.
+export function getGpsLocation(): Promise<GpsResult> {
   return new Promise((resolve) => {
-    if (!("geolocation" in navigator)) return resolve(null);
+    if (typeof navigator === "undefined" || !("geolocation" in navigator)) return resolve({ ok: false, reason: "unavailable" });
+    let done = false;
+    const finish = (r: GpsResult) => { if (!done) { done = true; clearTimeout(guard); resolve(r); } };
+    // Some browsers never call back at all; don't leave the button spinning.
+    const guard = setTimeout(() => finish({ ok: false, reason: "timeout" }), 12000);
     navigator.geolocation.getCurrentPosition(
-      (pos) =>
-        resolve({
-          lat: pos.coords.latitude,
-          lng: pos.coords.longitude,
-          city: null,
-          source: "gps",
-        }),
-      () => resolve(null),
+      (pos) => finish({ ok: true, lat: pos.coords.latitude, lng: pos.coords.longitude }),
+      (err) => finish({ ok: false, reason: err.code === 1 ? "denied" : err.code === 3 ? "timeout" : "unavailable" }),
       { enableHighAccuracy: false, timeout: 8000, maximumAge: 300000 }
     );
   });

@@ -7,6 +7,7 @@ export interface Faq {
 
 export interface Spot {
   id: string;
+  slug: string;
   name: string;
   category: Category;
   lat: number;
@@ -30,4 +31,6 @@ export interface Spot {
   youtube_url: string | null;
   photos: string[] | null;
   status: string;
+  // Visible credit for the cover photo (from spot_photos), when there is one.
+  credit?: string | null;
 }
