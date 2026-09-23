@@ -73,3 +73,21 @@ export async function getIpLocation(): Promise<LocationResult | null> {
     return null;
   }
 }
+
+const MUMBAI: [number, number] = [72.8777, 19.076];
+const PUNE: [number, number] = [73.8567, 18.5204];
+
+// Drive time from the chosen origin. The database stores a researched time from
+// Mumbai only, so use it when the origin is Mumbai; otherwise estimate from the
+// straight-line distance (Sahyadri roads wind: ~1.35x the crow-flies distance at
+// ~45 km/h average) and mark it as an estimate.
+export function driveFrom(spot: { lat: number; lng: number; time_by_car_minutes?: number | null }, origin: [number, number], originLabel: string): { minutes: number; from: string; estimate: boolean } {
+  const [lng, lat] = origin;
+  if (spot.time_by_car_minutes != null && haversineKm(lat, lng, MUMBAI[1], MUMBAI[0]) <= 20) {
+    return { minutes: spot.time_by_car_minutes, from: "Mumbai", estimate: false };
+  }
+  const km = haversineKm(lat, lng, spot.lat, spot.lng) * 1.35;
+  const minutes = Math.max(10, Math.round((km / 45) * 60 / 5) * 5);
+  return { minutes, from: originLabel, estimate: true };
+}
+export { MUMBAI, PUNE };

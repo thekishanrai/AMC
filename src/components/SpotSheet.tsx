@@ -112,7 +112,7 @@ export default function SpotSheet({
               <Icon size={18} stroke={2} color="#000" />
             </span>
             <div>
-              <h2 className="font-headline text-[19px] leading-tight">{spot.name}</h2>
+              <h1 className="font-headline text-[19px] leading-tight">{spot.name}</h1>
               <p className="amc-sheet-title-suffix">| Everything You Need to Know</p>
               <p className="text-xs text-[var(--ink-muted)]">
                 {spot.region ? spot.region : <span className="capitalize">{spot.category}</span>}
@@ -172,13 +172,13 @@ export default function SpotSheet({
             {spot.time_by_car_minutes != null && (
               <span className="flex items-center gap-1.5 glass-chip rounded-full px-3 py-1.5 text-xs">
                 <IconCar size={15} />
-                {formatDuration(spot.time_by_car_minutes)}
+                {formatDuration(spot.time_by_car_minutes)} from Mumbai
               </span>
             )}
             {spot.time_by_bike_minutes != null && (
               <span className="flex items-center gap-1.5 glass-chip rounded-full px-3 py-1.5 text-xs">
                 <IconMotorbike size={15} />
-                {formatDuration(spot.time_by_bike_minutes)}
+                {formatDuration(spot.time_by_bike_minutes)} from Mumbai
               </span>
             )}
             {spot.distance_from_pune_km != null && (

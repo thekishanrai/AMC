@@ -65,7 +65,7 @@ export async function generateMetadata({
     alternates: { canonical: url },
     robots: { index: true, follow: true },
     openGraph: { title, description, url, type: "website", siteName: "Anti Monday Club" },
-    twitter: { card: "summary", title, description },
+    twitter: { card: "summary_large_image", title, description },
   };
 }
 
