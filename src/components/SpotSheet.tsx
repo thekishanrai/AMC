@@ -19,7 +19,12 @@ import {
   IconHelpCircle,
 } from "@tabler/icons-react";
 import { categoryMeta } from "@/lib/categories";
+import { photoSrc } from "@/lib/photo";
 import { formatDuration } from "@/lib/format";
+
+// Hero photos through the image proxy ship only after the owner reviews the
+// sourced images; flip to true once approved.
+const HERO_PHOTOS_VIA_PROXY = false;
 import type { Spot } from "@/types";
 
 
@@ -53,9 +58,11 @@ export default function SpotSheet({
   const Icon = meta.icon;
   // Detail heroes use only direct uploaded image files. Social post/reel URLs
   // are intentionally excluded; they are not reliable image assets.
-  const photos = (spot.photos?.filter(Boolean) ?? []).filter((src) =>
-    /^https?:\/\//i.test(src) && !/instagram\.com\//i.test(src)
-  );
+  // Instagram post/reel links resolve through the same cached image proxy the
+  // cards use, so the hero shows the spot photo instead of the empty fallback.
+  const photos = (HERO_PHOTOS_VIA_PROXY ? spot.photos?.filter(Boolean) ?? [] : [])
+    .map((src) => photoSrc(src))
+    .filter((src): src is string => !!src && (/^https?:\/\//i.test(src) || src.startsWith("/api/photo")));
   const [failedPhotos, setFailedPhotos] = useState<Set<string>>(() => new Set());
   const visiblePhotos = photos.filter((src) => !failedPhotos.has(src));
   const highlights = spot.highlights?.filter(Boolean) ?? [];
@@ -90,7 +97,7 @@ export default function SpotSheet({
               <strong>{spot.name}</strong>
             </div>
           )}
-          <div className="absolute inset-x-0 top-0 mx-auto mt-2 h-1 w-10 rounded-full bg-black/30" />
+          <div className="amc-sheet-handle absolute inset-x-0 top-0 mx-auto mt-2 h-1 w-10 rounded-full bg-black/30" />
           <button
             type="button"
             onClick={onClose}
@@ -113,6 +120,16 @@ export default function SpotSheet({
                 {spot.region ? spot.region : <span className="capitalize">{spot.category}</span>}
               </p>
             </div>
+            <div className="amc-sheet-inline-actions">
+              <a href={directionsUrl} target="_blank" rel="noopener noreferrer" className="is-directions">
+                <IconDirections size={18} />
+                Get directions
+              </a>
+              <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="is-share">
+                <IconBrandWhatsapp size={18} />
+                Share
+              </a>
+            </div>
           </div>
 
           {hasFacts && (
@@ -130,6 +147,7 @@ export default function SpotSheet({
             <p className="amc-sheet-description mt-3 text-[14px] leading-relaxed text-[var(--ink)]">{spot.description}</p>
           )}
 
+          <div className="amc-sheet-sections">
           {highlights.length > 0 && (
             <div className="amc-sheet-section">
               <p className="amc-sheet-section-label">Why go</p>
@@ -187,7 +205,7 @@ export default function SpotSheet({
             <div className="amc-sheet-section">
               <p className="amc-sheet-section-label flex items-center gap-1.5">
                 <IconTrain size={14} />
-                Nearest station
+                Nearest railway station
               </p>
               <p className="mt-1 text-[13px] leading-relaxed">{spot.nearest_station}</p>
             </div>
@@ -208,6 +226,8 @@ export default function SpotSheet({
               </div>
             </div>
           )}
+
+          </div>
 
           {spot.safety_note && (
             <div className="mt-4 flex items-start gap-2 rounded-2xl border-2 border-[var(--pantone-orange)] bg-[#fff3ec] px-3 py-2.5">
