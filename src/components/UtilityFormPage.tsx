@@ -64,7 +64,7 @@ export default function UtilityFormPage({ config }: { config: UtilityFormConfig 
       </header>
       <section className="amc-utility-main">
         <header className="amc-utility-hero">
-          <span>get in touch / {config.number}</span>
+          <span>get in touch<i className="amc-utility-num"> / {config.number}</i></span>
           <b>{config.number}</b>
           <h1>{config.title}</h1>
           <p>{config.intro}</p>

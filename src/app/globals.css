@@ -321,7 +321,7 @@ button,a,[role="button"]{touch-action:manipulation;-webkit-tap-highlight-color:t
 .amc-404-hint{margin-top:20px;font-size:11px}.amc-404-trail{margin-top:auto;font-family:var(--font-home-headline);font-size:26px;letter-spacing:.15em}
 
 /* Legal content intentionally stays plain and easy to replace. */
-.amc-terms-page{min-height:100dvh;overflow-y:auto;background:#fff;color:#111}
+.amc-terms-page{min-height:100dvh;overflow-y:auto;background:#fffaf2;color:#111}
 .amc-terms-top{height:74px;border-bottom:2px solid #111;padding:0 18px;display:flex;align-items:center;justify-content:space-between}.amc-terms-top a{color:#111;text-decoration:none;font-family:var(--font-body);font-size:11px}.amc-terms-top .amc-wordmark{font-family:var(--font-home-headline);font-size:19px}
 .amc-terms-content{padding:28px 20px 50px}.amc-terms-content h1{font-family:var(--font-home-headline);font-size:48px;line-height:.9}.amc-terms-updated{margin-top:9px;color:#666;font-size:11px}.amc-terms-intro{margin-top:18px;font-size:14px;line-height:1.45}
 .amc-terms-toc{margin-top:22px;padding:14px 0;border-top:1px solid #bbb;border-bottom:1px solid #bbb}.amc-terms-toc a{display:block;color:#111;font-size:12px;line-height:1.8;text-decoration:none}
@@ -438,9 +438,63 @@ button,a,[role="button"]{touch-action:manipulation;-webkit-tap-highlight-color:t
 /* Short phones: shrink the Surprise photo so the swipe hints stay above the nav */
 @media(max-width:1023px) and (max-height:760px){.amc-swipe-photo{height:clamp(170px,calc(100dvh - 410px),350px)!important}}
 @media(min-width:1024px){
-/* Utility pages: keep the approved phone composition as a centered, readable column instead of stretching edge to edge */
-.amc-terms-content,.amc-about-content,.amc-404-main,.amc-utility-main{width:100%;max-width:720px;margin-left:auto!important;margin-right:auto!important;zoom:1.2}
-.amc-static-topbar,.amc-terms-top{zoom:1.2}
-.amc-static-topbar,.amc-terms-top{max-width:720px;margin-left:auto!important;margin-right:auto!important}
+/* Desktop utility pages (approved mockups): black top bar, forms intro-left/form-right, Terms TOC-left, About wide */
+.amc-404-main{width:100%;max-width:720px;margin-left:auto!important;margin-right:auto!important;zoom:1.2}
+.amc-utility-hero>b,.amc-utility-num{display:none!important}
+.amc-utility-page,.amc-about-page,.amc-terms-page{height:100vh;overflow-y:auto;padding:0!important}
+.amc-static-topbar,.amc-terms-top{position:sticky!important;top:0;z-index:10;height:68px!important;margin:0!important;border:0!important;border-bottom:3px solid #000!important;border-radius:0!important;box-shadow:none!important;background:#111!important;color:var(--pantone-orange)!important;padding:0 28px!important;display:flex!important;align-items:center;justify-content:space-between}
+.amc-static-topbar .amc-wordmark,.amc-terms-top .amc-wordmark{font-size:16px!important;color:var(--pantone-orange)!important}
+.amc-static-topbar>a:last-child,.amc-terms-top>a:last-child{font-size:14px!important;color:#fffaf2!important;border:2px solid #3a3a3a;border-radius:12px;padding:9px 14px}
+/* forms: intro left (sticky), form right */
+.amc-utility-main{display:grid!important;grid-template-columns:minmax(320px,420px) minmax(420px,600px);grid-template-rows:auto 1fr;gap:28px 56px;justify-content:center;align-items:start;align-content:start;padding:48px 32px 60px!important;margin:0 auto!important}
+.amc-utility-hero{grid-column:1;grid-row:1;position:sticky;top:100px;padding:28px!important;border-radius:24px!important;box-shadow:7px 7px 0 #000!important}
+.amc-utility-hero h1{font-size:56px!important;line-height:.9!important}
+.amc-utility-hero p{font-size:16px!important;max-width:none!important;margin-top:12px!important}
+.amc-utility-hero b{font-size:44px!important}
+.amc-utility-form{grid-column:2;grid-row:1/3;background:#fffaf2;border:3px solid #000;border-radius:24px;box-shadow:7px 7px 0 #000;padding:28px!important;margin:0!important}
+.amc-utility-form .amc-form-field>span,.amc-utility-form label>span:first-child{font-size:12px!important}
+.amc-utility-form input,.amc-utility-form textarea{font-size:15px!important}
+.amc-form-related{grid-column:1;grid-row:2;align-self:start;grid-template-columns:1fr!important;gap:10px!important;margin:0!important;}
+.amc-form-related a{text-align:left!important;font-size:15px!important;border:2px solid #000!important;border-radius:14px;background:#fffaf2;padding:12px 14px!important;box-shadow:3px 3px 0 #000}
+.amc-form-related a:after{content:" \2192";float:right}
+/* terms: sticky TOC left, reading column right */
+.amc-terms-content{display:grid!important;grid-template-columns:260px minmax(0,700px);gap:0 64px;justify-content:center;padding:56px 32px 80px!important;margin:0 auto!important}
+.amc-terms-content>h1,.amc-terms-content>.amc-terms-updated,.amc-terms-content>.amc-terms-intro{grid-column:1/-1}
+.amc-terms-content>h1{font-size:72px!important;line-height:.9!important}
+.amc-terms-content>.amc-terms-intro{font-size:18px!important;margin-bottom:28px!important}
+.amc-terms-toc{grid-column:1;grid-row:4/span 20;align-self:start;position:sticky;top:100px;border:2px solid #000!important;border-radius:16px;padding:16px!important;display:grid;gap:10px}
+.amc-terms-toc a{font-size:14px!important}
+.amc-terms-content>section{grid-column:2}
+.amc-terms-content>section h2{font-size:26px!important}
+.amc-terms-content>section p{font-size:16px!important;line-height:1.6!important}
+/* about: wide hero, chapters as 3 columns */
+.amc-about-content{max-width:1120px!important;margin:0 auto!important;padding:48px 32px 70px!important}
+.amc-about-hero{padding:40px!important;border-radius:26px!important}
+.amc-about-hero h1{font-size:88px!important;line-height:.9!important}
+.amc-about-hero p{font-size:18px!important}
+.amc-about-story{display:grid!important;grid-template-columns:repeat(3,1fr);gap:24px;border-left:0!important;padding-left:0!important;margin-top:36px!important}
+.amc-about-story>div{border-top:4px solid #111;padding-top:14px!important;margin:0!important}
+.amc-about-story h2{font-size:30px!important;line-height:1!important}
+.amc-about-story p{font-size:16px!important;margin-top:10px!important}
+.amc-about-open{margin-top:36px!important;padding:32px!important;border-radius:22px!important;display:flex!important;align-items:center;justify-content:space-between;gap:24px}
+.amc-about-open h2{font-size:44px!important}
+.amc-about-open p{font-size:16px!important}
+.amc-about-closing{font-size:40px!important;margin-top:40px!important;line-height:1!important}
+}
+@media(min-width:1024px){
+/* More on desktop: Instagram lead card left, menu right, centered in the viewport */
+.amc-account-view{display:grid!important;grid-template-columns:minmax(360px,1fr) minmax(380px,1fr);gap:28px;align-content:center;align-items:stretch;padding:40px max(32px,calc((100vw - 1040px)/2))!important;overflow-y:auto}
+.amc-account-view .amc-instagram-follow{margin:0!important;min-height:100%;display:flex!important;flex-direction:column;justify-content:flex-end;padding:32px!important;border-radius:26px!important;box-shadow:7px 7px 0 #000!important}
+.amc-account-view .amc-instagram-title{font-size:clamp(40px,3.6vw,54px)!important;line-height:.95!important;max-width:12ch}
+.amc-account-view .amc-instagram-note{font-size:16px!important;margin-top:14px!important}
+.amc-account-view .amc-instagram-kicker{font-size:13px!important}
+.amc-account-view .amc-instagram-handle{margin-top:22px!important;font-size:16px!important;padding:12px 18px!important;transition:transform .15s,box-shadow .15s}
+.amc-account-view .amc-instagram-handle:hover{transform:translate(-2px,-2px);box-shadow:4px 4px 0 #000}
+.amc-account-view .amc-account-menu{margin:0!important;gap:12px!important;align-content:center}
+.amc-account-menu a,.amc-account-menu button{padding:14px 16px!important;grid-template-columns:48px 1fr 18px!important;transition:transform .15s,box-shadow .15s}
+.amc-account-menu a:hover,.amc-account-menu button:hover{transform:translate(-2px,-2px);box-shadow:5px 5px 0 #000!important}
+.amc-account-menu .amc-menu-icon{width:40px!important;height:40px!important}
+.amc-account-menu strong{font-size:17px!important}
+.amc-account-menu small{font-size:12px!important}
 }
 .amc-swipe-directions{justify-content:flex-end!important}
