@@ -79,7 +79,7 @@ export default function MapView({ initialSpot = null, initialSpots = [] }: { ini
   const slugById = useMemo(() => new Map(spots.map((s) => [s.id, s.slug])), [spots]);
 
   const spotsRef = useRef(spots), slugRef = useRef(slugById);
-  spotsRef.current = spots; slugRef.current = slugById;
+  useEffect(() => { spotsRef.current = spots; slugRef.current = slugById; });
 
   // History: opening a spot adds ONE entry (switching spots replaces it).
   // Closing goes back if we added it, otherwise just tidies the URL, so the
@@ -203,7 +203,7 @@ export default function MapView({ initialSpot = null, initialSpots = [] }: { ini
     } else {
       setGate(null);
     }
-    moveCamera([lng, lat], 11);
+    if (!mapRef.current) bootView.current = { center: [lng, lat], zoom: 11 };
     if (opts?.pin) setUserPin([lng, lat]);
   }
 
@@ -213,6 +213,25 @@ export default function MapView({ initialSpot = null, initialSpots = [] }: { ini
     if (map) map.flyTo({ center, zoom });
     else bootView.current = { center, zoom };
   }
+
+  // Open on something useful: frame the origin plus its nearest spots instead
+  // of a fixed city zoom that can show 0 spots. Capped both ways: never closer
+  // than zoom 12, and a far-away visitor just gets a regional view.
+  const skipFit = useRef(!!initialSpot);
+  useEffect(() => {
+    const map = mapRef.current, mapbox = mapboxRef.current;
+    if (!mapReady || !map || !mapbox || spots.length === 0) return;
+    if (skipFit.current) { skipFit.current = false; return; }
+    const [lng, lat] = origin;
+    const nearest = spots.map((s) => ({ s, d: haversineKm(lat, lng, s.lat, s.lng) })).sort((a, b) => a.d - b.d).slice(0, 8);
+    if (!nearest.length || nearest[0].d > 250) { map.flyTo({ center: origin, zoom: 7 }); return; }
+    const bounds = new mapbox.LngLatBounds(origin, origin);
+    nearest.forEach(({ s }) => bounds.extend([s.lng, s.lat]));
+    const desktop = window.matchMedia(DESKTOP_QUERY).matches;
+    const padding = desktop ? { top: 110, bottom: 60, left: 80, right: Math.min(760, window.innerWidth * 0.56) + 60 } : { top: 140, bottom: Math.round(window.innerHeight * 0.5), left: 40, right: 40 };
+    map.fitBounds(bounds, { padding, maxZoom: 12, duration: 900 });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mapReady, origin, spots.length > 0]);
 
   // The GPS pin is driven by state, so it draws whenever the map is ready,
   // never racing the camera move or map creation.
@@ -231,6 +250,8 @@ export default function MapView({ initialSpot = null, initialSpots = [] }: { ini
     const map = mapRef.current;
     if (!map) return;
     const detailed = map.getZoom() >= DETAIL_ZOOM_THRESHOLD;
+    // Zoomed out, names collide: show dots and let the list carry the names.
+    containerRef.current?.classList.toggle("amc-pins-compact", map.getZoom() < 10.5);
     markersRef.current.forEach((m) => {
       const el = m.getElement();
       const detail = el.querySelector<HTMLElement>(".pin-detail");
@@ -252,7 +273,7 @@ export default function MapView({ initialSpot = null, initialSpots = [] }: { ini
       if (cancelled || userChoseLocation.current) return;
       if (loc) {
         setOrigin([loc.lng, loc.lat]);
-        moveCamera([loc.lng, loc.lat], 11);
+        if (!mapRef.current) bootView.current = { center: [loc.lng, loc.lat], zoom: 11 };
         setLocationLabel(loc.city ?? "your area");
         if (!isInMaharashtra(loc.lat, loc.lng)) setGate({ city: loc.city });
       } else {
@@ -291,7 +312,7 @@ export default function MapView({ initialSpot = null, initialSpots = [] }: { ini
       try {
         map = new mapbox.Map({container:containerRef.current,style:"mapbox://styles/mapbox/outdoors-v12",center:boot.center,zoom:boot.zoom,attributionControl:false});
       } catch { setMapFailed(true); return; }
-      map.on("load", () => setMapReady(true));
+      map.on("load", () => { setMapReady(true); updatePinDetailVisibility(); });
       map.on("zoom", updatePinDetailVisibility);
       mapRef.current = map;
       resizeObserver = new ResizeObserver(() => map?.resize());
@@ -353,6 +374,10 @@ export default function MapView({ initialSpot = null, initialSpots = [] }: { ini
       el.type = "button";
       el.className = "amc-map-name-label";
       el.textContent = spot.name;
+      // The card list is the accessible way to browse; 126 map pins read as
+      // noise to a screen reader.
+      el.setAttribute("aria-hidden", "true");
+      el.tabIndex = -1;
       el.addEventListener("click", (e) => {
         e.stopPropagation();
         selectSpot(spot);
@@ -365,6 +390,7 @@ export default function MapView({ initialSpot = null, initialSpots = [] }: { ini
       const marker = new mapbox.Marker({ element: el, anchor: "bottom" })
         .setLngLat([spot.lng, spot.lat])
         .addTo(map);
+      marker.getElement().removeAttribute("aria-label");
       markersRef.current.push(marker);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -399,7 +425,9 @@ export default function MapView({ initialSpot = null, initialSpots = [] }: { ini
   }, [section]);
 
   function distanceFor(s:Spot){const[lng,lat]=origin;return haversineKm(lat,lng,s.lat,s.lng)}
-  const originName=locationLabel&&locationLabel!=="Locating…"?locationLabel:"you";function driveFor(s:Spot){return driveFrom(s,origin,originName)}
+  // "Mumbai-Pune" is the no-location fallback centre, not a real place, so
+  // drive times there read as plain "drive" rather than "from Mumbai-Pune".
+  const originName=locationLabel&&!["Locating…","Mumbai-Pune","your area"].includes(locationLabel)?locationLabel:"";function driveFor(s:Spot){return driveFrom(s,origin,originName)}
   const visible=spots.filter(s=>(activeCategory==="all"||s.category===activeCategory)&&distanceFor(s)<=maxDistanceKm&&(!search||`${s.name} ${s.region??""}`.toLowerCase().includes(search.toLowerCase()))).sort((a,b)=>distanceFor(a)-distanceFor(b));
   function focusSpot(s:Spot,withSheet=false,ease=false){const desktop=typeof window!=="undefined"&&window.matchMedia(DESKTOP_QUERY).matches;const panel=desktop?Math.min(withSheet?760:440,window.innerWidth*(withSheet?.56:.4))+40:0;const opts={center:[s.lng,s.lat] as [number,number],zoom:11.8,padding:desktop?{top:60,bottom:60,left:60,right:panel+40}:{bottom:drawerState==="min"?90:320,top:80,left:0,right:0}};if(ease)mapRef.current?.easeTo({...opts,duration:400});else mapRef.current?.flyTo(opts)}
   function openSpot(s:Spot){selectSpot(s);pushSpotUrl(s);focusSpot(s,true)}
@@ -421,5 +449,5 @@ export default function MapView({ initialSpot = null, initialSpots = [] }: { ini
 useEffect(()=>{const mq=window.matchMedia(DESKTOP_QUERY);const sync=()=>{if(mq.matches)setDrawerState("half")};sync();mq.addEventListener("change",sync);return()=>mq.removeEventListener("change",sync)},[]);
 useEffect(()=>{if(section!=="explore"||drawerState==="min")return;const frame=requestAnimationFrame(()=>{const panel=document.querySelector<HTMLElement>(".amc-discovery-panel"),scroll=panel?.querySelector<HTMLElement>(".amc-drawer-scroll"),card=panel?.querySelector<HTMLElement>(".amc-spot-card");if(!panel||!scroll||!card)return;const top=card.offsetTop,styles=getComputedStyle(card),cardHeight=card.offsetHeight+parseFloat(styles.marginBottom||"0"),navClearance=78,handleHeight=44,padding=24;panel.style.setProperty("--amc-default-drawer-height",`${Math.ceil(handleHeight+top+cardHeight+padding+navClearance)}px`) });return()=>cancelAnimationFrame(frame)},[section,drawerState,spots.length,visible.length,maxDistanceKm,activeCategory])
   useEffect(()=>{if(drawerState!=="half")return;const scroll=document.querySelector<HTMLElement>(".amc-discovery-panel .amc-drawer-scroll");if(scroll)scroll.scrollTop=0},[drawerState])
-  return <div className={`amc-app section-${section}${selectedSpot?" has-sheet":""}`}><div className="amc-map" ref={containerRef}/>{section==="explore"&&!mapReady&&!mapFailed&&<div className="amc-map-loading amc-static-map"/>}{section==="explore"&&mapFailed&&<div className="amc-map-failed" role="status">Map unavailable, list still works</div>}<TopBar search={search} onSearch={value=>{setSearch(value);setCardLimit(12)}}/>{section==="explore"&&<>{gate&&!gateDismissed&&<GeoGateBanner city={gate.city} onDismiss={()=>setGateDismissed(true)} onNotify={()=>setGateDismissed(true)}/>}<div className="amc-location-float"><LocationPicker label={locationLabel} confirmed={locationConfirmed} onPick={handlePickCity} onUseGps={handleNearMe} locatingGps={locating} open={pickerOpen} onOpenChange={o=>{setPickerOpen(o);if(!o)setGpsError(null)}} error={gpsError}/></div><aside className={`amc-discovery-panel state-${drawerState}`} onClickCapture={e=>{if(drawerMoved.current){e.preventDefault();e.stopPropagation();drawerMoved.current=false}}} onPointerDown={e=>{if(window.matchMedia(DESKTOP_QUERY).matches)return;if((e.target as HTMLElement).closest(".amc-card-list"))return;if(e.pointerType==="mouse"&&e.button!==0)return;drawerStartY.current=e.clientY;drawerStartX.current=e.clientX;drawerStartTime.current=performance.now();drawerLastY.current=e.clientY;drawerLastTime.current=drawerStartTime.current;drawerMoved.current=false;drawerGesture.current="pending"}} onPointerMove={e=>{if(drawerStartY.current===null)return;const panel=e.currentTarget,dy=e.clientY-drawerStartY.current,dx=e.clientX-drawerStartX.current;if(drawerGesture.current==="pending"&&Math.max(Math.abs(dx),Math.abs(dy))>7){if(Math.abs(dx)>Math.abs(dy)){drawerGesture.current="content";drawerStartY.current=null;return}drawerStartHeight.current=panel.getBoundingClientRect().height;drawerGesture.current="drawer";drawerMoved.current=true;panel.setPointerCapture(e.pointerId);panel.classList.add("is-dragging")}if(drawerGesture.current!=="drawer")return;const min=169,max=window.innerHeight-66;panel.style.setProperty("height",`${Math.max(min,Math.min(max,drawerStartHeight.current-dy))}px`);drawerLastY.current=e.clientY;drawerLastTime.current=performance.now()}} onPointerUp={e=>{const panel=e.currentTarget;if(drawerStartY.current!==null&&drawerGesture.current==="drawer"){const d=e.clientY-drawerStartY.current,elapsed=Math.max(1,performance.now()-drawerLastTime.current),velocity=(e.clientY-drawerLastY.current)/elapsed;if(d< -30||velocity<-.35)nextDrawer(1);else if(d>30||velocity>.35)nextDrawer(-1)}drawerStartY.current=null;drawerGesture.current="pending";panel.classList.remove("is-dragging");panel.style.removeProperty("height")}} onPointerCancel={e=>{drawerStartY.current=null;drawerGesture.current="pending";e.currentTarget.classList.remove("is-dragging");e.currentTarget.style.removeProperty("height")}}><button className="amc-drawer-grab" data-drawer-handle aria-label={`Drawer ${drawerState}. Drag to resize`} onClick={()=>{if(!drawerMoved.current)nextDrawer(drawerState==="full"?-1:1);drawerMoved.current=false}}><span/></button><div className="amc-drawer-scroll" onScroll={e=>{if(!window.matchMedia(DESKTOP_QUERY).matches)return;const el=e.currentTarget;if(el.scrollTop+el.clientHeight>=el.scrollHeight-700)setCardLimit(limit=>Math.min(visible.length,limit+12))}}><div className="amc-panel-title"><div><p>NEAR {locationLabel.toUpperCase()}</p><PanelHeading asH2={!!selectedSpot}>{loadStatus==="error"&&spots.length===0?"Monday won this round.":spots.length===0?"Finding places":visible.length+" places to forget Monday exists"}</PanelHeading></div></div>{drawerState!=="min"&&<><CategoryChips active={activeCategory} onChange={value=>{setActiveCategory(value);setCardLimit(12)}} maxDistanceKm={maxDistanceKm} onDistanceChange={value=>{setMaxDistanceKm(value);setCardLimit(12)}}/><div className="amc-results-label"><span><strong>PLACES BETTER THAN MONDAY</strong><small>within {maxDistanceKm} km</small></span></div><div className="amc-card-list" onPointerDown={e=>e.stopPropagation()} onPointerMove={e=>e.stopPropagation()} onPointerUp={e=>e.stopPropagation()} onPointerCancel={e=>e.stopPropagation()} ref={railRef} onScroll={e=>{const rail=e.currentTarget;scheduleRailSettle();if(rail.scrollLeft+rail.clientWidth>=rail.scrollWidth-460)setCardLimit(limit=>Math.min(visible.length,limit+12))}}>{loadStatus==="error"&&spots.length===0?<div className="amc-load-error" role="alert"><p>Couldn&apos;t load places.</p><button type="button" onClick={()=>loadSpots()}>Retry</button></div>:spots.length===0?[0,1].map(i=><div key={i} className="amc-spot-card amc-card-skeleton"><i/><b/><span/></div>):visible.slice(0,cardLimit).map(s=><SpotCard key={s.id} spot={s} distance={distanceFor(s)} drive={driveFor(s)} slug={slugById.get(s.id)} onFocus={()=>{focusSpot(s);prefetchDetail(s.id)}} onOpen={()=>openSpot(s)}/>)}</div></>}</div></aside></>}{section==="surprise"&&<SurpriseMe spots={spots} origin={origin} originName={originName} saved={savedIds} onSave={save} slugFor={s=>slugById.get(s.id)}/>} {section==="account"&&<AccountView spots={spots} saved={savedIds} distanceFor={distanceFor} slugFor={s=>slugById.get(s.id)} onFocus={focusSpot} onOpen={openSpot}/>} {selectedSpot&&<SpotSheet spot={selectedSpot} onClose={closeSheet} shareUrl={`${typeof window!=="undefined"?window.location.origin:"https://antimondayclub.com"}/${selectedSpot.category}/${slugById.get(selectedSpot.id)??""}`}/>} <BottomNav active={section} onChange={next=>{if(selectedSpot)closeSheet();setSection(next)}}/></div>;
+  return <div className={`amc-app section-${section}${selectedSpot?" has-sheet":""}`}><div className="amc-map" ref={containerRef}/>{section==="explore"&&!mapReady&&!mapFailed&&<div className="amc-map-loading amc-static-map"/>}{section==="explore"&&mapFailed&&<div className="amc-map-failed" role="status">Map unavailable, list still works</div>}<TopBar showSearch={section==="explore"} search={search} onSearch={value=>{setSearch(value);setCardLimit(12)}}/>{section==="explore"&&<>{gate&&!gateDismissed&&<GeoGateBanner city={gate.city} onDismiss={()=>setGateDismissed(true)} onNotify={()=>setGateDismissed(true)}/>}<div className="amc-location-float"><LocationPicker label={locationLabel} confirmed={locationConfirmed} onPick={handlePickCity} onUseGps={handleNearMe} locatingGps={locating} open={pickerOpen} onOpenChange={o=>{setPickerOpen(o);if(!o)setGpsError(null)}} error={gpsError}/></div><aside className={`amc-discovery-panel state-${drawerState}`} onClickCapture={e=>{if(drawerMoved.current){e.preventDefault();e.stopPropagation();drawerMoved.current=false}}} onPointerDown={e=>{if(window.matchMedia(DESKTOP_QUERY).matches)return;if((e.target as HTMLElement).closest(".amc-card-list"))return;if(e.pointerType==="mouse"&&e.button!==0)return;drawerStartY.current=e.clientY;drawerStartX.current=e.clientX;drawerStartTime.current=performance.now();drawerLastY.current=e.clientY;drawerLastTime.current=drawerStartTime.current;drawerMoved.current=false;drawerGesture.current="pending"}} onPointerMove={e=>{if(drawerStartY.current===null)return;const panel=e.currentTarget,dy=e.clientY-drawerStartY.current,dx=e.clientX-drawerStartX.current;if(drawerGesture.current==="pending"&&Math.max(Math.abs(dx),Math.abs(dy))>7){if(Math.abs(dx)>Math.abs(dy)){drawerGesture.current="content";drawerStartY.current=null;return}drawerStartHeight.current=panel.getBoundingClientRect().height;drawerGesture.current="drawer";drawerMoved.current=true;panel.setPointerCapture(e.pointerId);panel.classList.add("is-dragging")}if(drawerGesture.current!=="drawer")return;const min=169,max=window.innerHeight-66;panel.style.setProperty("height",`${Math.max(min,Math.min(max,drawerStartHeight.current-dy))}px`);drawerLastY.current=e.clientY;drawerLastTime.current=performance.now()}} onPointerUp={e=>{const panel=e.currentTarget;if(drawerStartY.current!==null&&drawerGesture.current==="drawer"){const d=e.clientY-drawerStartY.current,elapsed=Math.max(1,performance.now()-drawerLastTime.current),velocity=(e.clientY-drawerLastY.current)/elapsed;if(d< -30||velocity<-.35)nextDrawer(1);else if(d>30||velocity>.35)nextDrawer(-1)}drawerStartY.current=null;drawerGesture.current="pending";panel.classList.remove("is-dragging");panel.style.removeProperty("height")}} onPointerCancel={e=>{drawerStartY.current=null;drawerGesture.current="pending";e.currentTarget.classList.remove("is-dragging");e.currentTarget.style.removeProperty("height")}}><button className="amc-drawer-grab" data-drawer-handle aria-label={`Drawer ${drawerState}. Drag to resize`} onClick={()=>{if(!drawerMoved.current)nextDrawer(drawerState==="full"?-1:1);drawerMoved.current=false}}><span/></button><div className="amc-drawer-scroll" onScroll={e=>{if(!window.matchMedia(DESKTOP_QUERY).matches&&drawerState!=="full")return;const el=e.currentTarget;if(el.scrollTop+el.clientHeight>=el.scrollHeight-700)setCardLimit(limit=>Math.min(visible.length,limit+12))}}><div className="amc-panel-title"><div><p>NEAR {locationLabel.toUpperCase()}</p><PanelHeading asH2={!!selectedSpot}>{loadStatus==="error"&&spots.length===0?"Monday won this round.":spots.length===0?"Finding places":visible.length+" places to forget Monday exists"}</PanelHeading></div></div>{drawerState!=="min"&&<><CategoryChips active={activeCategory} onChange={value=>{setActiveCategory(value);setCardLimit(12)}} maxDistanceKm={maxDistanceKm} onDistanceChange={value=>{setMaxDistanceKm(value);setCardLimit(12)}}/><div className="amc-results-label"><span><strong>PLACES BETTER THAN MONDAY</strong><small>within {maxDistanceKm} km</small></span></div><div className="amc-card-list" onPointerDown={e=>e.stopPropagation()} onPointerMove={e=>e.stopPropagation()} onPointerUp={e=>e.stopPropagation()} onPointerCancel={e=>e.stopPropagation()} ref={railRef} onScroll={e=>{const rail=e.currentTarget;scheduleRailSettle();if(rail.scrollLeft+rail.clientWidth>=rail.scrollWidth-460)setCardLimit(limit=>Math.min(visible.length,limit+12))}}>{loadStatus==="error"&&spots.length===0?<div className="amc-load-error" role="alert"><p>Couldn&apos;t load places.</p><button type="button" onClick={()=>loadSpots()}>Retry</button></div>:spots.length===0?[0,1].map(i=><div key={i} className="amc-spot-card amc-card-skeleton"><i/><b/><span/></div>):visible.slice(0,cardLimit).map(s=><SpotCard key={s.id} spot={s} distance={distanceFor(s)} drive={driveFor(s)} slug={slugById.get(s.id)} onFocus={()=>{focusSpot(s);prefetchDetail(s.id)}} onOpen={()=>openSpot(s)}/>)}</div></>}</div></aside></>}{section==="surprise"&&<SurpriseMe spots={spots} origin={origin} originName={originName} onOpen={openSpot}/>} {section==="account"&&<AccountView spots={spots} saved={savedIds} distanceFor={distanceFor} slugFor={s=>slugById.get(s.id)} onFocus={focusSpot} onOpen={openSpot}/>} {selectedSpot&&<SpotSheet spot={selectedSpot} onClose={closeSheet} shareUrl={`${typeof window!=="undefined"?window.location.origin:"https://antimondayclub.com"}/${selectedSpot.category}/${slugById.get(selectedSpot.id)??""}`}/>} <BottomNav active={section} onChange={next=>{if(selectedSpot)closeSheet();setSection(next)}}/></div>;
 }

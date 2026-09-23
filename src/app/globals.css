@@ -517,3 +517,30 @@ button,a,[role="button"]{touch-action:manipulation;-webkit-tap-highlight-color:t
 .amc-error-card{max-width:380px;padding:26px;background:#fffaf2;border:3px solid #000;border-radius:22px;box-shadow:7px 7px 0 #000}
 .amc-error-card small{font:400 11px var(--font-body)}.amc-error-card h1{margin:6px 0 10px;font:400 36px/.95 var(--font-home-headline)}.amc-error-card p{font:400 15px/1.4 var(--font-body)}
 .amc-error-actions{display:flex;gap:10px;margin-top:18px}.amc-error-actions button{padding:12px 18px;border:2px solid #000;border-radius:12px;background:#111;color:var(--pantone-orange);font:700 15px var(--font-body)}.amc-error-actions .is-ghost{background:#fffaf2;color:#111}
+
+/* Batch 3: pins, sheet, full drawer list, tap targets */
+.amc-pins-compact .amc-map-name-label{width:14px;height:14px;padding:0!important;border-radius:50%!important;font-size:0!important;background:var(--pantone-orange)!important;box-shadow:1px 1px 0 #111!important;overflow:hidden}
+.amc-sheet-photo-fallback.is-compact{height:64px!important;flex-direction:row;align-items:center;justify-content:flex-start;gap:10px;padding:12px 60px 12px 20px;background-image:none;background:var(--pantone-orange)}
+.amc-sheet-photo-fallback.is-compact span{width:38px;height:38px}
+.amc-sheet-photo-fallback.is-compact small{margin-top:0}
+.amc-spot-sheet{transition:transform .18s ease-out}
+@media(max-width:1023px){
+  .amc-discovery-panel.state-full .amc-card-list{flex-direction:column;overflow-x:visible;padding-bottom:40px}
+  .amc-discovery-panel.state-full .amc-spot-card{flex:none;width:auto}
+  .amc-discovery-panel.state-full .amc-card-main{display:grid;grid-template-columns:120px 1fr}
+  .amc-discovery-panel.state-full .amc-card-photo{height:100%;min-height:112px}
+  .amc-presets button,.amc-category-row button,.amc-city-grid button,.amc-location-float button{min-height:44px}
+  .amc-top-actions button,.amc-save-round{width:44px!important;height:44px!important}
+  .amc-bottom-nav button{min-width:64px;min-height:44px}
+  .amc-swipe-directions button,.amc-surprise-keys button{min-height:44px}
+  .amc-spot-sheet button[aria-label="Close"]{width:44px!important;height:44px!important}
+}
+/* Short phones (iPhone 13 ~664px viewport): first card name must be visible
+   in the default drawer. Drop the section labels (the chips speak for
+   themselves) and trim the card photo; full drawer keeps everything. */
+@media(max-width:1023px) and (max-height:760px){
+  .amc-discovery-panel.state-half .amc-label,.amc-discovery-panel.state-half .amc-results-label{display:none!important}
+  .amc-discovery-panel.state-half .amc-category-row{margin-top:8px}
+  .amc-discovery-panel.state-half .amc-card-list{padding-top:12px}
+  .amc-discovery-panel.state-half .amc-card-photo{height:84px!important}
+}

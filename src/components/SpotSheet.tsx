@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   IconX,
   IconRoute,
@@ -60,6 +60,8 @@ export default function SpotSheet({
   const photos = (spot.photos?.filter(Boolean) ?? [])
     .map((src) => photoSrc(src))
     .filter((src): src is string => !!src);
+  // Swipe down (from the top of the sheet) to close.
+  const drag = useRef<{ y: number; t: number } | null>(null);
   const [failedPhotos, setFailedPhotos] = useState<Set<string>>(() => new Set());
   const visiblePhotos = photos.filter((src) => !failedPhotos.has(src));
   const highlights = spot.highlights?.filter(Boolean) ?? [];
@@ -77,7 +79,11 @@ export default function SpotSheet({
 
   return (
     <div className="sheet-enter amc-spot-sheet absolute inset-x-0 bottom-0 z-30 flex max-h-[85vh] flex-col rounded-t-3xl border-t-4 border-black bg-white shadow-2xl">
-      <div className="amc-sheet-scroll flex-1 overflow-y-auto rounded-t-[20px]">
+      <div className="amc-sheet-scroll flex-1 overflow-y-auto rounded-t-[20px]"
+        onPointerDown={(e) => { const sc = e.currentTarget; if (sc.scrollTop > 0 || (e.target as HTMLElement).closest("a,button,.amc-sheet-gallery")) return; drag.current = { y: e.clientY, t: performance.now() }; }}
+        onPointerMove={(e) => { if (!drag.current) return; const dy = e.clientY - drag.current.y; const sheet = e.currentTarget.parentElement; if (sheet) sheet.style.transform = dy > 0 ? `translateY(${dy}px)` : ""; }}
+        onPointerUp={(e) => { if (!drag.current) return; const dy = e.clientY - drag.current.y, v = dy / Math.max(1, performance.now() - drag.current.t); drag.current = null; const sheet = e.currentTarget.parentElement; if (dy > 110 || (dy > 40 && v > 0.5)) onClose(); else if (sheet) sheet.style.transform = ""; }}
+        onPointerCancel={(e) => { drag.current = null; const sheet = e.currentTarget.parentElement; if (sheet) sheet.style.transform = ""; }}>
         {/* Hero photo strip, falls back to a black-outline icon panel when there are no photos yet */}
         <div className="amc-sheet-hero relative">
           {visiblePhotos.length > 0 ? (
@@ -89,10 +95,9 @@ export default function SpotSheet({
               {spot.credit && <small className="amc-photo-credit">{spot.credit}</small>}
             </div>
           ) : (
-            <div className="amc-sheet-photo-fallback">
-              <span><Icon size={30} stroke={2} /></span>
+            <div className="amc-sheet-photo-fallback is-compact" aria-hidden="true">
+              <span><Icon size={24} stroke={2} /></span>
               <small>{spot.category.toUpperCase()} ESCAPE</small>
-              <strong>{spot.name}</strong>
             </div>
           )}
           <div className="amc-sheet-handle absolute inset-x-0 top-0 mx-auto mt-2 h-1 w-10 rounded-full bg-black/30" />
@@ -113,7 +118,6 @@ export default function SpotSheet({
             </span>
             <div>
               <h1 className="font-headline text-[19px] leading-tight">{spot.name}</h1>
-              <p className="amc-sheet-title-suffix">| Everything You Need to Know</p>
               <p className="text-xs text-[var(--ink-muted)]">
                 {spot.region ? spot.region : <span className="capitalize">{spot.category}</span>}
               </p>
