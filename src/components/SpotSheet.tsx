@@ -61,7 +61,7 @@ export default function SpotSheet({
     .map((src) => photoSrc(src))
     .filter((src): src is string => !!src);
   // Swipe down (from the top of the sheet) to close.
-  const drag = useRef<{ y: number; t: number } | null>(null);
+  const drag = useRef<{ y: number; t: number; dy: number; raf: number } | null>(null);
   const [failedPhotos, setFailedPhotos] = useState<Set<string>>(() => new Set());
   const visiblePhotos = photos.filter((src) => !failedPhotos.has(src));
   const highlights = spot.highlights?.filter(Boolean) ?? [];
@@ -80,10 +80,10 @@ export default function SpotSheet({
   return (
     <div className="sheet-enter amc-spot-sheet absolute inset-x-0 bottom-0 z-30 flex max-h-[85vh] flex-col rounded-t-3xl border-t-4 border-black bg-white shadow-2xl">
       <div className="amc-sheet-scroll flex-1 overflow-y-auto rounded-t-[20px]"
-        onPointerDown={(e) => { const sc = e.currentTarget; if (sc.scrollTop > 0 || (e.target as HTMLElement).closest("a,button,.amc-sheet-gallery")) return; drag.current = { y: e.clientY, t: performance.now() }; }}
-        onPointerMove={(e) => { if (!drag.current) return; const dy = e.clientY - drag.current.y; const sheet = e.currentTarget.parentElement; if (sheet) sheet.style.transform = dy > 0 ? `translateY(${dy}px)` : ""; }}
-        onPointerUp={(e) => { if (!drag.current) return; const dy = e.clientY - drag.current.y, v = dy / Math.max(1, performance.now() - drag.current.t); drag.current = null; const sheet = e.currentTarget.parentElement; if (dy > 110 || (dy > 40 && v > 0.5)) onClose(); else if (sheet) sheet.style.transform = ""; }}
-        onPointerCancel={(e) => { drag.current = null; const sheet = e.currentTarget.parentElement; if (sheet) sheet.style.transform = ""; }}>
+        onPointerDown={(e) => { const sc = e.currentTarget; if (sc.scrollTop > 0 || (e.target as HTMLElement).closest("a,button,.amc-sheet-gallery")) return; drag.current = { y: e.clientY, t: performance.now(), dy: 0, raf: 0 }; }}
+        onPointerMove={(e) => { const d = drag.current; if (!d) return; const dy = e.clientY - d.y; const sheet = e.currentTarget.parentElement; if (!sheet) return; if (dy > 0) sheet.classList.add("is-dragging"); d.dy = dy; if (d.raf) return; d.raf = requestAnimationFrame(() => { d.raf = 0; sheet.style.transform = d.dy > 0 ? `translate3d(0,${d.dy}px,0)` : ""; }); }}
+        onPointerUp={(e) => { if (!drag.current) return; const dy = e.clientY - drag.current.y, v = dy / Math.max(1, performance.now() - drag.current.t); if (drag.current.raf) cancelAnimationFrame(drag.current.raf); drag.current = null; const sheet = e.currentTarget.parentElement; sheet?.classList.remove("is-dragging"); if (dy > 110 || (dy > 40 && v > 0.5)) onClose(); else if (sheet) sheet.style.transform = ""; }}
+        onPointerCancel={(e) => { if (drag.current?.raf) cancelAnimationFrame(drag.current.raf); drag.current = null; const sheet = e.currentTarget.parentElement; if (sheet) { sheet.classList.remove("is-dragging"); sheet.style.transform = ""; } }}>
         {/* Hero photo strip, falls back to a black-outline icon panel when there are no photos yet */}
         <div className="amc-sheet-hero relative">
           {visiblePhotos.length > 0 ? (

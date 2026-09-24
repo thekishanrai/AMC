@@ -544,3 +544,15 @@ button,a,[role="button"]{touch-action:manipulation;-webkit-tap-highlight-color:t
   .amc-discovery-panel.state-half .amc-card-list{padding-top:12px}
   .amc-discovery-panel.state-half .amc-card-photo{height:84px!important}
 }
+
+/* Swipe smoothness: the Surprise card is role=button for keyboard users, which
+   matched the global [role="button"]{touch-action:manipulation} rule and let the
+   browser steal horizontal swipes (pointercancel after ~16px). Keep pan-y so the
+   page still scrolls vertically and horizontal drags stay with the card. */
+.amc-swipe-card,.amc-swipe-card[role="button"]{touch-action:pan-y;-webkit-user-select:none;user-select:none}
+.amc-swipe-card.is-dragging{will-change:transform;transition:none}
+.amc-swipe-card.is-settling{transition:transform .22s cubic-bezier(.2,.8,.2,1)}
+.amc-swipe-card img{-webkit-user-drag:none}
+/* Spot sheet swipe-down: follow the finger 1:1 while dragging (the .18s
+   transition made the sheet trail behind), animate only the release. */
+.amc-spot-sheet.is-dragging{transition:none!important;will-change:transform}
