@@ -601,3 +601,13 @@ button,a,[role="button"]{touch-action:manipulation;-webkit-tap-highlight-color:t
   .amc-app.has-sheet>.amc-spot-sheet{bottom:0}
   .amc-app.has-sheet .amc-sheet-actions{padding-bottom:calc(env(safe-area-inset-bottom) + 10px)!important}
 }
+
+/* Motion (src/lib/flip.ts). Ghosts are snapshots of the old layout during a
+   morph; their layer carries the drawer state classes so cloned cards keep
+   their old styling, and this rule strips the panel's own box from it. */
+.amc-app>.amc-ghost-layer.amc-ghost-layer.amc-ghost-layer{position:fixed;inset:0;width:auto;height:auto;margin:0;padding:0;border:0;border-radius:0;background:none;box-shadow:none;transform:none;transition:none;will-change:auto;overflow:visible;pointer-events:none;z-index:31;touch-action:auto}
+.amc-bottom-nav button{position:relative;z-index:1;transition:color .25s}
+.amc-nav-pill{position:absolute;z-index:0;box-sizing:border-box;pointer-events:none}
+.amc-bottom-nav.is-sliding button.is-active,.amc-bottom-nav.is-sliding button.is-active:before{background:transparent!important;border-color:transparent!important}
+/* Inline-block (not inline) so the min heading can glide and resize. */
+.state-min .amc-panel-title p,.state-min .amc-panel-title :is(h1,h2){display:inline-block}
