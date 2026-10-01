@@ -473,9 +473,11 @@ export default function MapView({ initialSpot = null, initialSpots = [] }: { ini
   const firstVisibleId=visible[0]?.id??null;const railKey=visible.slice(0,cardLimit).map(s=>s.id).join(",");
   // The card showing on load (or after a filter change) is the starting focus.
   useEffect(()=>{lastFocused.current=firstVisibleId},[firstVisibleId]);
-  // Rail titles stay on one line. The card the map follows scrolls a name
-  // that doesn't fit: there and back once, then it rests on the ellipsis.
-  function markLeadingCard(){const rail=railRef.current;if(!rail)return;rail.querySelectorAll(".is-leading").forEach(c=>{c.classList.remove("is-leading","is-marquee")});const card=lastFocused.current?rail.querySelector<HTMLElement>(`[data-spot-id="${lastFocused.current}"]`):null;const name=card?.querySelector<HTMLElement>(".amc-card-name");if(!card||!name)return;card.classList.add("is-leading");const overflow=name.scrollWidth-name.clientWidth;if(overflow<=2||window.matchMedia("(prefers-reduced-motion: reduce)").matches)return;name.style.setProperty("--amc-marquee-x",`${-overflow-4}px`);name.style.setProperty("--amc-marquee-dur",`${Math.max(2.4,overflow/28+1.6).toFixed(2)}s`);name.addEventListener("animationend",()=>card.classList.remove("is-marquee"),{once:true});card.classList.add("is-marquee")}
+  // Rail titles and locations stay on one line. On the card the map follows,
+  // a line that doesn't fit scrolls there and back once, then rests on the
+  // ellipsis (shown until the motion starts).
+  const marqueeTimers=useRef<ReturnType<typeof setTimeout>[]>([]);
+  function markLeadingCard(){const rail=railRef.current;if(!rail)return;marqueeTimers.current.forEach(clearTimeout);marqueeTimers.current=[];rail.querySelectorAll(".is-leading").forEach(c=>c.classList.remove("is-leading"));rail.querySelectorAll(".is-marquee").forEach(el=>el.classList.remove("is-marquee"));const card=lastFocused.current?rail.querySelector<HTMLElement>(`[data-spot-id="${lastFocused.current}"]`):null;if(!card)return;card.classList.add("is-leading");if(window.matchMedia("(prefers-reduced-motion: reduce)").matches)return;card.querySelectorAll<HTMLElement>(".amc-card-name,.amc-card-region").forEach(line=>{const overflow=line.scrollWidth-line.clientWidth;if(overflow<=2)return;line.style.setProperty("--amc-marquee-x",`${-overflow-4}px`);line.style.setProperty("--amc-marquee-dur",`${Math.max(2.4,overflow/28+1.6).toFixed(2)}s`);line.addEventListener("animationend",()=>line.classList.remove("is-marquee"),{once:true});marqueeTimers.current.push(setTimeout(()=>line.classList.add("is-marquee"),800))})}
   useEffect(()=>{if(section!=="explore"||drawerState==="full")return;const frame=requestAnimationFrame(markLeadingCard);document.fonts?.ready.then(()=>requestAnimationFrame(markLeadingCard));return()=>cancelAnimationFrame(frame)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   },[railKey,section,drawerState,firstVisibleId]);
