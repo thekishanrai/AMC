@@ -464,7 +464,7 @@ export default function MapView({ initialSpot = null, initialSpots = [] }: { ini
   // the map moves once, after scrolling settles, and only if the leading card
   // changed. No layout reads per scroll event, no map jitter mid-swipe.
   const railRatios=useRef<Map<string,number>>(new Map());const railTimer=useRef<ReturnType<typeof setTimeout>|null>(null);
-  function settleRail(){railTimer.current=null;const rail=railRef.current;if(!rail)return;const ids=[...rail.querySelectorAll<HTMLElement>("[data-spot-id]")].map(c=>c.dataset.spotId??"");const id=ids.find(i=>(railRatios.current.get(i)??0)>=0.6);if(!id||id===lastFocused.current)return;lastFocused.current=id;const s=spotsRef.current.find(x=>x.id===id);if(s){focusSpot(s,false,true);prefetchDetail(s.id)}}
+  function settleRail(){railTimer.current=null;const rail=railRef.current;if(!rail)return;const ids=[...rail.querySelectorAll<HTMLElement>("[data-spot-id]")].map(c=>c.dataset.spotId??"");const id=ids.find(i=>(railRatios.current.get(i)??0)>=0.6);if(!id||id===lastFocused.current)return;lastFocused.current=id;markLeadingCard();const s=spotsRef.current.find(x=>x.id===id);if(s){focusSpot(s,false,true);prefetchDetail(s.id)}}
   // Live follow: while the rail moves, pick the leading card once per frame
   // from the IntersectionObserver ratios (no layout reads) and glide the map
   // to it as soon as it changes, instead of waiting for the swipe to stop.
@@ -473,6 +473,12 @@ export default function MapView({ initialSpot = null, initialSpots = [] }: { ini
   const firstVisibleId=visible[0]?.id??null;const railKey=visible.slice(0,cardLimit).map(s=>s.id).join(",");
   // The card showing on load (or after a filter change) is the starting focus.
   useEffect(()=>{lastFocused.current=firstVisibleId},[firstVisibleId]);
+  // Rail titles stay on one line. The card the map follows scrolls a name
+  // that doesn't fit: there and back once, then it rests on the ellipsis.
+  function markLeadingCard(){const rail=railRef.current;if(!rail)return;rail.querySelectorAll(".is-leading").forEach(c=>{c.classList.remove("is-leading","is-marquee")});const card=lastFocused.current?rail.querySelector<HTMLElement>(`[data-spot-id="${lastFocused.current}"]`):null;const name=card?.querySelector<HTMLElement>(".amc-card-name");if(!card||!name)return;card.classList.add("is-leading");const overflow=name.scrollWidth-name.clientWidth;if(overflow<=2||window.matchMedia("(prefers-reduced-motion: reduce)").matches)return;name.style.setProperty("--amc-marquee-x",`${-overflow-4}px`);name.style.setProperty("--amc-marquee-dur",`${Math.max(2.4,overflow/28+1.6).toFixed(2)}s`);name.addEventListener("animationend",()=>card.classList.remove("is-marquee"),{once:true});card.classList.add("is-marquee")}
+  useEffect(()=>{if(section!=="explore"||drawerState==="full")return;const frame=requestAnimationFrame(markLeadingCard);document.fonts?.ready.then(()=>requestAnimationFrame(markLeadingCard));return()=>cancelAnimationFrame(frame)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[railKey,section,drawerState,firstVisibleId]);
   useEffect(()=>{const rail=railRef.current;if(!rail||section!=="explore"||window.matchMedia(DESKTOP_QUERY).matches)return;const io=new IntersectionObserver(es=>{es.forEach(e=>railRatios.current.set((e.target as HTMLElement).dataset.spotId??"",e.intersectionRatio));scheduleRailSettle()},{root:rail,threshold:[0,0.6,1]});rail.querySelectorAll("[data-spot-id]").forEach(c=>io.observe(c));const onEnd=()=>{if(railFrame.current){cancelAnimationFrame(railFrame.current);railFrame.current=0}settleRail()};rail.addEventListener("scrollend",onEnd);return()=>{io.disconnect();rail.removeEventListener("scrollend",onEnd);if(railTimer.current)clearTimeout(railTimer.current);if(railFrame.current){cancelAnimationFrame(railFrame.current);railFrame.current=0}}
     // eslint-disable-next-line react-hooks/exhaustive-deps
   },[railKey,section,drawerState]);
