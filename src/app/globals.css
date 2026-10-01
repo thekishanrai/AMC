@@ -203,16 +203,13 @@ body,
 .amc-sheet-actions,.amc-drive-season,.amc-starburst,.amc-photo-type,
 .amc-swipe-title>span{font-family:var(--font-body),sans-serif!important}
 
-/* Finger-tracked drawer with a soft native-feeling snap between three states. */
-.amc-discovery-panel{transition:height .42s cubic-bezier(.22,1,.36,1);will-change:height}
-.amc-discovery-panel.is-dragging{transition:none;user-select:none}
+/* Finger-tracked drawer; motion and touch contract live in the mobile drawer block at the end. */
+.amc-discovery-panel.is-dragging{user-select:none}
 .amc-discovery-panel.is-dragging .amc-drawer-grab{cursor:grabbing}
 
 
-/* Drawer gestures start only on this dedicated top-edge handle. Panel content keeps native scrolling. */
 .amc-drawer-grab{position:relative;z-index:2;cursor:grab;touch-action:none;overscroll-behavior:contain}
-.amc-drawer-scroll{touch-action:pan-y;overscroll-behavior-y:contain}
-.amc-drawer-scroll button,.amc-drawer-scroll a{touch-action:manipulation}
+.amc-drawer-scroll{overscroll-behavior-y:contain}
 
 /* One readable support size across the Surprise card's instruction and compact metadata. */
 .amc-surprise{--swipe-support-size:13px}
@@ -257,21 +254,10 @@ body,
 .amc-results-label small{font-family:var(--font-body),sans-serif!important;font-size:11px!important;line-height:1.1!important;font-stretch:normal}
 .amc-top-actions button svg{width:18px;height:18px;stroke-width:2.75}
 
-/* The whole sheet surface can initiate a vertical drag; native content scrolling still wins in the full state. */
-.amc-discovery-panel{touch-action:pan-y}
-.amc-discovery-panel.state-min,.amc-discovery-panel.state-half{touch-action:none}
-.amc-discovery-panel .amc-card-list{touch-action:pan-x}
 .amc-wordmark{font-family:var(--font-home-headline),sans-serif!important;font-size:18px;font-weight:400;letter-spacing:.04em}
-/* Pointer-owned vertical arbitration lets full-sheet content scroll and hands a top-edge downward pull to the sheet. */
-.amc-discovery-panel,.amc-discovery-panel.state-full{touch-action:none}
-.amc-discovery-panel .amc-card-list{touch-action:pan-x}
-/* Prevent the browser's vertical pan recognizer from stealing downward sheet drags on drawer content. */
-.amc-discovery-panel .amc-drawer-scroll{touch-action:none}
 
 /* Instant taps: defer drawer layout work until a real drag and keep ordinary controls off the delayed gesture path. */
 button,a,[role="button"]{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
-.amc-discovery-panel,.amc-discovery-panel .amc-drawer-scroll{touch-action:none}
-.amc-discovery-panel .amc-card-list{touch-action:pan-x}
 
 /* 15% quieter search control, ring and glyph scaled together. */
 .amc-top-actions button{width:37.4px!important;height:37.4px!important;min-width:37.4px!important;min-height:37.4px!important}
@@ -291,9 +277,7 @@ button,a,[role="button"]{touch-action:manipulation;-webkit-tap-highlight-color:t
 }
 @media(max-width:374px) and (max-height:700px){.amc-card-photo{height:62px}}
 
-/* Final gesture contract: only handle/header/filter area resizes the drawer; cards never do. */
-.amc-discovery-panel .amc-drawer-scroll{touch-action:none}
-.amc-discovery-panel .amc-card-list{touch-action:pan-x pan-y;overscroll-behavior:contain}
+.amc-discovery-panel .amc-card-list{overscroll-behavior:contain}
 
 /* Instagram follow card on More. Keep card copy sentence case/lowercase. */
 .amc-instagram-follow{position:relative;display:grid;gap:3px;margin:0 0 12px;padding:16px 17px 17px;overflow:hidden;border:2px solid #000;border-radius:19px;background:#111;color:var(--pantone-orange);box-shadow:4px 4px #000}
@@ -556,3 +540,31 @@ button,a,[role="button"]{touch-action:manipulation;-webkit-tap-highlight-color:t
 /* Spot sheet swipe-down: follow the finger 1:1 while dragging (the .18s
    transition made the sheet trail behind), animate only the release. */
 .amc-spot-sheet.is-dragging{transition:none!important;will-change:transform}
+
+/* Mobile drawer: motion and gesture contract.
+   The panel is always full height and slides with translateY, so dragging and
+   snapping move a composited layer. Animating height relaid out and repainted
+   the whole list every frame and stalled each release.
+   min/half: the sheet owns vertical drags (MapView pointer handlers); chips
+   and the card rail keep native horizontal swipes. full: the list scrolls
+   natively everywhere; the handle, or a pull-down at the top, moves the sheet.
+   --amc-drawer-visible is mirrored by drawerOffsets() in MapView. */
+@media(max-width:1023px){
+  .amc-discovery-panel,.amc-discovery-panel.state-min,.amc-discovery-panel.state-half,.amc-discovery-panel.state-full{
+    --amc-drawer-full:calc(100dvh - 66px);--amc-drawer-visible:min(61dvh,517px);
+    height:var(--amc-drawer-full);
+    transform:translate3d(0,calc(var(--amc-drawer-full) - var(--amc-drawer-visible)),0);
+    transition:transform .42s cubic-bezier(.22,1,.36,1);will-change:transform;touch-action:none}
+  .amc-discovery-panel.state-min{--amc-drawer-visible:169px}
+  .amc-discovery-panel.state-full{--amc-drawer-visible:var(--amc-drawer-full)}
+  .amc-discovery-panel.is-dragging{transition:none}
+  .amc-discovery-panel .amc-drawer-scroll{overflow-y:hidden;touch-action:none}
+  .amc-discovery-panel :is(.amc-presets,.amc-category-row,.amc-card-list){touch-action:pan-x}
+  .amc-discovery-panel.state-full .amc-drawer-scroll{overflow-y:auto;touch-action:pan-y}
+  .amc-discovery-panel.state-full :is(.amc-presets,.amc-category-row){touch-action:pan-x pan-y}
+  .amc-discovery-panel.state-full .amc-card-list{touch-action:pan-y}
+  /* min keeps the list mounted (no pop mid-slide) but hides it once the slide
+     ends, so it can't peek under the floating nav; a drag shows it at once. */
+  .amc-drawer-body{transition:visibility 0s}
+  .amc-discovery-panel.state-min:not(.is-dragging) .amc-drawer-body{visibility:hidden;transition-delay:.42s}
+}
