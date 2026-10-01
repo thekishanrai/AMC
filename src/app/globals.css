@@ -620,3 +620,15 @@ button,a,[role="button"]{touch-action:manipulation;-webkit-tap-highlight-color:t
 .amc-morph-photo{position:absolute!important;z-index:0;min-height:0!important;margin:0;overflow:hidden;pointer-events:none}
 .amc-spot-card.is-morphing .amc-card-copy{position:relative;z-index:1}
 .amc-spot-card.is-morphing .amc-save-round{z-index:2}
+
+/* Location nudge: until a location is chosen, an orange light runs around the
+   capsule's edge. A rotating conic streak (transform only, GPU) shows through
+   a 2.5px ring left by an inner fill; text sits above it. */
+.amc-location-float button.amc-location-nudge{position:relative;isolation:isolate}
+.amc-nudge{position:absolute;inset:0;z-index:-1;border-radius:inherit;overflow:hidden;pointer-events:none}
+.amc-nudge:before{content:"";position:absolute;left:50%;top:50%;width:320px;height:320px;margin:-160px 0 0 -160px;background:conic-gradient(transparent 0 68%,rgba(255,88,0,.35) 80%,var(--pantone-orange) 93%,#ffd2b8 97%,transparent 100%);opacity:0;animation:amc-nudge-lap 2s linear 1s infinite}
+.amc-nudge:after{content:"";position:absolute;inset:2.5px;border-radius:inherit;background:#111}
+.amc-location-nudge.is-slow .amc-nudge:before{animation-name:amc-nudge-lap-slow;animation-duration:6s;animation-delay:0s}
+@keyframes amc-nudge-lap{0%{transform:rotate(0);opacity:0}6%{opacity:1}54%{opacity:1}60%,100%{transform:rotate(360deg);opacity:0}}
+@keyframes amc-nudge-lap-slow{0%{transform:rotate(0);opacity:0}2%{opacity:1}18%{opacity:1}20%,100%{transform:rotate(360deg);opacity:0}}
+@media(prefers-reduced-motion:reduce){.amc-nudge:before{animation:none;opacity:1;background:var(--pantone-orange)}}
