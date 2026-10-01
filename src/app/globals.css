@@ -586,11 +586,12 @@ button,a,[role="button"]{touch-action:manipulation;-webkit-tap-highlight-color:t
   .amc-discovery-panel:not(.state-full) .amc-label{margin:10px 0 5px}
   .amc-discovery-panel:not(.state-full) .amc-results-label{padding-top:10px}
   .amc-discovery-panel:not(.state-full) .amc-card-copy h3{overflow:hidden}
-  .amc-discovery-panel:not(.state-full) .amc-card-name{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .amc-discovery-panel:not(.state-full) .is-marquee .amc-card-name{width:max-content;overflow:visible;text-overflow:clip;animation:amc-marquee var(--amc-marquee-dur,4s) ease-in-out .8s 2 alternate}
+  .amc-discovery-panel:not(.state-full) .amc-card-copy p{overflow:hidden}
+  .amc-discovery-panel:not(.state-full) :is(.amc-card-name,.amc-card-region){display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .amc-discovery-panel:not(.state-full) :is(.amc-card-name,.amc-card-region).is-marquee{width:max-content;overflow:visible;text-overflow:clip;animation:amc-marquee var(--amc-marquee-dur,4s) ease-in-out 2 alternate}
 }
 @keyframes amc-marquee{0%,15%{transform:translateX(0)}85%,100%{transform:translateX(var(--amc-marquee-x,0))}}
-@media(prefers-reduced-motion:reduce){.amc-card-name{animation:none!important}}
+@media(prefers-reduced-motion:reduce){.amc-card-name,.amc-card-region{animation:none!important}}
 
 /* Open place sheet (mobile): the nav hides while a sheet is open, so the
    sheet runs to the screen bottom and the action bar sits on the edge,
