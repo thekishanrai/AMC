@@ -591,3 +591,12 @@ button,a,[role="button"]{touch-action:manipulation;-webkit-tap-highlight-color:t
 }
 @keyframes amc-marquee{0%,15%{transform:translateX(0)}85%,100%{transform:translateX(var(--amc-marquee-x,0))}}
 @media(prefers-reduced-motion:reduce){.amc-card-name{animation:none!important}}
+
+/* Open place sheet (mobile): the nav hides while a sheet is open, so the
+   sheet runs to the screen bottom and the action bar sits on the edge,
+   clear of the iPhone home indicator. (The :has(> .amc-nav-dock) rule above
+   never matched: the dock stays in the DOM, only display:none.) */
+@media(max-width:1023px){
+  .amc-app.has-sheet>.amc-spot-sheet{bottom:0}
+  .amc-app.has-sheet .amc-sheet-actions{padding-bottom:calc(env(safe-area-inset-bottom) + 10px)!important}
+}
