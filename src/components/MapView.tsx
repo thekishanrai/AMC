@@ -4,7 +4,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState, type PointerEven
 import type mapboxgl from "mapbox-gl";
 import { supabase } from "@/lib/supabase";
 import { driveFrom, getGpsLocation, getIpLocation, haversineKm, isInMaharashtra } from "@/lib/geo";
-import { loadSavedLocation, saveLocation, type QuickCity } from "@/lib/locationOverride";
+import { clearSavedLocation, loadSavedLocation, saveLocation, type QuickCity } from "@/lib/locationOverride";
 import type { Category, Spot } from "@/types";
 import TopBar from "./TopBar";
 import CategoryChips, { DEFAULT_DISTANCE_KM } from "./CategoryChips";
@@ -315,14 +315,10 @@ export default function MapView({ initialSpot = null, initialSpots = [] }: { ini
   // A previously confirmed location (quick-pick or GPS) always wins — read
   // synchronously into initial state above, so IP geolocation only ever
   // runs as the first-visit best guess, never re-consulted afterward.
-  useEffect(() => {
-    if (initialSpot || loadSavedLocation()) return;
-
-    let cancelled = false;
+  function guessFromIp(isCancelled: () => boolean) {
     const timeout = new Promise<null>((resolve) => setTimeout(() => resolve(null), 1500));
-
     Promise.race([getIpLocation(), timeout]).then((loc) => {
-      if (cancelled || userChoseLocation.current) return;
+      if (isCancelled() || userChoseLocation.current) return;
       if (loc) {
         setOrigin([loc.lng, loc.lat]);
         if (!mapRef.current) bootView.current = { center: [loc.lng, loc.lat], zoom: 11 };
@@ -332,11 +328,32 @@ export default function MapView({ initialSpot = null, initialSpots = [] }: { ini
         setLocationLabel("Mumbai-Pune");
       }
     });
-
+  }
+  useEffect(() => {
+    if (initialSpot || loadSavedLocation()) return;
+    let cancelled = false;
+    guessFromIp(() => cancelled);
     return () => {
       cancelled = true;
     };
   }, [initialSpot]);
+
+  // "Clear location": forget the saved choice and start over like a first
+  // visit (IP best guess, Mumbai-Pune fallback); the picker nudge returns.
+  function handleClearLocation() {
+    clearSavedLocation();
+    userChoseLocation.current = false;
+    setLocationConfirmed(false);
+    setUserPin(null);
+    userMarkerRef.current?.remove();
+    userMarkerRef.current = null;
+    setGpsError(null);
+    setGate(null);
+    setOrigin(CENTER);
+    setLocationLabel("Mumbai-Pune");
+    setPickerOpen(false);
+    guessFromIp(() => false);
+  }
 
   // init map once we know where to open it
   useEffect(() => {
@@ -596,5 +613,5 @@ useEffect(()=>{const mq=window.matchMedia(DESKTOP_QUERY);const sync=()=>{if(mq.m
       panel.style.transition=`transform ${ms}ms ${ease}`;const token=++snapToken.current;setTimeout(()=>{if(snapToken.current===token)panel.style.removeProperty("transition")},ms+80);
       commitDrawer(next,{ms,ease});panel.classList.remove("is-dragging");panel.style.removeProperty("transform")}drawerStartY.current=null;drawerGesture.current="pending";drawerHeld.current=false}
   useEffect(()=>{const panel=panelRef.current;if(!panel)return;const onTouchMove=(e:TouchEvent)=>{if(drawerGesture.current==="drawer"){if(e.cancelable)e.preventDefault();return}if(drawerGesture.current!=="pending"||drawerStartY.current===null||!panel.classList.contains("state-full"))return;const t=e.touches[0],dy=t.clientY-drawerStartY.current,dx=t.clientX-drawerStartX.current;if(dy>0&&dy>=Math.abs(dx)&&(drawerScrollRef.current?.scrollTop??0)<=0&&e.cancelable){e.preventDefault();drawerHeld.current=true}};panel.addEventListener("touchmove",onTouchMove,{passive:false});return()=>panel.removeEventListener("touchmove",onTouchMove)},[section])
-  return <div className={`amc-app section-${section}${selectedSpot?" has-sheet":""}`}><div className="amc-map" ref={containerRef}/>{section==="explore"&&!mapReady&&!mapFailed&&<div className="amc-map-loading amc-static-map"/>}{section==="explore"&&mapFailed&&<div className="amc-map-failed" role="status">Map unavailable, list still works</div>}<TopBar showSearch={section==="explore"} search={search} onSearch={value=>{setSearch(value);setCardLimit(12)}}/>{section==="explore"&&<>{gate&&!gateDismissed&&<GeoGateBanner city={gate.city} onDismiss={()=>setGateDismissed(true)} onNotify={()=>setGateDismissed(true)}/>}<div className="amc-location-float"><LocationPicker label={locationLabel} confirmed={locationConfirmed} onPick={handlePickCity} onUseGps={handleNearMe} locatingGps={locating} open={pickerOpen} onOpenChange={o=>{setPickerOpen(o);if(!o)setGpsError(null)}} error={gpsError}/></div><aside ref={panelRef} className={`amc-discovery-panel state-${drawerState}`} onClickCapture={e=>{if(drawerMoved.current){e.preventDefault();e.stopPropagation();drawerMoved.current=false}}} onPointerDown={onDrawerPointerDown} onPointerMove={onDrawerPointerMove} onPointerUp={onDrawerPointerEnd} onPointerCancel={onDrawerPointerEnd}><button className="amc-drawer-grab" data-drawer-handle aria-label={`Drawer ${drawerState}. Drag to resize`} onClick={()=>{if(!drawerMoved.current)nextDrawer(drawerState==="full"?-1:1);drawerMoved.current=false}}><span/></button><div className="amc-drawer-scroll" ref={drawerScrollRef} onScroll={e=>{if(!window.matchMedia(DESKTOP_QUERY).matches&&drawerState!=="full")return;const el=e.currentTarget;if(el.scrollTop+el.clientHeight>=el.scrollHeight-700)setCardLimit(limit=>Math.min(visible.length,limit+12))}}><div className="amc-panel-title"><div><p>NEAR {locationLabel.toUpperCase()}</p><PanelHeading asH2={!!selectedSpot}>{loadStatus==="error"&&spots.length===0?"Monday won this round.":spots.length===0?"Finding places":visible.length+" places to forget Monday exists"}</PanelHeading></div></div><div className="amc-drawer-body" inert={drawerState==="min"}><CategoryChips active={activeCategory} onChange={value=>morphList(()=>{setActiveCategory(value);setCardLimit(12)})} maxDistanceKm={maxDistanceKm} onDistanceChange={value=>morphList(()=>{setMaxDistanceKm(value);setCardLimit(12)})}/><div className="amc-results-label"><span><strong>PLACES BETTER THAN MONDAY</strong><small>within {maxDistanceKm} km</small></span></div><div className="amc-card-list" ref={railRef} onScroll={e=>{const rail=e.currentTarget;scheduleRailSettle();if(rail.scrollLeft+rail.clientWidth>=rail.scrollWidth-460)setCardLimit(limit=>Math.min(visible.length,limit+12))}}>{loadStatus==="error"&&spots.length===0?<div className="amc-load-error" role="alert"><p>Couldn&apos;t load places.</p><button type="button" onClick={()=>loadSpots()}>Retry</button></div>:spots.length===0?[0,1].map(i=><div key={i} className="amc-spot-card amc-card-skeleton"><i/><b/><span/></div>):visible.slice(0,cardLimit).map(s=><SpotCard key={s.id} spot={s} distance={cardInfo.get(s.id)?.distance??0} drive={cardInfo.get(s.id)?.drive} slug={slugById.get(s.id)} onFocus={onCardFocus} onTouchIntent={onCardIntent} onOpen={onCardOpen}/>)}</div></div></div></aside></>}{section==="surprise"&&<SurpriseMe spots={spots} origin={origin} originName={originName} onOpen={openSpot}/>} {section==="account"&&<AccountView spots={spots} saved={savedIds} distanceFor={distanceFor} slugFor={s=>slugById.get(s.id)} onFocus={focusSpot} onOpen={openSpot}/>} {selectedSpot&&<SpotSheet spot={selectedSpot} onClose={closeSheet} shareUrl={`${typeof window!=="undefined"?window.location.origin:"https://antimondayclub.com"}/${selectedSpot.category}/${slugById.get(selectedSpot.id)??""}`}/>} <BottomNav active={section} onChange={changeSection}/></div>;
+  return <div className={`amc-app section-${section}${selectedSpot?" has-sheet":""}`}><div className="amc-map" ref={containerRef}/>{section==="explore"&&!mapReady&&!mapFailed&&<div className="amc-map-loading amc-static-map"/>}{section==="explore"&&mapFailed&&<div className="amc-map-failed" role="status">Map unavailable, list still works</div>}<TopBar showSearch={section==="explore"} search={search} onSearch={value=>{setSearch(value);setCardLimit(12)}}/>{section==="explore"&&<>{gate&&!gateDismissed&&<GeoGateBanner city={gate.city} onDismiss={()=>setGateDismissed(true)} onNotify={()=>setGateDismissed(true)}/>}<div className="amc-location-float"><LocationPicker label={locationLabel} confirmed={locationConfirmed} onPick={handlePickCity} onUseGps={handleNearMe} onClear={handleClearLocation} locatingGps={locating} open={pickerOpen} onOpenChange={o=>{setPickerOpen(o);if(!o)setGpsError(null)}} error={gpsError}/></div><aside ref={panelRef} className={`amc-discovery-panel state-${drawerState}`} onClickCapture={e=>{if(drawerMoved.current){e.preventDefault();e.stopPropagation();drawerMoved.current=false}}} onPointerDown={onDrawerPointerDown} onPointerMove={onDrawerPointerMove} onPointerUp={onDrawerPointerEnd} onPointerCancel={onDrawerPointerEnd}><button className="amc-drawer-grab" data-drawer-handle aria-label={`Drawer ${drawerState}. Drag to resize`} onClick={()=>{if(!drawerMoved.current)nextDrawer(drawerState==="full"?-1:1);drawerMoved.current=false}}><span/></button><div className="amc-drawer-scroll" ref={drawerScrollRef} onScroll={e=>{if(!window.matchMedia(DESKTOP_QUERY).matches&&drawerState!=="full")return;const el=e.currentTarget;if(el.scrollTop+el.clientHeight>=el.scrollHeight-700)setCardLimit(limit=>Math.min(visible.length,limit+12))}}><div className="amc-panel-title"><div><p>NEAR {locationLabel.toUpperCase()}</p><PanelHeading asH2={!!selectedSpot}>{loadStatus==="error"&&spots.length===0?"Monday won this round.":spots.length===0?"Finding places":visible.length+" places to forget Monday exists"}</PanelHeading></div></div><div className="amc-drawer-body" inert={drawerState==="min"}><CategoryChips active={activeCategory} onChange={value=>morphList(()=>{setActiveCategory(value);setCardLimit(12)})} maxDistanceKm={maxDistanceKm} onDistanceChange={value=>morphList(()=>{setMaxDistanceKm(value);setCardLimit(12)})}/><div className="amc-results-label"><span><strong>PLACES BETTER THAN MONDAY</strong><small>within {maxDistanceKm} km</small></span></div><div className="amc-card-list" ref={railRef} onScroll={e=>{const rail=e.currentTarget;scheduleRailSettle();if(rail.scrollLeft+rail.clientWidth>=rail.scrollWidth-460)setCardLimit(limit=>Math.min(visible.length,limit+12))}}>{loadStatus==="error"&&spots.length===0?<div className="amc-load-error" role="alert"><p>Couldn&apos;t load places.</p><button type="button" onClick={()=>loadSpots()}>Retry</button></div>:spots.length===0?[0,1].map(i=><div key={i} className="amc-spot-card amc-card-skeleton"><i/><b/><span/></div>):visible.slice(0,cardLimit).map(s=><SpotCard key={s.id} spot={s} distance={cardInfo.get(s.id)?.distance??0} drive={cardInfo.get(s.id)?.drive} slug={slugById.get(s.id)} onFocus={onCardFocus} onTouchIntent={onCardIntent} onOpen={onCardOpen}/>)}</div></div></div></aside></>}{section==="surprise"&&<SurpriseMe spots={spots} origin={origin} originName={originName} onOpen={openSpot}/>} {section==="account"&&<AccountView spots={spots} saved={savedIds} distanceFor={distanceFor} slugFor={s=>slugById.get(s.id)} onFocus={focusSpot} onOpen={openSpot}/>} {selectedSpot&&<SpotSheet spot={selectedSpot} onClose={closeSheet} shareUrl={`${typeof window!=="undefined"?window.location.origin:"https://antimondayclub.com"}/${selectedSpot.category}/${slugById.get(selectedSpot.id)??""}`}/>} <BottomNav active={section} onChange={changeSection}/></div>;
 }

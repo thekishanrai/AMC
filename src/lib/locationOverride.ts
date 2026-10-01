@@ -75,6 +75,17 @@ export function saveLocation(loc: SavedLocation) {
   }).catch(() => {});
 }
 
+// Forget the confirmed location (both stores), so the next visit starts from
+// the IP best guess again.
+export function clearSavedLocation() {
+  try {
+    window.localStorage.removeItem(KEY);
+  } catch {
+    // non-fatal
+  }
+  document.cookie = `${COOKIE_NAME}=; Max-Age=0; path=/; SameSite=Lax`;
+}
+
 export interface QuickCity {
   name: string;
   lat: number;
