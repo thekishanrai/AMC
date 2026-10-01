@@ -611,3 +611,13 @@ button,a,[role="button"]{touch-action:manipulation;-webkit-tap-highlight-color:t
 .amc-bottom-nav.is-sliding button.is-active,.amc-bottom-nav.is-sliding button.is-active:before{background:transparent!important;border-color:transparent!important}
 /* Inline-block (not inline) so the min heading can glide and resize. */
 .state-min .amc-panel-title p,.state-min .amc-panel-title :is(h1,h2){display:inline-block}
+/* Part-by-part card morph: the card's own shell is hidden and a stretched
+   .amc-morph-shell stands in; parts may travel outside the card and rail. */
+.amc-spot-card.is-morphing{background:transparent!important;border-color:transparent!important;box-shadow:none!important;overflow:visible!important;isolation:isolate}
+.amc-morph-shell{position:absolute;z-index:-1;box-sizing:border-box;pointer-events:none}
+.amc-card-list.is-morphing{overflow:visible!important}
+.amc-discovery-panel.state-full .amc-spot-card.is-morphing .amc-card-photo{border-radius:17px 0 0 17px;overflow:hidden}
+.amc-discovery-panel:not(.state-full) .amc-spot-card.is-morphing .amc-card-photo{border-radius:17px 17px 0 0;overflow:hidden}
+.amc-morph-photo{position:absolute!important;z-index:0;min-height:0!important;margin:0;overflow:hidden;pointer-events:none}
+.amc-spot-card.is-morphing .amc-card-copy{position:relative;z-index:1}
+.amc-spot-card.is-morphing .amc-save-round{z-index:2}
