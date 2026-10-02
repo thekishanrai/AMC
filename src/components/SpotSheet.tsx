@@ -57,13 +57,18 @@ export default function SpotSheet({
   const Icon = meta.icon;
   // Heroes come only from properly sourced spot_photos (Supabase Storage).
   // Scraped social links are never shown; photoSrc drops them.
-  const photos = (spot.photos?.filter(Boolean) ?? [])
-    .map((src) => photoSrc(src))
-    .filter((src): src is string => !!src);
+  // Each photo keeps its own credit (CC BY / BY-SA need one per image).
+  const photos = (spot.photos ?? [])
+    .map((src, i) => ({ src: photoSrc(src), credit: spot.credits?.[i] ?? (i === 0 ? spot.credit : null) ?? null }))
+    .filter((p): p is { src: string; credit: string | null } => !!p.src);
   // Swipe down (from the top of the sheet) to close.
   const drag = useRef<{ y: number; t: number; dy: number; raf: number } | null>(null);
   const [failedPhotos, setFailedPhotos] = useState<Set<string>>(() => new Set());
-  const visiblePhotos = photos.filter((src) => !failedPhotos.has(src));
+  const visiblePhotos = photos.filter((p) => !failedPhotos.has(p.src));
+  const [activePhoto, setActivePhoto] = useState(0);
+  const [photoSpotId, setPhotoSpotId] = useState(spot.id);
+  if (photoSpotId !== spot.id) { setPhotoSpotId(spot.id); setActivePhoto(0); }
+  const activeCredit = visiblePhotos[Math.min(activePhoto, visiblePhotos.length - 1)]?.credit;
   const highlights = spot.highlights?.filter(Boolean) ?? [];
   const thingsToCarry = spot.things_to_carry?.filter(Boolean) ?? [];
   const faqs = spot.faqs?.filter((f) => f.question && f.answer) ?? [];
@@ -87,13 +92,17 @@ export default function SpotSheet({
         {/* Hero photo strip, falls back to a black-outline icon panel when there are no photos yet */}
         <div className="amc-sheet-hero relative">
           {visiblePhotos.length > 0 ? (
-            <div className="amc-sheet-gallery flex snap-x snap-mandatory gap-0 overflow-x-auto rounded-t-[20px]">
-              {visiblePhotos.map((src, i) => (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img key={src + i} src={src} alt={`${spot.name} photo ${i + 1}`} className="amc-sheet-photo" onError={() => setFailedPhotos((current) => new Set(current).add(src))} />
-              ))}
-              {spot.credit && <small className="amc-photo-credit">{spot.credit}</small>}
-            </div>
+            <>
+              <div key={spot.id} className="amc-sheet-gallery flex snap-x snap-mandatory gap-0 overflow-x-auto rounded-t-[20px]"
+                onScroll={(e) => { const el = e.currentTarget; setActivePhoto(Math.round(el.scrollLeft / Math.max(1, el.clientWidth))); }}>
+                {visiblePhotos.map(({ src }, i) => (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img key={src + i} src={src} alt={`${spot.name} photo ${i + 1}`} loading={i === 0 ? "eager" : "lazy"} className="amc-sheet-photo" onError={() => setFailedPhotos((current) => new Set(current).add(src))} />
+                ))}
+              </div>
+              {activeCredit && <small className="amc-photo-credit">{activeCredit}</small>}
+              {visiblePhotos.length > 1 && <small className="amc-photo-count">{Math.min(activePhoto, visiblePhotos.length - 1) + 1}/{visiblePhotos.length}</small>}
+            </>
           ) : (
             <div className="amc-sheet-photo-fallback is-compact" aria-hidden="true">
               <span><Icon size={24} stroke={2} /></span>
