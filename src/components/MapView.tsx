@@ -168,7 +168,8 @@ export default function MapView({ initialSpot = null, initialSpots = [] }: { ini
       try {
         const { data, error } = await supabase.from("spots").select("*").eq("id", id).single();
         if (error || !data) return null;
-        const full = { ...(data as Spot), photos: spotsRef.current.find((x) => x.id === id)?.photos ?? null, credit: spotsRef.current.find((x) => x.id === id)?.credit ?? null } as Spot;
+        const summary = spotsRef.current.find((x) => x.id === id);
+        const full = { ...(data as Spot), photos: summary?.photos ?? null, credit: summary?.credit ?? null, credits: summary?.credits ?? null } as Spot;
         detailCache.current.set(id, full);
         return full;
       } catch { return null; } finally { detailPending.current.delete(id); }

@@ -141,7 +141,7 @@ export default async function SpotPage({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
         />
       )}
-      <MapView initialSpot={{ ...spot, photos: cover?.photos ?? null, credit: cover?.credit ?? null }} initialSpots={summaries} />
+      <MapView initialSpot={{ ...spot, photos: cover?.photos ?? null, credit: cover?.credit ?? null, credits: cover?.credits ?? null }} initialSpots={summaries} />
     </main>
   );
 }

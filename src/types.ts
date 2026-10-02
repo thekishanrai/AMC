@@ -33,4 +33,6 @@ export interface Spot {
   status: string;
   // Visible credit for the cover photo (from spot_photos), when there is one.
   credit?: string | null;
+  // One credit per entry in photos, same order.
+  credits?: string[] | null;
 }
