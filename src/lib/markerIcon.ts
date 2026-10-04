@@ -1,6 +1,10 @@
 import type { Category } from "@/types";
 
 const PATHS: Record<Category, string> = {
+  "bike-ride-trail": "M5 14a4 4 0 1 0 0 8 4 4 0 0 0 0-8 M19 14a4 4 0 1 0 0 8 4 4 0 0 0 0-8 M5 18h7l4-8h3 M9 10h6l4 8 M12 18l-3-8 M7 7h4",
+  dam: "M3 6h18 M5 6v11 M10 6v11 M15 6v11 M20 6v11 M2 19c2-2 3 2 5 0s3 2 5 0 3 2 5 0 3 2 5 0",
+  "sunset-point": "M3 18h18 M5 15a7 7 0 0 1 14 0 M12 3v3 M4 7l2 2 M20 7l-2 2",
+  "view-point": "M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12Z M12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6",
   trek: "M3 19h18L14 6l-3 5-2-2Z",
   waterfall: "M12 3c2.5 3 3.5 5.2 3.5 7.2a3.5 3.5 0 1 1-7 0C8.5 8.2 9.5 6 12 3Z M9 15c0 2.2 1.3 4 3 4s3-1.8 3-4",
   camping: "M12 4 3 19h18L12 4Z M12 4 6 19 M12 4l6 15",

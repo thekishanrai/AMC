@@ -31,6 +31,10 @@ const CATEGORY_LABEL_SINGULAR: Record<Category, string> = {
   camping: "Campsite",
   adventure: "Adventure",
   activity: "Activity",
+  "sunset-point": "Sunset point",
+  "view-point": "View point",
+  dam: "Dam",
+  "bike-ride-trail": "Bike ride trail",
 };
 
 function pageTitle(spot: Spot): string {
