@@ -1,4 +1,4 @@
-export type Category = "trek" | "waterfall" | "camping" | "adventure" | "activity";
+export type Category = "trek" | "waterfall" | "camping" | "adventure" | "activity" | "sunset-point" | "view-point" | "dam" | "bike-ride-trail";
 
 export interface Faq {
   question: string;
