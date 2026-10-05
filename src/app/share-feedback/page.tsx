@@ -1,4 +1,6 @@
 import UtilityFormPage, { type UtilityFormConfig } from "@/components/UtilityFormPage";
+import type { Metadata } from "next";
+export const metadata: Metadata = { title: "Share Feedback | Anti Monday Club", description: "Tell us what works, what feels confusing, and what would make your next escape easier." };
 const config: UtilityFormConfig = {slug:"share-feedback",number:"02",title:"SHARE FEEDBACK",intro:"Tell us what works, what feels confusing, and what would make your next escape easier.",submitLabel:"SEND FEEDBACK ↗",fields:[
 {name:"surface",label:"WHAT ARE YOU REVIEWING?",type:"choices",required:true,options:[{value:"map",label:"map"},{value:"cards",label:"location cards"},{value:"detail",label:"detail page"},{value:"more",label:"More"}]},
 {name:"feeling",label:"HOW DID IT FEEL?",type:"choices",required:true,options:[{value:"great",label:"great"},{value:"okay",label:"okay"},{value:"frustrating",label:"frustrating"}]},

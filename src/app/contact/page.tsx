@@ -1,4 +1,6 @@
 import UtilityFormPage, { type UtilityFormConfig } from "@/components/UtilityFormPage";
+import type { Metadata } from "next";
+export const metadata: Metadata = { title: "Contact Us | Anti Monday Club", description: "A straight line to the club for partnerships, press, questions and everything else." };
 const config: UtilityFormConfig = {slug:"contact",number:"04",title:"CONTACT US",intro:"A straight line to the club for partnerships, press, questions and everything else.",submitLabel:"SEND MESSAGE ↗",fields:[
 {name:"reason",label:"I'M WRITING ABOUT",type:"choices",required:true,options:[{value:"partnership",label:"partnership"},{value:"press",label:"press"},{value:"question",label:"question"},{value:"other",label:"other"}]},
 {name:"name",label:"YOUR NAME",placeholder:"what should we call you?",required:true},

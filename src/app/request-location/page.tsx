@@ -1,4 +1,6 @@
 import UtilityFormPage, { type UtilityFormConfig } from "@/components/UtilityFormPage";
+import type { Metadata } from "next";
+export const metadata: Metadata = { title: "Request a Location | Anti Monday Club", description: "Put a missing escape on our map. Give us enough to find it and check it." };
 const config: UtilityFormConfig = {slug:"request-location",number:"01",title:"REQUEST A LOCATION",intro:"Put a missing escape on our map. Give us enough to find it and check it.",submitLabel:"REQUEST THIS PLACE ↗",fields:[
 {name:"place",label:"PLACE NAME",placeholder:"e.g. a hidden waterfall near Karjat",required:true},
 {name:"map",label:"MAP LINK OR AREA",placeholder:"paste a pin or describe where",required:true},
