@@ -27,26 +27,10 @@ const pressStart2P = Press_Start_2P({
   weight: "400",
 });
 
-const SITE_TITLE = "Anti Monday Club | Bury Monday Somewhere Scenic";
-const SITE_DESCRIPTION =
-  "We pick the spot. You bring the shovel. Offbeat places, hidden spots and weekend escapes Monday will never find.";
-
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: SITE_TITLE,
-  description: SITE_DESCRIPTION,
-  openGraph: {
-    type: "website",
-    url: "/",
-    siteName: "Anti Monday Club",
-    title: SITE_TITLE,
-    description: SITE_DESCRIPTION,
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: SITE_TITLE,
-    description: SITE_DESCRIPTION,
-  },
+  title: "Anti Monday Club",
+  openGraph: { siteName: "Anti Monday Club" },
 };
 
 export const viewport: Viewport = {
