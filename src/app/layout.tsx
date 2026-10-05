@@ -36,6 +36,9 @@ export const metadata: Metadata = {
   title: SITE_TITLE,
   description: SITE_DESCRIPTION,
   openGraph: {
+    type: "website",
+    url: "/",
+    siteName: "Anti Monday Club",
     title: SITE_TITLE,
     description: SITE_DESCRIPTION,
   },
