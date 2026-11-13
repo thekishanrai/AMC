@@ -7,7 +7,7 @@ import { photoSrc } from "@/lib/photo";
 export const alt = "Anti Monday Club spot";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
-export const revalidate = 3600;
+export const revalidate = 604800; // 7 days; only the admin edits spots, and /api/revalidate forces an instant refresh after an edit
 
 const ORANGE = "#FF5800";
 

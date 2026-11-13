@@ -51,9 +51,9 @@ async function fetchSpotSummaries(): Promise<Spot[]> {
   });
 }
 
-// Cached for an hour and tagged "spots": POST /api/revalidate after editing
+// Cached for 7 days and tagged "spots": POST /api/revalidate after editing
 // spots or spot_photos in Supabase to show changes immediately.
-export const getSpotSummaries = unstable_cache(fetchSpotSummaries, ["spot-summaries-v1"], { revalidate: 3600, tags: ["spots"] });
+export const getSpotSummaries = unstable_cache(fetchSpotSummaries, ["spot-summaries-v1"], { revalidate: 604800, tags: ["spots"] });
 
 export async function getSpotSummariesSafe(): Promise<Spot[]> {
   try { return await getSpotSummaries(); } catch { return []; }

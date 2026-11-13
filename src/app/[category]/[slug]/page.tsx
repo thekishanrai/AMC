@@ -6,9 +6,10 @@ import { SITE_URL } from "@/lib/site";
 import MapView from "@/components/MapView";
 import type { Category, Spot } from "@/types";
 
-// Spots added after a build render on first visit, then cache for an hour.
+// Spots added after a build render on first visit, then cache for 7 days;
+// only the admin edits spots, and /api/revalidate forces an instant refresh after an edit.
 export const dynamicParams = true;
-export const revalidate = 3600;
+export const revalidate = 604800;
 
 async function findSpot(slug: string): Promise<Spot | undefined> {
   const spots = await getPublishedSpots();

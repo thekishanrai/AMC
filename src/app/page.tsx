@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import MapViewLoader from "@/components/MapViewLoader";
 import { getSpotSummariesSafe } from "@/lib/spots";
 
-export const revalidate = 3600;
+export const revalidate = 604800; // 7 days; only the admin edits spots, and /api/revalidate forces an instant refresh after an edit
 
 const TITLE = "Anti Monday Club | Bury Monday Somewhere Scenic";
 const DESCRIPTION =
