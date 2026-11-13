@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Bitcount_Grid_Single, Jersey_25, Share_Tech, Press_Start_2P } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
+import Script from "next/script";
 import "./globals.css";
 import { SITE_URL } from "@/lib/site";
 
@@ -46,7 +47,17 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${bitcountGridSingle.variable} ${jersey25.variable} ${shareTech.variable} ${pressStart2P.variable} h-full antialiased`}
     >
-      <head><link rel="preconnect" href="https://api.mapbox.com" crossOrigin="anonymous"/><link rel="dns-prefetch" href="https://api.mapbox.com"/></head><body className="min-h-full flex flex-col overflow-hidden">{children}<Analytics /></body>
+      <head><link rel="preconnect" href="https://api.mapbox.com" crossOrigin="anonymous"/><link rel="dns-prefetch" href="https://api.mapbox.com"/></head><body className="min-h-full flex flex-col overflow-hidden">
+        <Script
+          src="https://www.googletagmanager.com/gtm.js?id=GTM-TB7FQ6ZL"
+          strategy="afterInteractive"
+        />
+        <Script id="gtm-init" strategy="afterInteractive">
+          {`window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());`}
+        </Script>
+        {children}<Analytics /></body>
     </html>
   );
 }

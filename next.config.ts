@@ -9,11 +9,11 @@ const CSP_HEADER = "Content-Security-Policy-Report-Only";
 
 const csp = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline'", // move to nonces later via proxy.ts
+  "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com", // move to nonces later via proxy.ts
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob: https://*.supabase.co https://api.mapbox.com",
+  "img-src 'self' data: blob: https://*.supabase.co https://api.mapbox.com https://www.googletagmanager.com",
   "font-src 'self'",
-  "connect-src 'self' https://*.supabase.co https://api.mapbox.com https://*.tiles.mapbox.com https://events.mapbox.com",
+  "connect-src 'self' https://*.supabase.co https://api.mapbox.com https://*.tiles.mapbox.com https://events.mapbox.com https://www.googletagmanager.com https://*.google-analytics.com https://*.analytics.google.com",
   "worker-src blob:",
   "child-src blob:", // Mapbox runs its workers from blob: URLs
   "frame-ancestors 'none'",
