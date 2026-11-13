@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Bitcount_Grid_Single, Jersey_25, Share_Tech, Press_Start_2P } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import { SITE_URL } from "@/lib/site";
 
@@ -45,7 +46,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${bitcountGridSingle.variable} ${jersey25.variable} ${shareTech.variable} ${pressStart2P.variable} h-full antialiased`}
     >
-      <head><link rel="preconnect" href="https://api.mapbox.com" crossOrigin="anonymous"/><link rel="dns-prefetch" href="https://api.mapbox.com"/></head><body className="min-h-full flex flex-col overflow-hidden">{children}</body>
+      <head><link rel="preconnect" href="https://api.mapbox.com" crossOrigin="anonymous"/><link rel="dns-prefetch" href="https://api.mapbox.com"/></head><body className="min-h-full flex flex-col overflow-hidden">{children}<Analytics /></body>
     </html>
   );
 }
